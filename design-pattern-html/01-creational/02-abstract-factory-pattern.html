@@ -1,0 +1,2762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深入浅出抽象工厂模式 (Abstract Factory Pattern) : 基于 AI Agent 基础设施产品族架构教学</title>
+    <!-- 引入 Google 优质无衬线字体与代码字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Highlight.js 用于代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- 引入 Mermaid.js 并在加载失败时提供降级保障 -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            /* 浅色系配色体系：柔和、雅致、科技感与高可读性 */
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-highlight: #f8faff;
+            
+            --border-light: #e2e8f0;
+            --border-focus: #cbd5e1;
+            --border-accent: #6366f1;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --text-muted: #94a3b8;
+
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --primary-hover: #4338ca;
+            --primary-glow: rgba(79, 70, 229, 0.12);
+
+            --accent-emerald: #059669;
+            --accent-emerald-light: #ecfdf5;
+            --accent-amber: #d97706;
+            --accent-amber-light: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-light: #fff1f2;
+            --accent-cyan: #0891b2;
+            --accent-cyan-light: #ecfeff;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #f5f3ff;
+
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+            --shadow-float: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+            --radius-outer: 24px;
+            --radius-inner: 16px;
+            --radius-pill: 9999px;
+
+            --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.75;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 顶部阅读进度指示条 */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #06b6d4);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 悬浮导航栏 */
+        .nav-header {
+            position: sticky;
+            top: 16px;
+            z-index: 900;
+            max-width: 1200px;
+            margin: 16px auto 0;
+            padding: 0 20px;
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: var(--radius-pill);
+            padding: 10px 24px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-brand-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* 页面核心容器 */
+        .layout-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 48px 24px 120px;
+        }
+
+        /* 专有名词高亮小组件与说明气泡 */
+        .term-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            cursor: help;
+            position: relative;
+            vertical-align: baseline;
+            transition: all 0.2s;
+        }
+
+        .term-badge:hover {
+            background: #e0e7ff;
+            transform: translateY(-1px);
+        }
+
+        .term-badge::after {
+            content: attr(data-definition);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: normal;
+            width: max-content;
+            max-width: 290px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-float);
+            z-index: 100;
+        }
+
+        .term-badge:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Hero 区域 */
+        .hero-section {
+            text-align: center;
+            padding: 40px 0 60px;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .hero-pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 20px;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 820px;
+            margin: 0 auto 36px;
+            font-weight: 400;
+            line-height: 1.85;
+        }
+
+        /* 学习路线图导航卡片 */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 56px;
+        }
+
+        .roadmap-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 16px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-subtle);
+            position: relative;
+            overflow: hidden;
+            display: block;
+        }
+
+        .roadmap-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-card);
+        }
+
+        .roadmap-card .step-num {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .roadmap-card .step-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 统一的 Double-Bezel 质感容器 (双层边框卡片) */
+        .bezel-card {
+            background: rgba(241, 245, 249, 0.6);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 10px;
+            margin-bottom: 48px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .bezel-core {
+            background: var(--bg-surface);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: var(--radius-inner);
+            padding: 36px 36px 40px;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+        }
+
+        /* 章节标题 */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .section-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            font-size: 15.5px;
+            margin-bottom: 24px;
+        }
+
+        /* 引用/警示/提示盒子 (Callout) */
+        .callout {
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin: 20px 0;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 14.5px;
+            line-height: 1.7;
+        }
+
+        .callout-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        .callout-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .callout-info {
+            background: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            color: #312e81;
+        }
+        .callout-info h4 { color: var(--primary); }
+
+        .callout-warning {
+            background: var(--accent-amber-light);
+            border: 1px solid rgba(217, 119, 6, 0.25);
+            color: #78350f;
+        }
+        .callout-warning h4 { color: #b45309; }
+
+        .callout-success {
+            background: var(--accent-emerald-light);
+            border: 1px solid rgba(5, 150, 105, 0.25);
+            color: #064e3b;
+        }
+        .callout-success h4 { color: #047857; }
+
+        /* 代码块与对比展示 */
+        .code-container {
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            margin: 20px 0;
+            background: #fafbfc;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #f1f5f9;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 12.5px;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-copy-btn {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 11.5px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            transition: all 0.2s;
+        }
+
+        .code-copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Python 语法高亮独立配色增强 */
+        .hljs {
+            background: #f8fafc !important;
+            color: #1e293b !important;
+            font-family: var(--font-mono) !important;
+            font-size: 13px !important;
+            line-height: 1.65 !important;
+            padding: 16px 20px !important;
+            display: block;
+            overflow-x: auto;
+        }
+        .hljs-comment, .hljs-quote { color: #64748b !important; font-style: italic !important; }
+        .hljs-keyword, .hljs-selector-tag, .hljs-subst { color: #7c3aed !important; font-weight: 700 !important; }
+        .hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable { color: #d97706 !important; }
+        .hljs-string, .hljs-doctag { color: #059669 !important; font-weight: 500 !important; }
+        .hljs-title, .hljs-title.class_, .hljs-title.function_ { color: #2563eb !important; font-weight: 700 !important; }
+        .hljs-meta, .hljs-meta .hljs-keyword { color: #dc2626 !important; font-weight: 600 !important; }
+        .hljs-built_in, .hljs-builtin-name { color: #0891b2 !important; font-weight: 600 !important; }
+        .hljs-params { color: #334155 !important; }
+
+        pre code.hljs {
+            padding: 18px 20px;
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            line-height: 1.65;
+            background: #fafbfc;
+        }
+
+        /* 产品族二维矩阵表格 */
+        .matrix-table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            background: white;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .matrix-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 角色拆解 5 格 Bento 布局 */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 768px) {
+            .role-grid { grid-template-columns: 1fr; }
+        }
+
+        .role-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 22px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .role-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .role-type {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .type-product-abs { background: #e0e7ff; color: #3730a3; }
+        .type-product-con { background: #dcfce7; color: #166534; }
+        .type-factory-abs { background: #fef3c7; color: #92400e; }
+        .type-factory-con { background: #fee2e2; color: #991b1b; }
+        .type-client { background: #f3e8ff; color: #6b21a8; }
+
+        .role-card h3 {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .role-card p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .role-card .agent-analogy {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-light);
+            font-size: 12.5px;
+            color: var(--text-tertiary);
+        }
+
+        /* UML 语法符号速查表 (UML Legend Table) */
+        .uml-legend-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13.5px;
+        }
+
+        .uml-legend-table th, .uml-legend-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border: 1px solid var(--border-light);
+        }
+
+        .uml-legend-table th {
+            background: #f1f5f9;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .uml-legend-table tr:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        .uml-symbol-demo {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+            background: #f8fafc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-light);
+            display: inline-block;
+        }
+
+        /* 渲染容器 (双视图支持) */
+        .diagram-viewport {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 24px;
+            margin: 20px 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.01);
+            overflow-x: auto;
+        }
+
+        .diagram-toggle-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .diagram-title-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .diagram-view-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diagram-view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .svg-canvas {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* 互动测验组件 (Quiz Widget) */
+        .quiz-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .quiz-question {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quiz-option-btn:hover {
+            border-color: var(--border-accent);
+            background: var(--primary-light);
+        }
+
+        .quiz-option-btn.correct {
+            background: var(--accent-emerald-light);
+            border-color: var(--accent-emerald);
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .quiz-option-btn.wrong {
+            background: var(--accent-rose-light);
+            border-color: var(--accent-rose);
+            color: #9f1239;
+        }
+
+        .quiz-feedback {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            display: none;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 60px 0 30px;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            border-top: 1px solid var(--border-light);
+            margin-top: 80px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 28px; }
+            .hero-subtitle { font-size: 15px; }
+            .bezel-core { padding: 20px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部滚动阅读进度条 -->
+    <div id="progress-bar"></div>
+
+    <!-- 悬浮导航栏 -->
+    <header class="nav-header">
+        <div class="nav-inner">
+            <a href="#" class="nav-brand">
+                <span class="nav-brand-badge">GoF</span>
+                <span>设计模式教学 · 抽象工厂</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#section-intro">1. 直觉与痛点</a></li>
+                <li><a href="#section-uml">2. UML 极简解析</a></li>
+                <li><a href="#section-core">3. 模式五要素</a></li>
+                <li><a href="#section-code">4. Agent 架构代码</a></li>
+                <li><a href="#section-principles">5. 深度原则辨析</a></li>
+                <li><a href="#section-quiz">6. 知识巩固测验</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="layout-container">
+
+        <!-- HERO HEADER -->
+        <section class="hero-section">
+            <div class="hero-pill">
+                <span class="hero-pill-dot"></span>
+                <span>面向初学者的现代化架构认知课</span>
+            </div>
+            <h1 class="hero-title">
+                深入浅出：<span class="gradient-text">抽象工厂模式 (Abstract Factory)</span>
+            </h1>
+            <p class="hero-subtitle">
+                告别生硬死记！我们将通过构建现代化的
+                <span class="term-badge" data-definition="AI Agent (人工智能智能体)：具备大语言模型驱动、拥有独立感知、记忆与工具调用能力的自动化任务实体">AI Agent (智能体)</span>
+                基础设施产品族系统（大模型大脑 + 向量记忆存储 + 工具隔离沙箱），手把手带你理解面向对象设计模式的精髓与 UML 建模语言。
+            </p>
+
+            <!-- 学习路径卡片 -->
+            <div class="roadmap-grid">
+                <a href="#section-intro" class="roadmap-card">
+                    <div class="step-num">Step 01</div>
+                    <div class="step-name">为什么需要抽象工厂？从拼装痛点出发</div>
+                </a>
+                <a href="#section-uml" class="roadmap-card">
+                    <div class="step-num">Step 02</div>
+                    <div class="step-name">UML 语法与符号用法全解</div>
+                </a>
+                <a href="#section-core" class="roadmap-card">
+                    <div class="step-num">Step 03</div>
+                    <div class="step-name">抽象工厂的五大核心角色</div>
+                </a>
+                <a href="#section-code" class="roadmap-card">
+                    <div class="step-num">Step 04</div>
+                    <div class="step-name">Agent 生态产品族完整源码</div>
+                </a>
+                <a href="#section-principles" class="roadmap-card">
+                    <div class="step-num">Step 05</div>
+                    <div class="step-name">设计原则与开闭原则倾斜性</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 第 1 节：直觉认知与现实痛点 -->
+        <section id="section-intro" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">01</div>
+                    <h2 class="section-title">直觉认知：从“零件单买”到“品牌生态全家桶”</h2>
+                </div>
+
+                <p class="section-desc">
+                    在软件设计中，任何模式的诞生都不是为了凭空增加复杂度，而是为了解决现实业务演进中的<strong>代码腐化</strong>与<strong>组件混搭冲突</strong>。
+                </p>
+
+                <div class="callout callout-info">
+                    <div class="callout-icon">💡</div>
+                    <div class="callout-content">
+                        <h4>什么是 GoF 设计模式与抽象工厂？</h4>
+                        <p>
+                            <span class="term-badge" data-definition="GoF (Gang of Four，四人帮)：指 Erich Gamma 等四位计算机科学家于 1994 年合著的经典著作《设计模式：可复用面向对象软件的基础》">GoF (Gang of Four)</span> 
+                            总结的<strong>抽象工厂模式 (Abstract Factory Pattern)</strong> 属于<strong>创建型模式 (Creational Pattern)</strong>，用于提供一个创建<strong>一系列相关或相互依赖对象（产品族）</strong>的统一接口，而无需指定它们具体的类。
+                        </p>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 18px; margin: 24px 0 12px; font-weight: 700;">业务场景：Agent 运行环境的基础设施配套需求</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                    一个工业级 Agent 在不同运行环境下，需要一套高度协同的基础设施套件：
+                </p>
+                <ul style="padding-left: 20px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.8;">
+                    <li><strong>大模型大脑 (LLM Engine)</strong>：
+                        <span class="term-badge" data-definition="LLM (Large Language Model，大语言模型)：如 DeepSeek、GPT-4 等具备深度推理与自然语言生成能力的核心模型">LLM</span>
+                        （例如本地 Ollama 离线模型 vs 云端 OpenAI 弹性网关）。
+                    </li>
+                    <li><strong>向量记忆存储 (Memory Store)</strong>：
+                        <span class="term-badge" data-definition="Vector DB (向量数据库)：专门用于存储和检索高维向量的数据库，充当智能体的长期记忆库">向量数据库</span>
+                        （例如本地 SQLite 向量库 vs 云端 Milvus 分布式集群）。
+                    </li>
+                    <li><strong>工具执行沙箱 (Tool Sandbox)</strong>：
+                        <span class="term-badge" data-definition="Sandbox (沙箱环境)：提供安全隔离的代码与命令执行环境，防止未经审查的代码破坏宿主系统">隔离沙箱</span>
+                        （例如本地 Docker 容器 vs 云端毫秒级微虚机 MicroVM）。
+                    </li>
+                </ul>
+
+                <!-- 糟糕的反模式展示 -->
+                <h4 style="font-size: 16px; font-weight: 700; color: var(--accent-rose); margin-top: 24px;">❌ 初学者的朴素写法（反模式：硬编码组件引发生产事故）</h4>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+                    如果直接让调用方在业务代码中随意组装各个组件，会引发灾难性的环境配置错误：
+                </p>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-lang-tag">🐍 Python · 糟糕的随意混搭实现 (Anti-Pattern)</span>
+                        <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+                    </div>
+                    <pre><code class="language-python"># ❌ 错误示范：调用方自由 new 各种组件，导致安全与环境配置完全错乱
+def create_finance_agent():
+    # 灾难事故：金融涉密环境本要求 100% 物理隔离离线运行！
+    # 开发者粗心大意，给本地离线大脑配了需要联网的公网数据库，又配了无隔离的宿主机沙箱：
+    brain = LocalOllamaEngine(model="deepseek-r1-7b")     # 本地离线模型
+    memory = CloudPineconeMemory(api_key="sk-live-xxx")   # ❌ 严重事故：客户隐私数据被传至公有云！
+    sandbox = HostDirectExecSandbox()                     # ❌ 严重漏洞：未容器化隔离，存在远程代码逃逸风险！
+
+    return AgentRuntime(brain=brain, memory=memory, sandbox=sandbox)
+</code></pre>
+                </div>
+
+                <div class="callout callout-warning">
+                    <div class="callout-icon">⚠️</div>
+                    <div class="callout-content">
+                        <h4>这种写法为什么危险？</h4>
+                        <p>
+                            1. <strong>无法保证组件约束一致性</strong>：单个对象的创建容易，但<strong>确保多个相互依赖的组件属于同一环境</strong>极其困难。<br>
+                            2. 违反 <span class="term-badge" data-definition="OCP (Open-Closed Principle，开闭原则)：面向对象设计的基石，即对扩展开放 (Open for extension)，对修改关闭 (Closed for modification)">OCP (开闭原则)</span>：明天新增一种环境（如“边缘端物联网栈”），必须在所有创建逻辑中增加 if-else。<br>
+                            3. 违反 <span class="term-badge" data-definition="SRP (Single Responsibility Principle，单一职责原则)：一个类应该且仅应该有一个引起它变化的原因">SRP (单一职责原则)</span>：业务层既要调度任务，又要理解底层每种数据库和沙箱的繁琐参数。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout callout-success">
+                    <div class="callout-icon">✨</div>
+                    <div class="callout-content">
+                        <h4>抽象工厂模式的核心解法</h4>
+                        <p>
+                            <strong>“提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。”</strong><br>
+                            既然本地安全环境和云端企业环境各自需要一套紧密配合的“产品全家桶”，我们就分别为它们配备具体的生态工厂（<code>LocalSecureStackFactory</code> 与 <code>CloudEnterpriseStackFactory</code>），一揽子生产配套组件！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 产品等级与产品族二维矩阵 -->
+                <h3 style="font-size: 18px; margin: 28px 0 12px; font-weight: 700;">📊 核心概念：产品等级结构 vs 产品族</h3>
+                <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 28%;">
+                                    <span style="color: var(--primary);">纵向：产品等级结构 ↓</span><br>
+                                    <small style="color: var(--text-tertiary);">（同类型产品的不同实现）</small>
+                                </th>
+                                <th style="background: #eef2ff; color: #3730a3;">
+                                    🛡️ 本地涉密安全栈 (Local Stack)<br>
+                                    <small><strong>【横向产品族 1】</strong>：内网安全隔离生态</small>
+                                </th>
+                                <th style="background: #f0fdf4; color: #166534;">
+                                    ☁️ 云端企业高并发栈 (Cloud Stack)<br>
+                                    <small><strong>【横向产品族 2】</strong>：弹性云原生分布式生态</small>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 大模型大脑 (LLMEngine)</strong></td>
+                                <td><code>LocalOllamaEngine</code><br><small style="color:var(--text-tertiary);">离线本地 7B 量化推理模型</small></td>
+                                <td><code>CloudOpenAIEngine</code><br><small style="color:var(--text-tertiary);">全球弹性云端高并发推理网关</small></td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 记忆存储库 (MemoryStore)</strong></td>
+                                <td><code>SqliteVectorMemory</code><br><small style="color:var(--text-tertiary);">本地轻量 SQLite 向量存储</small></td>
+                                <td><code>MilvusClusterMemory</code><br><small style="color:var(--text-tertiary);">十亿级分布式向量数据库集群</small></td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 工具执行沙箱 (ToolSandbox)</strong></td>
+                                <td><code>DockerLocalSandbox</code><br><small style="color:var(--text-tertiary);">本地轻量 Alpine 隔离容器</small></td>
+                                <td><code>RemoteMicroVMSandbox</code><br><small style="color:var(--text-tertiary);">云端毫秒级微虚机 (MicroVM)</small></td>
+                            </tr>
+                            <tr style="background: #fafbfc;">
+                                <td><strong>🏭 负责整套生产的具体工厂</strong></td>
+                                <td><span style="color: #4338ca; font-weight:700;">LocalSecureStackFactory</span></td>
+                                <td><span style="color: #15803d; font-weight:700;">CloudEnterpriseStackFactory</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 2 节：UML 极简入门教学 -->
+        <section id="section-uml" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">02</div>
+                    <h2 class="section-title">UML 极简入门：看懂软件架构图的设计语言</h2>
+                </div>
+
+                <p class="section-desc">
+                    在学习设计模式前，必须掌握工程师通用的交流蓝图：
+                    <span class="term-badge" data-definition="UML (Unified Modeling Language，统一建模语言)：一种用于对软件系统进行可视化、详细描述与构造的标准图示建模语言">UML (统一建模语言)</span>。
+                    我们只需掌握<strong>类图的 3 层结构</strong>与<strong>4 种关键连线</strong>即可！
+                </p>
+
+                <!-- 类图解剖说明图 -->
+                <div style="background: #fafbfc; border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; margin: 20px 0;">
+                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">
+                        📐 1. 类图 (Class Diagram) 的“三段式”矩形框结构
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: center;">
+                        <!-- 示意类图 -->
+                        <div style="border: 2px solid #4f46e5; border-radius: 8px; overflow: hidden; background: white; box-shadow: var(--shadow-subtle);">
+                            <div style="background: #eef2ff; padding: 8px; text-align: center; font-weight: 700; border-bottom: 1px solid #c7d2fe; font-size: 13.5px; color: #3730a3;">
+                                &lt;&lt;interface&gt;&gt;<br>
+                                <em>AgentInfrastructureFactory</em>
+                            </div>
+                            <div style="padding: 8px 10px; border-bottom: 1px solid var(--border-light); font-family: var(--font-mono); font-size: 11.5px; color: var(--text-tertiary);">
+                                (无公共属性 / 纯抽象契约)
+                            </div>
+                            <div style="padding: 8px 10px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); line-height: 1.6;">
+                                + create_llm_engine()* : LLMEngine<br>
+                                + create_memory_store()* : MemoryStore<br>
+                                + create_tool_sandbox()* : ToolSandbox
+                            </div>
+                        </div>
+                        <!-- 文字解释 -->
+                        <div style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                            <p><strong>第一层 (类名区)：</strong>标明名称。若为斜体字或带有 <code>&lt;&lt;interface&gt;&gt;</code>，表示抽象类或接口。</p>
+                            <p><strong>第二层 (属性区)：</strong>格式为 <code>可见性 属性名: 类型</code>。</p>
+                            <p><strong>第三层 (方法区)：</strong>格式为 <code>可见性 方法名(参数列表): 返回值类型</code>。末尾 <code>*</code> 表示抽象方法。</p>
+                            <p style="margin-top: 8px;">
+                                <strong>可见性符号说明：</strong>
+                                <span class="uml-symbol-demo">+</span> Public (公开) &nbsp;|&nbsp;
+                                <span class="uml-symbol-demo">-</span> Private (私有) &nbsp;|&nbsp;
+                                <span class="uml-symbol-demo">#</span> Protected (受保护)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关系连线符号速查表 -->
+                <h3 style="font-size: 16px; font-weight: 700; margin: 28px 0 12px; color: var(--text-primary);">
+                    🔗 2. 抽象工厂模式涉及的核心 UML 关系连线
+                </h3>
+                <table class="uml-legend-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">关系名称</th>
+                            <th style="width: 22%;">UML 符号与线条</th>
+                            <th style="width: 32%;">通俗含义 (语义)</th>
+                            <th style="width: 28%;">在 Agent 案例中的具体体现</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>实现 (Realization)</strong></td>
+                            <td><span class="uml-symbol-demo">╌╌╌╌▷</span><br><small style="color: var(--text-muted);">虚线 + 空心三角形</small></td>
+                            <td>类实现了接口制定的全部规范方法</td>
+                            <td><code>LocalSecureStackFactory</code> 实现了 <code>AgentInfrastructureFactory</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>依赖 (Dependency)</strong></td>
+                            <td><span class="uml-symbol-demo">╌╌╌╌></span><br><small style="color: var(--text-muted);">虚线 + 开放箭头</small></td>
+                            <td>工厂方法在内部实例化并返回了具体产品</td>
+                            <td><code>LocalSecureStackFactory</code> 生产了 <code>LocalOllamaEngine</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>组合/聚合 (Composition)</strong></td>
+                            <td><span class="uml-symbol-demo">──────◆</span><br><small style="color: var(--text-muted);">实线 + 菱形</small></td>
+                            <td>整体包含部分，宿主类持有核心组件的生命周期</td>
+                            <td><code>AgentRuntime</code> 运行时持有了 LLM、Memory 与 Sandbox</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 第 3 节：抽象工厂模式的 5 大核心角色 -->
+        <section id="section-core" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">03</div>
+                    <h2 class="section-title">抽象工厂模式的五大核心角色 (角色拆解)</h2>
+                </div>
+
+                <p class="section-desc">
+                    抽象工厂模式之所以能彻底解决“组件混搭”问题，是因为它将系统拆分为了 5 大角色体系：
+                </p>
+
+                <!-- 五大角色 Bento Grid -->
+                <div class="role-grid">
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-factory-abs">1. 抽象工厂</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Abstract Factory</span>
+                        </div>
+                        <h3>AgentInfrastructureFactory</h3>
+                        <p>声明创建一整套产品族所有产品的方法族（<code>create_llm_engine()</code>、<code>create_memory_store()</code>、<code>create_tool_sandbox()</code>），定义公共标准。</p>
+                        <div class="agent-analogy">🏛️ <strong>比喻：</strong>集团总部的“品牌专卖店建设标准手册”。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-factory-con">2. 具体工厂</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Concrete Factory</span>
+                        </div>
+                        <h3>LocalSecureStackFactory / CloudEnterpriseStackFactory</h3>
+                        <p>实现抽象工厂接口，专门实例化属于当前生态的配套产品（如本地离线三件套或云端高并发三件套），杜绝任何跨环境混搭。</p>
+                        <div class="agent-analogy">🍎 <strong>比喻：</strong>Apple 官方专营旗舰店，专门装配苹果全套原装生态。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-product-abs">3. 抽象产品族</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Abstract Products</span>
+                        </div>
+                        <h3>LLMEngine / MemoryStore / ToolSandbox</h3>
+                        <p>为每一种核心组件定义独立的公共契约接口。一个抽象工厂通常管理多个不同维度的抽象产品等级。</p>
+                        <div class="agent-analogy">📱 <strong>比喻：</strong>“智能手机规范”、“智能手表规范”、“充电器标准”。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-product-con">4. 具体产品</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Concrete Products</span>
+                        </div>
+                        <h3>LocalOllamaEngine / CloudOpenAIEngine ...</h3>
+                        <p>由具体工厂生产出的具体对象，实现对应的抽象产品接口，封装底层的特定技术栈与驱动。</p>
+                        <div class="agent-analogy">🚗 <strong>比喻：</strong>各品牌具体出厂的手机、手表、电脑实物。</div>
+                    </div>
+
+                    <div class="role-card" style="grid-column: span 2;">
+                        <div class="role-header">
+                            <span class="role-type type-client">5. 业务客户端</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Client</span>
+                        </div>
+                        <h3>AgentRuntime (智能体运行时调度器)</h3>
+                        <p>客户端<strong>仅使用由抽象工厂和抽象产品所声明的接口</strong>。在运行时通过构造函数注入一个具体工厂实例，即可一次性得到一整套协同工作的生态系统，实现环境的一键热插拔！</p>
+                        <div class="agent-analogy">👤 <strong>比喻：</strong>终端用户只需指定“我要一套苹果办公套装”，就能直接开工，完全不需要了解内部制造工艺。</div>
+                    </div>
+                </div>
+
+                <!-- 完整 UML 架构图 (双模式渲染：原生精美 SVG + 动态 Mermaid) -->
+                <h3 style="font-size: 18px; margin: 36px 0 12px; font-weight: 700;">📊 5 步分步演练：UML 类图构建教学</h3>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                    点击下方分步按钮，逐步观察抽象工厂如何将三大抽象产品与两大具体工厂连接成稳固的解耦架构：
+                </p>
+
+                <div class="diagram-viewport">
+                    <div class="diagram-toggle-bar">
+                        <div class="diagram-title-tag">
+                            <span>📖 5 步交互式类图构建全景</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="diagram-view-btn active" onclick="switchDiagramView('class', 'svg', this)">🎨 5 步交互式类图</button>
+                            <button class="diagram-view-btn" onclick="switchDiagramView('class', 'mermaid', this)">📊 Mermaid 渲染</button>
+                        </div>
+                    </div>
+
+                    <!-- 5 步横向进度轴 -->
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;" id="class-step-tabs">
+                        <button class="class-step-tab-btn active" onclick="goToClassStep(1)" style="padding: 6px 4px; border: 1.5px solid #4f46e5; border-radius: 8px; background: #eef2ff; color: #4f46e5; font-weight: 700; cursor: pointer; font-size: 11px;">1. 抽象产品族</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(2)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 具体产品群</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(3)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 抽象工厂契约</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(4)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 具体生态工厂</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(5)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 全景闭环解耦</button>
+                    </div>
+
+                    <!-- 分步控制条 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="prev-class-step-btn" onclick="changeClassStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                                ← 上一步
+                            </button>
+                            <button id="next-class-step-btn" onclick="changeClassStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #4f46e5; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);">
+                                下一步：第 2/5 步 →
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            💡 点击按钮逐步观察 UML 类图的构建过程与依赖形成
+                        </div>
+                    </div>
+
+                    <!-- 视图 1：高清交互式分步 SVG 图表 -->
+                    <div id="class-svg-view">
+                        <svg class="svg-canvas" viewBox="0 0 880 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06"/>
+                                </filter>
+                                <marker id="arrow-triangle-hollow" markerWidth="14" markerHeight="14" refX="1" refY="7" orient="auto">
+                                    <polygon points="1 1, 13 7, 1 13" fill="#ffffff" stroke="#64748b" stroke-width="1.8" />
+                                </marker>
+                                <marker id="arrow-open-dependency" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+                                    <path d="M 1 1 L 11 6 L 1 11" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" />
+                                </marker>
+                            </defs>
+
+                            <!-- 左侧上部：抽象工厂 (AgentInfrastructureFactory) -->
+                            <g id="class-node-factory-abs" transform="translate(30, 20)" filter="url(#shadow)" style="opacity: 0.18; transition: opacity 0.3s;">
+                                <rect width="270" height="120" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+                                <path d="M0 0 H270 V34 H0 Z" fill="#fef3c7" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="135" y="16" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">&lt;&lt;interface&gt;&gt;</text>
+                                <text x="135" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#78350f" font-style="italic">AgentInfrastructureFactory</text>
+                                <line x1="0" y1="34" x2="270" y2="34" stroke="#fde68a" stroke-width="1"/>
+                                <text x="14" y="54" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ create_llm_engine()* : LLMEngine</text>
+                                <text x="14" y="74" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ create_memory_store()* : MemoryStore</text>
+                                <text x="14" y="94" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ create_tool_sandbox()* : ToolSandbox</text>
+                            </g>
+
+                            <!-- 右侧上部：三大抽象产品 (LLMEngine / MemoryStore / ToolSandbox) -->
+                            <g id="class-node-products-abs" transform="translate(560, 20)" filter="url(#shadow)" style="opacity: 1; transition: opacity 0.3s;">
+                                <rect width="280" height="120" rx="10" fill="#ffffff" stroke="#6366f1" stroke-width="2.5"/>
+                                <path d="M0 0 H280 V34 H0 Z" fill="#eef2ff" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="140" y="16" text-anchor="middle" font-size="11" font-weight="600" fill="#4f46e5">&lt;&lt;interface / abstract&gt;&gt;</text>
+                                <text x="140" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#312e81" font-style="italic">Abstract Products (三大产品族契约)</text>
+                                <line x1="0" y1="34" x2="280" y2="34" stroke="#c7d2fe" stroke-width="1"/>
+                                <text x="14" y="54" font-family="JetBrains Mono, monospace" font-size="11" fill="#4f46e5" font-weight="600">• LLMEngine : generate_response()*</text>
+                                <text x="14" y="74" font-family="JetBrains Mono, monospace" font-size="11" fill="#4f46e5" font-weight="600">• MemoryStore : save() &amp; search()*</text>
+                                <text x="14" y="94" font-family="JetBrains Mono, monospace" font-size="11" fill="#4f46e5" font-weight="600">• ToolSandbox : run_code()*</text>
+                            </g>
+
+                            <!-- 左侧下部：具体工厂 (LocalSecureStackFactory & CloudEnterpriseStackFactory) -->
+                            <g id="class-node-factory-con" transform="translate(30, 270)" filter="url(#shadow)" style="opacity: 0.18; transition: opacity 0.3s;">
+                                <rect width="270" height="110" rx="10" fill="#ffffff" stroke="#ef4444" stroke-width="1.5"/>
+                                <path d="M0 0 H270 V30 H0 Z" fill="#fee2e2" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="135" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">Concrete Factories (具体工厂)</text>
+                                <line x1="0" y1="30" x2="270" y2="30" stroke="#fecaca" stroke-width="1"/>
+                                <text x="14" y="52" font-family="JetBrains Mono, monospace" font-size="11" fill="#0f172a" font-weight="600">• LocalSecureStackFactory</text>
+                                <text x="14" y="72" font-family="JetBrains Mono, monospace" font-size="11" fill="#0f172a" font-weight="600">• CloudEnterpriseStackFactory</text>
+                                <text x="14" y="92" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" fill="#64748b">分别重写 3 个方法，生产成套组件</text>
+                            </g>
+
+                            <!-- 右侧下部：具体产品群 (Local Products & Cloud Products) -->
+                            <g id="class-node-products-con" transform="translate(560, 270)" filter="url(#shadow)" style="opacity: 0.18; transition: opacity 0.3s;">
+                                <rect width="280" height="110" rx="10" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
+                                <path d="M0 0 H280 V30 H0 Z" fill="#dcfce7" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="140" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">Concrete Products (具体产品群)</text>
+                                <line x1="0" y1="30" x2="280" y2="30" stroke="#bbf7d0" stroke-width="1"/>
+                                <text x="14" y="50" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#059669">• 本地三件套: Ollama, SQLite, Docker</text>
+                                <text x="14" y="70" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#0284c7">• 云端三件套: OpenAI, Milvus, MicroVM</text>
+                                <text x="14" y="90" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" fill="#64748b">各组件针对不同环境封装专属底层驱动</text>
+                            </g>
+
+                            <!-- 连线 1: 具体工厂 实现 抽象工厂 (虚线 + 空心三角形) -->
+                            <g id="class-rel-factory-realize" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="165" y1="270" x2="165" y2="148" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-triangle-hollow)"/>
+                                <rect x="80" y="195" width="170" height="22" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+                                <text x="165" y="210" text-anchor="middle" font-size="10.5" font-weight="600" fill="#475569">实现接口 (Realization)</text>
+                            </g>
+
+                            <!-- 连线 2: 具体产品群 实现 抽象产品族 (虚线 + 空心三角形) -->
+                            <g id="class-rel-product-realize" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="700" y1="270" x2="700" y2="148" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-triangle-hollow)"/>
+                                <rect x="615" y="195" width="170" height="22" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+                                <text x="700" y="210" text-anchor="middle" font-size="10.5" font-weight="600" fill="#475569">实现接口 (Realization)</text>
+                            </g>
+
+                            <!-- 连线 3: 具体工厂 创建依赖 具体产品 (虚线 + 开放箭头) -->
+                            <g id="class-rel-factory-creates" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <path d="M 300 320 L 550 320" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-open-dependency)"/>
+                                <rect x="365" y="302" width="140" height="22" rx="4" fill="#ecfdf5" stroke="#a7f3d0"/>
+                                <text x="435" y="317" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">&lt;&lt;instantiates&gt;&gt;</text>
+                            </g>
+
+                            <!-- 连线 4: 抽象工厂 抽象依赖 抽象产品族 -->
+                            <g id="class-rel-dependency" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="300" y1="80" x2="550" y2="80" stroke="#6366f1" stroke-width="1.8" stroke-dasharray="5,5" marker-end="url(#arrow-open-dependency)" />
+                                <rect x="375" y="65" width="120" height="20" rx="4" fill="#f8fafc" stroke="#e2e8f0" />
+                                <text x="435" y="79" text-anchor="middle" font-size="10" fill="#4f46e5" font-weight="600">&lt;&lt;returns&gt;&gt; Products</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 专属类图分步教学卡片 -->
+                    <div id="class-teaching-card" style="margin-top: 16px; padding: 20px 24px; border-radius: 14px; background: #fafbfc; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="class-teach-badge" style="background: #4f46e5; color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 13px; font-family: monospace;">Step 1 / 5</span>
+                                <h4 id="class-teach-title" style="font-size: 16px; font-weight: 800; color: #0f172a;">第一步：提炼抽象产品族 (Abstract Products)</h4>
+                            </div>
+                            <div id="class-teach-role" style="font-size: 12.5px; color: #4f46e5; font-weight: 700; background: #eef2ff; padding: 3px 10px; border-radius: 6px; border: 1px solid #c7d2fe;">
+                                聚焦：LLMEngine / MemoryStore / ToolSandbox
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; font-size: 13px; line-height: 1.65;">
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #4f46e5; margin-bottom: 4px;">🎯 架构设计要点</div>
+                                <div id="class-teach-concept" style="color: #334155;">面向对象设计第一步：提炼系统不可或缺的支撑组件规范。Agent 必须拥有大脑、记忆与沙箱，因此先在 base/products.py 中定义这三大抽象接口契约。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #059669; margin-bottom: 4px;">📐 UML 图示符号规范</div>
+                                <div id="class-teach-uml" style="color: #334155;">类名区带有 &lt;&lt;interface&gt;&gt; 且类名为斜体；方法名带 * 表示为纯虚/抽象方法，自身不包含具体驱动实现。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #d97706; margin-bottom: 4px;">🗣️ 初学者大白话理解</div>
+                                <div id="class-teach-analogy" style="color: #334155;">抽象产品族是整套生态的顶层标准。如果你不理解，你就理解为：国家统一规定的「智能设备三大标准」：手机协议、手表协议、充电器协议。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 视图 2：标准 Mermaid 源码渲染 -->
+                    <div id="class-mermaid-view" style="display: none;">
+                        <div class="mermaid">
+classDiagram
+    direction TB
+
+    class AgentInfrastructureFactory {
+        &lt;&lt;interface&gt;&gt;
+        +create_llm_engine()* LLMEngine
+        +create_memory_store()* MemoryStore
+        +create_tool_sandbox()* ToolSandbox
+    }
+
+    class LocalSecureStackFactory {
+        +create_llm_engine() LLMEngine
+        +create_memory_store() MemoryStore
+        +create_tool_sandbox() ToolSandbox
+    }
+
+    class CloudEnterpriseStackFactory {
+        +create_llm_engine() LLMEngine
+        +create_memory_store() MemoryStore
+        +create_tool_sandbox() ToolSandbox
+    }
+
+    AgentInfrastructureFactory &lt;|.. LocalSecureStackFactory : Realization
+    AgentInfrastructureFactory &lt;|.. CloudEnterpriseStackFactory : Realization
+
+    class LLMEngine {
+        &lt;&lt;interface&gt;&gt;
+        +generate_response(String prompt)* String
+    }
+    class MemoryStore {
+        &lt;&lt;interface&gt;&gt;
+        +save_context(String session_id, String text)* void
+        +search_relevant(String query)* list
+    }
+    class ToolSandbox {
+        &lt;&lt;interface&gt;&gt;
+        +run_code(String script)* dict
+    }
+
+    LocalSecureStackFactory ..&gt; LLMEngine : Creates
+    LocalSecureStackFactory ..&gt; MemoryStore : Creates
+    LocalSecureStackFactory ..&gt; ToolSandbox : Creates
+
+    CloudEnterpriseStackFactory ..&gt; LLMEngine : Creates
+    CloudEnterpriseStackFactory ..&gt; MemoryStore : Creates
+    CloudEnterpriseStackFactory ..&gt; ToolSandbox : Creates
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout-info" style="margin-top: 20px;">
+                    <div class="callout-icon">🔍</div>
+                    <div class="callout-content">
+                        <h4>如何阅读这张抽象工厂 UML 架构图？</h4>
+                        <p>
+                            <strong>左侧工厂层级</strong>负责统一生产流程，<strong>右侧产品族层级</strong>负责各自的业务实现。
+                            业务客户端（<code>AgentRuntime</code>）只与顶层的 <code>AgentInfrastructureFactory</code> 和三大抽象产品接口打交道，实现了完全解耦与一键换装！
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 4 节：完整高质量代码实战 -->
+        <section id="section-code" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">04</div>
+                    <h2 class="section-title">代码实战：AI Agent 系统的工程文件与开发全过程</h2>
+                </div>
+
+                <p class="section-desc">
+                    在真实生产环境中，代码按照<strong>实际开发时的先后编码顺序 (Step 01 → Step 07)</strong> 分离为规范的模块结构（纯 Python 3.11+ 生产级规范）：
+                </p>
+
+                <!-- 左右分栏 IDE 目录树代码浏览器 -->
+                <div style="border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #ffffff; margin: 20px 0; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);">
+                    <div style="display: grid; grid-template-columns: minmax(240px, 280px) 1fr; min-height: 520px;">
+                        
+                        <!-- 左侧：IDE 目录树侧边栏 (Explorer) -->
+                        <div style="background: #fafbfc; border-right: 1px solid #e2e8f0; padding: 16px 14px; display: flex; flex-direction: column;">
+                            <div>
+                                <!-- 顶部切步小导航 (固定在目录树上方) -->
+                                <div style="padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                                        <span style="font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px;">
+                                            ⚙️ 编码构建流水线
+                                        </span>
+                                        <span style="color: #64748b; font-family: var(--font-mono);">
+                                            第 <strong id="py-step-cur-num" style="color: #4f46e5; font-weight: 800;">1</strong> / 7 步
+                                        </span>
+                                    </div>
+
+                                    <!-- 极简进度条指示器 -->
+                                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+                                        <div id="py-step-progress-bar" style="width: 14.28%; height: 100%; background: #4f46e5; border-radius: 9999px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 6px;">
+                                        <button id="py-prev-btn" onclick="changePyFileStep(-1)" disabled style="flex: 1; padding: 7px 10px; border-radius: 7px; border: 1px solid #cbd5e1; background: #ffffff; color: #cbd5e1; cursor: not-allowed; font-size: 12px; font-weight: 600; transition: all 0.15s ease;">
+                                            ← 上一步
+                                        </button>
+                                        <button id="py-next-btn" onclick="changePyFileStep(1)" style="flex: 1.2; padding: 7px 12px; border-radius: 7px; border: none; background: #4f46e5; color: #ffffff; cursor: pointer; font-size: 12px; font-weight: 700; box-shadow: 0 2px 5px rgba(79, 70, 229, 0.25); transition: all 0.15s ease;">
+                                            下一步 →
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-left: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span>📁</span>
+                                        <span>agent_infrastructure</span>
+                                    </div>
+                                    <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">7 files</span>
+                                </div>
+
+                                <!-- 目录树节点 -->
+                                <div style="display: flex; flex-direction: column; gap: 3px;" id="py-tree-container">
+                                    <!-- 1. base 目录 -->
+                                    <div>
+                                        <div onclick="toggleHtmlFolder('base')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span id="folder-icon-base">📂</span>
+                                                <span>base/</span>
+                                            </div>
+                                            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">抽象契约层</span>
+                                        </div>
+                                        <div id="folder-content-base" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                            <div class="py-tree-file active" onclick="switchPyFile(0, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: #eef2ff; border-left: 3px solid #4f46e5; color: #312e81; font-size: 12px; font-weight: 700; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">products.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #4f46e5; color: white; font-family: var(--font-mono); font-weight: 800;">Step 01</span>
+                                            </div>
+                                            <div class="py-tree-file" onclick="switchPyFile(1, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">factory.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 02</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. products 目录 -->
+                                    <div style="margin-top: 3px;">
+                                        <div onclick="toggleHtmlFolder('products')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span id="folder-icon-products">📂</span>
+                                                <span>products/</span>
+                                            </div>
+                                            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">具体产品族层</span>
+                                        </div>
+                                        <div id="folder-content-products" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                            <div class="py-tree-file" onclick="switchPyFile(2, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">local_products.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 03</span>
+                                            </div>
+                                            <div class="py-tree-file" onclick="switchPyFile(3, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">cloud_products.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 04</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. factories 目录 -->
+                                    <div style="margin-top: 3px;">
+                                        <div onclick="toggleHtmlFolder('factories')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span id="folder-icon-factories">📂</span>
+                                                <span>factories/</span>
+                                            </div>
+                                            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">具体工厂层</span>
+                                        </div>
+                                        <div id="folder-content-factories" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                            <div class="py-tree-file" onclick="switchPyFile(4, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">local_factory.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 05</span>
+                                            </div>
+                                            <div class="py-tree-file" onclick="switchPyFile(5, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>📄</span>
+                                                    <span class="py-file-name">cloud_factory.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 06</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. runtime 目录 -->
+                                    <div style="margin-top: 3px;">
+                                        <div onclick="toggleHtmlFolder('runtime')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span id="folder-icon-runtime">📂</span>
+                                                <span>runtime/</span>
+                                            </div>
+                                            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">客户端调度</span>
+                                        </div>
+                                        <div id="folder-content-runtime" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                            <div class="py-tree-file" onclick="switchPyFile(6, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span>🚀</span>
+                                                    <span class="py-file-name">main.py</span>
+                                                </div>
+                                                <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 07</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：代码编辑器 + 讲解横幅 + 终端 -->
+                        <div style="display: flex; flex-direction: column; background: #ffffff;">
+                            <!-- 面包屑与顶部操作栏 -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 12.5px; font-family: var(--font-mono);">
+                                <div style="display: flex; align-items: center; gap: 6px; color: #475569;">
+                                    <span id="py-breadcrumb-path">agent_infrastructure / base / <strong>products.py</strong></span>
+                                </div>
+                                <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+                            </div>
+
+                            <!-- 文件开发顺序讲解横幅 (带左侧品牌主色强调竖条) -->
+                            <div id="py-file-banner" style="padding: 14px 18px; background: #fafbfc; border-bottom: 1px solid #e2e8f0; border-left: 4px solid #4f46e5;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                                    <span id="py-file-badge" style="background: #4f46e5; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; font-family: monospace;">Step 01</span>
+                                    <h4 id="py-file-title" style="font-size: 14.5px; font-weight: 800; color: #0f172a; margin: 0;">定义抽象产品族契约</h4>
+                                    <span id="py-file-role" style="font-size: 11.5px; color: #4f46e5; background: #eef2ff; padding: 2px 8px; border-radius: 9999px; font-weight: 600; border: 1px solid #c7d2fe;">抽象产品 (Abstract Products)</span>
+                                </div>
+                                <p id="py-file-reason" style="font-size: 12.5px; color: #475569; margin: 0; line-height: 1.6;">
+                                    【开发第一步】：在 base/products.py 中定义 Agent 必须具备的「大模型大脑」、「向量记忆库」、「隔离沙箱」三大抽象基类接口。
+                                </p>
+                            </div>
+
+                            <!-- 代码高亮视口 -->
+                            <div style="flex: 1; overflow-x: auto; background: #fafbfc;">
+                                <pre style="margin: 0;"><code id="py-file-code-block" class="language-python hljs" style="margin: 0; padding: 18px 22px;"></code></pre>
+                            </div>
+
+                            <!-- 底部终端控制台 -->
+                            <div style="background: #0f172a; border-top: 1px solid #1e293b; padding: 14px 18px; color: #f8fafc; font-family: var(--font-mono); font-size: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                        <span style="font-size: 11.5px; color: #94a3b8; margin-left: 6px; font-weight: 600;">TERMINAL / 运行验证</span>
+                                    </div>
+                                    <button onclick="runHtmlTerminal()" style="display: inline-flex; align-items: center; gap: 6px; background: #4f46e5; color: #ffffff; border: none; border-radius: 6px; padding: 4px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);">
+                                        <span>▶ 点击运行 python runtime/main.py</span>
+                                    </button>
+                                </div>
+                                <div id="html-terminal-logs" style="color: #64748b; font-style: italic; line-height: 1.65; max-height: 140px; overflow-y: auto;">
+                                    # 点击右上角「点击运行 python runtime/main.py」按钮，观察抽象工厂在不同生态环境下的完整控制台输出...
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 运行期时序图 (Sequence Diagram) 教学 (双视图支持) -->
+                <h3 style="font-size: 18px; margin: 36px 0 12px; font-weight: 700;">⏱️ 动态运行期时序图 (UML Sequence Diagram)</h3>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                    时序图展示的是抽象工厂在时间轴上如何为客户端<strong>按需装配整套产品族并协同完成任务</strong>：
+                </p>
+
+                <div class="diagram-viewport">
+                    <div class="diagram-toggle-bar">
+                        <div class="diagram-title-tag">
+                            <span>📖 7 步分步时序图：抽象工厂装配与执行流水线</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="diagram-view-btn active" onclick="switchDiagramView('seq', 'svg', this)">🎨 7 步交互式矢量图</button>
+                            <button class="diagram-view-btn" onclick="switchDiagramView('seq', 'mermaid', this)">📊 Mermaid 渲染</button>
+                        </div>
+                    </div>
+
+                    <!-- 7 步顶部横向按钮栏 -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px;" id="seq-step-tabs">
+                        <button class="seq-step-tab-btn active" onclick="goToStep(1)" style="padding: 6px; border: 1.5px solid #4f46e5; border-radius: 8px; background: #eef2ff; color: #4f46e5; font-weight: 700; cursor: pointer; font-size: 11px;">1. 依赖注入</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(2)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 生产大脑</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(3)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 生产记忆库</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(4)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 生产沙箱</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(5)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 检索上下文</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(6)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">6. 大脑推理</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(7)" style="padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">7. 沙箱闭环</button>
+                    </div>
+
+                    <!-- 教学分步控制条 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="prev-step-btn" onclick="changeStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                                ← 上一步
+                            </button>
+                            <button id="next-step-btn" onclick="changeStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #4f46e5; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);">
+                                下一步：第 2/7 步 →
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            💡 点击「下一步」或按键盘左右方向键进行时序图单步讲解
+                        </div>
+                    </div>
+
+                    <!-- 时序图 SVG 矢量视图 -->
+                    <div id="seq-svg-view">
+                        <svg class="svg-canvas" viewBox="0 0 860 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="seq-arrow-solid" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                    <polygon points="0 1, 9 5, 0 9" fill="#4f46e5" />
+                                </marker>
+                                <marker id="seq-arrow-dash" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                    <polygon points="0 1, 9 5, 0 9" fill="#64748b" />
+                                </marker>
+                            </defs>
+
+                            <!-- 对象头 1: Client / Runtime -->
+                            <rect x="30" y="16" width="160" height="38" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+                            <text x="110" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Client / AgentRuntime</text>
+                            <line x1="110" y1="54" x2="110" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                            <!-- 对象头 2: ConcreteFactory -->
+                            <rect x="250" y="16" width="170" height="38" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="335" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">LocalSecureStackFactory</text>
+                            <line x1="335" y1="54" x2="335" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                            <!-- 对象头 3: LLMEngine -->
+                            <rect x="470" y="16" width="110" height="38" rx="8" fill="#dcfce7" stroke="#10b981" stroke-width="1.5"/>
+                            <text x="525" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">LocalOllama</text>
+                            <line x1="525" y1="54" x2="525" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                            <!-- 对象头 4: MemoryStore -->
+                            <rect x="610" y="16" width="110" height="38" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+                            <text x="665" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#3730a3">SqliteMemory</text>
+                            <line x1="665" y1="54" x2="665" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                            <!-- 对象头 5: ToolSandbox -->
+                            <rect x="745" y="16" width="105" height="38" rx="8" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
+                            <text x="797" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7490">DockerSandbox</text>
+                            <line x1="797" y1="54" x2="797" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                            <!-- 消息 1: 注入与请求大脑 -->
+                            <g id="seq-msg-1" class="seq-msg-group" style="transition: opacity 0.3s;">
+                                <line x1="110" y1="75" x2="330" y2="75" stroke="#4f46e5" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="150" y="58" width="140" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                                <text x="220" y="72" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">1. create_llm_engine()</text>
+                            </g>
+
+                            <!-- 消息 2: 工厂实例化并返回大脑 -->
+                            <g id="seq-msg-2" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="335" y1="115" x2="520" y2="115" stroke="#059669" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="365" y="98" width="130" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                                <text x="430" y="112" text-anchor="middle" font-size="10.5" font-weight="700" fill="#059669">2. new LocalOllama()</text>
+                            </g>
+
+                            <!-- 消息 3: 生产记忆库 -->
+                            <g id="seq-msg-3" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="110" y1="155" x2="330" y2="155" stroke="#4f46e5" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <line x1="335" y1="175" x2="660" y2="175" stroke="#6366f1" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="150" y="138" width="150" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                                <text x="225" y="152" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">3. create_memory_store()</text>
+                            </g>
+
+                            <!-- 消息 4: 生产沙箱 -->
+                            <g id="seq-msg-4" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="110" y1="210" x2="330" y2="210" stroke="#4f46e5" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <line x1="335" y1="230" x2="792" y2="230" stroke="#0891b2" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="150" y="193" width="150" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                                <text x="225" y="207" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4f46e5">4. create_tool_sandbox()</text>
+                            </g>
+
+                            <!-- 消息 5: 业务检索记忆 -->
+                            <g id="seq-msg-5" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="110" y1="270" x2="660" y2="270" stroke="#6366f1" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="330" y="253" width="170" height="20" rx="4" fill="#e0e7ff" stroke="#6366f1"/>
+                                <text x="415" y="267" text-anchor="middle" font-size="10.5" font-weight="700" fill="#3730a3">5. search_relevant("任务目标")</text>
+                            </g>
+
+                            <!-- 消息 6: 大脑推理决策 -->
+                            <g id="seq-msg-6" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="110" y1="310" x2="520" y2="310" stroke="#059669" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="260" y="293" width="170" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                                <text x="345" y="307" text-anchor="middle" font-size="10.5" font-weight="700" fill="#065f46">6. generate_response(prompt)</text>
+                            </g>
+
+                            <!-- 消息 7: 工具安全沙箱执行 -->
+                            <g id="seq-msg-7" class="seq-msg-group" style="opacity: 0.25; transition: opacity 0.3s;">
+                                <line x1="110" y1="350" x2="792" y2="350" stroke="#0891b2" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                                <rect x="390" y="333" width="160" height="20" rx="4" fill="#ecfeff" stroke="#0891b2"/>
+                                <text x="470" y="347" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0e7490">7. run_code("隔离执行脚本")</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 专属教学分步详解卡片 -->
+                    <div id="seq-teaching-card" style="margin-top: 16px; padding: 18px 22px; border-radius: 12px; background: #fafbfc; border: 1.5px solid #e2e8f0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span id="teach-badge" style="background: #4f46e5; color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; font-family: monospace;">Step 1 / 7</span>
+                                <h4 id="teach-title" style="font-size: 15.5px; font-weight: 800; color: #0f172a;">客户端注入具体工厂并请求大脑</h4>
+                            </div>
+                            <div id="teach-flow" style="font-size: 12px; color: #64748b; font-weight: 600;">AgentRuntime (客户端) → LocalSecureStackFactory (具体工厂)</div>
+                        </div>
+                        <div id="teach-action" style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #334155; margin-bottom: 12px; display: inline-block;">
+                            factory.create_llm_engine()
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 12.5px; line-height: 1.6;">
+                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">🎯 教学要点</div>
+                                <div id="teach-point" style="color: #334155;">客户端持有抽象工厂 AgentInfrastructureFactory 引用，调用统一的大脑生成契约。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #059669; margin-bottom: 2px;">🔍 底层机制</div>
+                                <div id="teach-mechanism" style="color: #334155;">具体工厂返回配套的 LocalOllamaEngine 实例，与即将创建的本地记忆库和沙箱天然属于同一生态。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #d97706; margin-bottom: 2px;">📐 UML 规范</div>
+                                <div id="teach-uml" style="color: #334155;">实线箭头 (->>)：代表同步消息调用，调用方发出指令后阻塞等待工厂返回实例引用。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 时序图 Mermaid 源码渲染 -->
+                    <div id="seq-mermaid-view" style="display: none;">
+                        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Client as Client/Runtime
+    participant Factory as LocalSecureStackFactory
+    participant LLM as LocalOllamaEngine
+    participant Memory as SqliteVectorMemory
+    participant Sandbox as DockerLocalSandbox
+
+    Client-&gt;&gt;Factory: create_llm_engine()
+    Factory-&gt;&gt;LLM: new LocalOllamaEngine()
+    LLM--&gt;&gt;Client: 返回 LLMEngine 实例
+    
+    Client-&gt;&gt;Factory: create_memory_store()
+    Factory-&gt;&gt;Memory: new SqliteVectorMemory()
+    Memory--&gt;&gt;Client: 返回 MemoryStore 实例
+
+    Client-&gt;&gt;Factory: create_tool_sandbox()
+    Factory-&gt;&gt;Sandbox: new DockerLocalSandbox()
+    Sandbox--&gt;&gt;Client: 返回 ToolSandbox 实例
+
+    Client-&gt;&gt;Memory: search_relevant(task)
+    Memory--&gt;&gt;Client: 返回相关历史记忆
+
+    Client-&gt;&gt;LLM: generate_response(prompt)
+    LLM--&gt;&gt;Client: 返回推理决策
+
+    Client-&gt;&gt;Sandbox: run_code(script)
+    Sandbox--&gt;&gt;Client: 返回安全隔离执行结果
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 5 节：设计原则与优缺点深度反思 -->
+        <section id="section-principles" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">05</div>
+                    <h2 class="section-title">深入反思：设计原则与开闭原则的“倾斜性”</h2>
+                </div>
+
+                <p class="section-desc">
+                    没有银弹！一个优秀架构师的标志不仅在于知道怎么用模式，更在于知道<strong>它的适用边界与潜在代价</strong>。
+                </p>
+
+                <!-- SOLID 原则对照表 -->
+                <h3 style="font-size: 16.5px; font-weight: 700; margin-bottom: 14px;">🌟 抽象工厂模式完美践行的三大设计原则：</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px;">
+                    <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-emerald); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                            1. 保证产品族一致性 (Consistency)
+                        </h4>
+                        <p style="font-size: 13px; color: var(--text-secondary);">
+                            确保同属于一个产品族（如本地涉密栈）的大脑、向量库、沙箱成套协同工作，彻底隔绝组件混搭造成的隐私外泄事故。
+                        </p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--primary); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                            2. 单一职责原则 (SRP)
+                        </h4>
+                        <p style="font-size: 13px; color: var(--text-secondary);">
+                            <code>LocalSecureStackFactory</code> 只负责装配本地离线三件套，<code>CloudEnterpriseStackFactory</code> 只负责配置云端集群。创建与业务完全解耦。
+                        </p>
+                    </div>
+
+                    <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-cyan); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                            3. 依赖倒置原则 (DIP)
+                        </h4>
+                        <p style="font-size: 13px; color: var(--text-secondary);">
+                            <span class="term-badge" data-definition="DIP (Dependency Inversion Principle，依赖倒置原则)：高层模块不应该依赖低层模块，二者都应该依赖于抽象；抽象不应该依赖细节，细节应该依赖抽象">DIP (依赖倒置原则)</span>：客户端 <code>AgentRuntime</code> 只依赖抽象基类，真正实现了面向接口编程。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout callout-warning">
+                    <div class="callout-icon">⚖️</div>
+                    <div class="callout-content">
+                        <h4>必须警惕的权衡：开闭原则的“倾斜性” (The Slanted OCP)</h4>
+                        <p>
+                            • <strong>对增加产品族开放 (极易扩展)</strong>：如果我们要新增一个 <code>EdgeIotStackFactory</code>（边缘计算栈），只需编写对应工厂与具体类，现有一行代码不用改。<br>
+                            • <strong>对增加产品等级结构关闭 (代价巨大)</strong>：如果系统决定增加第 4 个核心组件 <code>create_prompt_optimizer()</code>，必须在顶层 <code>AgentInfrastructureFactory</code> 中新增方法，<strong>现有的所有具体工厂全部会报错</strong>，必须全量修改！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 优缺点辩证卡片 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="background: var(--accent-emerald-light); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 12px; padding: 20px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #065f46; margin-bottom: 8px;">✅ 核心优点 (Pros)</h4>
+                        <ul style="font-size: 13.5px; color: #064e3b; padding-left: 18px; line-height: 1.7;">
+                            <li><strong>整套产品族强一致性：</strong>零混淆、零错误拼装风险。</li>
+                            <li><strong>高层业务零耦合：</strong>一键平滑热插拔整个运行环境。</li>
+                            <li><strong>易于测试与切换：</strong>只需传入 Mock 虚拟生态工厂即可完成全套自动化测试。</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--accent-rose-light); border: 1px solid rgba(225, 29, 72, 0.2); border-radius: 12px; padding: 20px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #9f1239; margin-bottom: 8px;">⚠️ 潜在代价 (Cons)</h4>
+                        <ul style="font-size: 13.5px; color: #881337; padding-left: 18px; line-height: 1.7;">
+                            <li><strong>难以支持新种类的产品：</strong>新增产品等级需要级联修改所有工厂接口。</li>
+                            <li><strong>类体系庞大：</strong>产品等级数 × 产品族数 会产生较多的具体实现类。</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 6 节：知识巩固与即学即测 -->
+        <section id="section-quiz" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">06</div>
+                    <h2 class="section-title">知识巩固：3 分钟极速自测</h2>
+                </div>
+
+                <p class="section-desc">
+                    测验你的掌握程度！点击下方选项即可获得即时解析：
+                </p>
+
+                <!-- 测验 1 -->
+                <div class="quiz-card" id="quiz-1">
+                    <div class="quiz-question">
+                        1. 在 UML 类图中，一个具体工厂类（如 LocalSecureStackFactory）实现其抽象工厂接口时，应该使用什么连线？
+                    </div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 0, false)">A. 实线 + 空心三角形 (──────▷ 泛化/继承)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 1, true)">B. 虚线 + 空心三角形 (╌╌▷ 实现接口 Realization)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 2, false)">C. 虚线 + 开放箭头 (╌╌> 依赖 Dependency)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 3, false)">D. 实线 + 菱形箭头 (──◆ 组合 Composition)</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-1"></div>
+                </div>
+
+                <!-- 测验 2 -->
+                <div class="quiz-card" id="quiz-2" style="margin-top: 16px;">
+                    <div class="quiz-question">
+                        2. 所谓“开闭原则的倾斜性”，在抽象工厂模式中具体表现为？
+                    </div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 0, false)">A. 增加新的产品族很困难，增加新的产品种类很容易</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 1, true)">B. 增加新的产品族很容易（符合 OCP），增加新的产品种类很困难（需要改动接口）</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 2, false)">C. 无论增加什么都完全不需要改动任何旧代码</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 3, false)">D. 抽象工厂只能生产 1 个对象，无法扩展</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-2"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 附录：初学者概念大白话速查字典 -->
+        <section id="section-glossary" style="margin-top: 36px;">
+            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04); text-align: left;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">💡</span>
+                        <div>
+                            <h3 style="font-size: 16.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典</h3>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 2px 0 0;">全篇核心概念通俗比喻总览（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 13px;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">🏛️ 抽象工厂模式 (Abstract Factory)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            提供一揽子生产互相关联产品族的工厂接口。<strong>如果你不理解，你就理解为：「品牌生态专营店」</strong>——苹果店一次性卖给你 iPhone + Mac + Watch 全套原装套件。
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">📦 产品族 (Product Family)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            由同一体系生产、相互配合的一整套不同产品（横向）。<strong>如果你不理解，你就理解为：「麦当劳开心乐园套餐」</strong>——汉堡 + 薯条 + 可乐，成套打包。
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🪜 产品等级结构 (Product Hierarchy)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            同一种功能产品的不同派生实现（纵向）。<strong>如果你不理解，你就理解为：「所有品牌的手机」</strong>——iPhone、华为手机、小米手机都属于手机这个等级。
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🧩 抽象基类 / 接口 (ABC / Interface)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            定义规范契约但不包含完整实现。<strong>如果你不理解，你就理解为：「国家强制标准插座图纸」</strong>——规定了插孔尺寸，厂商按图纸生产真插座。
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #dc2626; margin-bottom: 4px;">🔓 开闭原则的倾斜性 (Slanted OCP)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            增加新产品族容易，增加新产品等级困难。<strong>如果你不理解，你就理解为：「专卖店多卖一个品牌很容易，但在所有专营店里硬塞一种新家电很难」</strong>。
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🛡️ 依赖倒置原则 (DIP)</div>
+                        <div style="color: #334155; line-height: 1.55;">
+                            高层模块与底层模块都依赖于抽象。<strong>如果你不理解，你就理解为：「驾驶员只根据方向盘和刹车标准开车」</strong>——不论底层是燃油引擎还是纯电电机，驾驶操作完全一样。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 总结提炼卡片 -->
+        <div style="background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%); border: 1px solid #c7d2fe; border-radius: 16px; padding: 32px; text-align: center; margin-top: 40px;">
+            <h3 style="font-size: 20px; font-weight: 800; color: #1e1b4b; margin-bottom: 12px;">🎉 恭喜完成抽象工厂模式的探索！</h3>
+            <p style="color: #4338ca; max-width: 680px; margin: 0 auto 16px; font-size: 14.5px;">
+                记住核心心法：<strong>“当系统需要一系列相互依赖、成套协作的产品族时，用抽象工厂统一收口创建，杜绝混搭事故，实现环境一键热插拔！”</strong>
+            </p>
+        </div>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>Design Patterns Masterclass · Abstract Factory Pattern in AI Agent Architecture</p>
+        <p style="margin-top: 6px; font-size: 12px;">遵循现代面向对象架构规范 · UML 2.5 标准建模</p>
+    </footer>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 初始化代码高亮
+        hljs.highlightAll();
+
+        // 初始化与渲染 Mermaid
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof mermaid !== 'undefined') {
+                try {
+                    mermaid.initialize({
+                        startOnLoad: false,
+                        theme: 'base',
+                        securityLevel: 'loose',
+                        themeVariables: {
+                            primaryColor: '#eef2ff',
+                            primaryTextColor: '#1e1b4b',
+                            primaryBorderColor: '#6366f1',
+                            lineColor: '#64748b',
+                            secondaryColor: '#fef3c7',
+                            tertiaryColor: '#ecfdf5',
+                            fontFamily: 'Plus Jakarta Sans, Noto Sans SC, sans-serif'
+                        }
+                    });
+                    await mermaid.run({
+                        querySelector: '.mermaid'
+                    });
+                } catch (err) {
+                    console.warn('Mermaid rendering fallback:', err);
+                }
+            }
+        });
+
+        // 图表视图切换 (SVG vs Mermaid)
+        function switchDiagramView(diagramType, viewType, btn) {
+            const viewport = btn.closest('.diagram-viewport');
+            viewport.querySelectorAll('.diagram-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById(`${diagramType}-svg-view`);
+            const mermaidView = document.getElementById(`${diagramType}-mermaid-view`);
+
+            if (viewType === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.run({ querySelector: `#${diagramType}-mermaid-view .mermaid` });
+                }
+            }
+        }
+
+        // 顶部滚动阅读进度条
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            const pb = document.getElementById('progress-bar');
+            if (pb) pb.style.width = scrolled + '%';
+        });
+
+        // 7 步分步时序图教学数据与控制
+        const seqStepsData = [
+            {
+                step: 1,
+                title: '客户端注入具体工厂并请求大脑',
+                flow: 'AgentRuntime (客户端) → LocalSecureStackFactory (具体工厂)',
+                action: 'factory.create_llm_engine()',
+                point: '客户端持有抽象工厂 AgentInfrastructureFactory 引用，调用统一的大脑生成契约。',
+                mechanism: '具体工厂返回配套的 LocalOllamaEngine 实例，与即将创建的本地记忆库和沙箱天然属于同一生态。',
+                uml: '实线箭头 (->>)：代表同步消息调用，调用方发出指令后阻塞等待工厂返回实例引用。'
+            },
+            {
+                step: 2,
+                title: '工厂实例化具体离线大模型',
+                flow: 'LocalSecureStackFactory → LocalOllamaEngine',
+                action: 'new LocalOllamaEngine(model_tag="deepseek-r1:7b")',
+                point: '大模型的量化参数、本地端点均由具体工厂在内部配置完毕，客户端完全无感知。',
+                mechanism: '工厂将实例化的具体产品向上转型为抽象 LLMEngine 交付给客户端。',
+                uml: '创建消息：具体产品对象被构造，生命线上的激活状态开始激活。'
+            },
+            {
+                step: 3,
+                title: '客户端请求并创建配套记忆库',
+                flow: 'AgentRuntime → LocalSecureStackFactory → SqliteVectorMemory',
+                action: 'factory.create_memory_store() -> new SqliteVectorMemory()',
+                point: '根据工厂类型自动匹配本地 SQLite 向量库，绝无误连公网云端数据库的风险。',
+                mechanism: '生产整套产品族的工厂确保了各个零件在物理隔离策略上的一致性。',
+                uml: '依赖返回：工厂构造完记忆库，将 MemoryStore 接口返回给客户端持有。'
+            },
+            {
+                step: 4,
+                title: '客户端请求并创建配套沙箱',
+                flow: 'AgentRuntime → LocalSecureStackFactory → DockerLocalSandbox',
+                action: 'factory.create_tool_sandbox() -> new DockerLocalSandbox()',
+                point: '配套创建轻量 Alpine 隔离容器沙箱，彻底封堵命令逃逸漏洞。',
+                mechanism: '此时客户端已成功收集齐属于本地安全栈的三大核心组件，生态装配完成！',
+                uml: '创建消息：沙箱对象生命线就绪，三大组件全部组合注入到客户端。'
+            },
+            {
+                step: 5,
+                title: '客户端执行任务：检索上下文记忆',
+                flow: 'AgentRuntime → SqliteVectorMemory',
+                action: 'memory.search_relevant("审查 Q3 财务凭证")',
+                point: '客户端开始运行任务流水线，首先从本地向量数据库中检索相关知识片段。',
+                mechanism: '由于是本地 SQLite，检索完全在本地内网闭环，零数据外流。',
+                uml: '业务调用：客户端向 MemoryStore 实例发送检索请求。'
+            },
+            {
+                step: 6,
+                title: '客户端执行任务：大脑推理思考',
+                flow: 'AgentRuntime → LocalOllamaEngine',
+                action: 'llm.generate_response(prompt_with_context)',
+                point: '将检索出的背景注入提示词，由本地离线大模型生成操作方案。',
+                mechanism: '客户端完全基于 LLMEngine 接口与模型交互，未来换成云端模型也无需改代码。',
+                uml: '同步调用：大模型进行深度推理，返回决策结果与生成的工具代码。'
+            },
+            {
+                step: 7,
+                title: '客户端执行任务：工具在沙箱中安全闭环',
+                flow: 'AgentRuntime → DockerLocalSandbox',
+                action: 'sandbox.run_code("import os; print(...)")',
+                point: '智能体生成的代码在隔离容器中执行，确保主机绝对安全，全流程圆满闭环！',
+                mechanism: '整个生态栈的装配与运行自始至终未曾出现任何具体类名的强硬编码。',
+                uml: '最终交付：沙箱回传运行结果，任务成果交付用户。'
+            }
+        ];
+
+        let curStepIdx = 1;
+
+        function goToStep(step) {
+            curStepIdx = step;
+            updateStepView();
+        }
+
+        function changeStep(delta) {
+            curStepIdx = Math.max(1, Math.min(7, curStepIdx + delta));
+            updateStepView();
+        }
+
+        function updateStepView() {
+            const data = seqStepsData[curStepIdx - 1];
+            // 更新顶部 tabs
+            const tabs = document.querySelectorAll('.seq-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curStepIdx) {
+                    tab.style.borderColor = '#4f46e5';
+                    tab.style.background = '#eef2ff';
+                    tab.style.color = '#4f46e5';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新消息连线透明度
+            for (let i = 1; i <= 7; i++) {
+                const msgGroup = document.getElementById(`seq-msg-${i}`);
+                if (msgGroup) {
+                    msgGroup.style.opacity = (i === curStepIdx) ? '1' : '0.22';
+                }
+            }
+
+            // 更新按钮状态
+            document.getElementById('prev-step-btn').disabled = (curStepIdx === 1);
+            document.getElementById('prev-step-btn').style.color = (curStepIdx === 1) ? '#94a3b8' : '#1e293b';
+            document.getElementById('prev-step-btn').style.cursor = (curStepIdx === 1) ? 'not-allowed' : 'pointer';
+
+            const nextBtn = document.getElementById('next-step-btn');
+            if (curStepIdx === 7) {
+                nextBtn.innerText = '重新从第 1 步开始 ↺';
+            } else {
+                nextBtn.innerText = `下一步：第 ${curStepIdx + 1}/7 步 →`;
+            }
+
+            // 更新卡片内容
+            document.getElementById('teach-badge').innerText = `Step ${data.step} / 7`;
+            document.getElementById('teach-title').innerText = data.title;
+            document.getElementById('teach-flow').innerText = data.flow;
+            document.getElementById('teach-action').innerText = data.action;
+            document.getElementById('teach-point').innerText = data.point;
+            document.getElementById('teach-mechanism').innerText = data.mechanism;
+            document.getElementById('teach-uml').innerText = data.uml;
+        }
+
+        // 5 步类图构建分步教学数据与控制
+        const classStepsData = [
+            {
+                step: 1,
+                title: '第一步：提炼抽象产品族 (Abstract Products)',
+                role: '三大产品族契约 (LLMEngine / MemoryStore / ToolSandbox)',
+                activeElements: ['products-abs'],
+                concept: '面向对象设计第一步：提炼系统不可或缺的支撑组件规范。Agent 必须拥有大脑、记忆与沙箱，因此先在 base/products.py 中定义这三大抽象接口契约。',
+                uml: '类名区带有 <<interface>> 且类名为斜体；方法名带 * 表示为纯虚/抽象方法，自身不包含具体驱动实现。',
+                analogy: '抽象产品族是整套生态的顶层标准。如果你不理解，你就理解为：国家统一规定的「智能设备三大标准」：手机协议、手表协议、充电器协议。'
+            },
+            {
+                step: 2,
+                title: '第二步：实现具体产品群 (Concrete Products)',
+                role: '本地三件套 & 云端三件套',
+                activeElements: ['products-abs', 'products-con', 'rel-product-realize'],
+                concept: '根据不同部署环境各自实现具体产品，本地私有栈实现离线三件套（Ollama、SQLite、Docker），云端企业栈实现高并发三件套（OpenAI、Milvus、MicroVM）。',
+                uml: '实现关系 (Realization)：使用带空心三角形的虚线 (╌╌▷) 从具体产品指向抽象产品接口。',
+                analogy: '具体产品是真正出厂的实物设备。如果你不理解，你就理解为：具体各品牌生产出来的手机、手表和电脑。'
+            },
+            {
+                step: 3,
+                title: '第三步：声明抽象工厂契约 (Abstract Factory)',
+                role: '抽象工厂接口 (AgentInfrastructureFactory)',
+                activeElements: ['factory-abs', 'products-abs', 'rel-dependency'],
+                concept: '模式核心转折点！为了避免业务代码分别去 new 各种零散组件，我们声明抽象工厂 AgentInfrastructureFactory，提供能够一揽子生产整个产品族的方法族。',
+                uml: '抽象依赖 (Dependency)：抽象工厂的方法返回值直接指向抽象产品族接口，实现高层规范的依赖绑定。',
+                analogy: '抽象工厂是生态专卖店的标准建设制度。如果你不理解，你就理解为：总公司规定的「品牌专营店手册」——必须同时具备手机、手表、电脑三大展区。'
+            },
+            {
+                step: 4,
+                title: '第四步：扩展具体生态工厂 (Concrete Factories)',
+                role: '本地安全工厂 & 云端企业工厂',
+                activeElements: ['factory-abs', 'factory-con', 'rel-factory-realize'],
+                concept: '针对每一种环境创建专属的具体工厂，重写生产方法，在工厂内部完成成套对象的参数装配，彻底杜绝混搭风险。',
+                uml: '实现接口 (Realization)：使用带空心三角形的虚线 (╌╌▷) 从具体工厂指向抽象工厂接口。',
+                analogy: '具体工厂是具体的品牌专卖店。如果你不理解，你就理解为：Apple 专营店专门卖 Apple 原装套件，华为专营店专门卖华为原装套件。'
+            },
+            {
+                step: 5,
+                title: '第五步：建立创建依赖与全景闭环',
+                role: '全景五大角色闭环 (Full Architecture)',
+                activeElements: ['products-abs', 'products-con', 'factory-abs', 'factory-con', 'rel-product-realize', 'rel-factory-realize', 'rel-factory-creates', 'rel-dependency'],
+                concept: '完整架构大闭环！具体工厂负责实例化属于本生态的产品族 (Creates)，客户端只依赖顶层抽象工厂和抽象产品。新增产品族时完全符合 OCP 开闭原则！',
+                uml: '创建依赖 (Create Dependency)：从具体工厂指向具体产品的虚线开放箭头 (╌╌>)，表示工厂在方法内部 new 出了该产品。',
+                analogy: '全景架构大解耦。如果你不理解，你就理解为：用户只需对店员说“给我来一套苹果生态”，所有组件开箱无缝协作，完美兼容！'
+            }
+        ];
+
+        let curClassStepIdx = 1;
+
+        function goToClassStep(step) {
+            curClassStepIdx = step;
+            updateClassStepView();
+        }
+
+        function changeClassStep(delta) {
+            curClassStepIdx = Math.max(1, Math.min(5, curClassStepIdx + delta));
+            updateClassStepView();
+        }
+
+        function updateClassStepView() {
+            const data = classStepsData[curClassStepIdx - 1];
+
+            // 更新 5 步 tabs
+            const tabs = document.querySelectorAll('.class-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curClassStepIdx) {
+                    tab.style.borderColor = '#4f46e5';
+                    tab.style.background = '#eef2ff';
+                    tab.style.color = '#4f46e5';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新节点与连线透明度
+            const nodeMap = {
+                'products-abs': 'class-node-products-abs',
+                'products-con': 'class-node-products-con',
+                'factory-abs': 'class-node-factory-abs',
+                'factory-con': 'class-node-factory-con',
+                'rel-product-realize': 'class-rel-product-realize',
+                'rel-factory-realize': 'class-rel-factory-realize',
+                'rel-factory-creates': 'class-rel-factory-creates',
+                'rel-dependency': 'class-rel-dependency'
+            };
+
+            for (const [key, domId] of Object.entries(nodeMap)) {
+                const el = document.getElementById(domId);
+                if (el) {
+                    if (data.activeElements.includes(key)) {
+                        el.style.opacity = '1';
+                    } else {
+                        el.style.opacity = key.startsWith('rel-') ? '0.12' : '0.18';
+                    }
+                }
+            }
+
+            // 更新按钮状态
+            document.getElementById('prev-class-step-btn').disabled = (curClassStepIdx === 1);
+            document.getElementById('prev-class-step-btn').style.color = (curClassStepIdx === 1) ? '#94a3b8' : '#1e293b';
+            document.getElementById('prev-class-step-btn').style.cursor = (curClassStepIdx === 1) ? 'not-allowed' : 'pointer';
+
+            const nextBtn = document.getElementById('next-class-step-btn');
+            if (curClassStepIdx === 5) {
+                nextBtn.innerText = '重新从第 1 步开始 ↺';
+            } else {
+                nextBtn.innerText = `下一步：第 ${curClassStepIdx + 1}/5 步 →`;
+            }
+
+            // 更新卡片内容
+            document.getElementById('class-teach-badge').innerText = `Step ${data.step} / 5`;
+            document.getElementById('class-teach-title').innerText = data.title;
+            document.getElementById('class-teach-role').innerText = `聚焦：${data.role}`;
+            document.getElementById('class-teach-concept').innerText = data.concept;
+            document.getElementById('class-teach-uml').innerText = data.uml;
+            document.getElementById('class-teach-analogy').innerText = data.analogy;
+        }
+
+        // 键盘左右方向键支持
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                if (curStepIdx < 7) changeStep(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (curStepIdx > 1) changeStep(-1);
+            }
+        });
+
+        // 复制代码功能
+        function copyCode(btn) {
+            const pre = btn.closest('.code-container') ? btn.closest('.code-container').querySelector('pre code') : document.getElementById('py-file-code-block');
+            if (pre) {
+                navigator.clipboard.writeText(pre.innerText).then(() => {
+                    const orig = btn.innerText;
+                    btn.innerText = '已复制！✓';
+                    btn.style.color = '#059669';
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.style.color = '';
+                    }, 2000);
+                });
+            }
+        }
+
+        // 7 个生产级 Python 文件的分步切换逻辑
+        const pyFilesData = [
+            {
+                step: 'Step 01',
+                title: '定义三大抽象产品契约',
+                path: 'base/products.py',
+                role: '抽象产品 (Abstract Products)',
+                reason: '【开发第一步】：在 base/products.py 中定义 Agent 必须具备的「大模型大脑」、「记忆库」、「执行沙箱」三大抽象基类接口。',
+                code: `"""
+文件路径: base/products.py
+角色定位: 抽象产品族 (Abstract Products)
+职责说明: 规定 Agent 必须的大脑、记忆、沙箱三者的公共接口契约
+"""
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any
+
+
+class LLMEngine(ABC):
+    """【抽象产品 A】：大模型核心推理引擎"""
+    
+    @abstractmethod
+    def generate_response(self, prompt: str) -> str:
+        """根据提示词生成思考与回答"""
+        pass
+
+
+class MemoryStore(ABC):
+    """【抽象产品 B】：记忆与向量检索存储"""
+    
+    @abstractmethod
+    def save_context(self, session_id: str, context: str) -> None:
+        """保存对话历史或上下文"""
+        pass
+
+    @abstractmethod
+    def search_relevant(self, query: str, top_k: int = 3) -> List[str]:
+        """检索最相关的历史记忆片段"""
+        pass
+
+
+class ToolSandbox(ABC):
+    """【抽象产品 C】：代码与指令执行隔离沙箱"""
+    
+    @abstractmethod
+    def run_code(self, script: str) -> Dict[str, Any]:
+        """在隔离环境中安全执行代码"""
+        pass`
+            },
+            {
+                step: 'Step 02',
+                title: '定义抽象工厂接口契约',
+                path: 'base/factory.py',
+                role: '抽象工厂 (Abstract Factory)',
+                reason: '【开发第二步】：在 base/factory.py 中声明能够一揽子生产 Agent 全套产品族的方法族。',
+                code: `"""
+文件路径: base/factory.py
+角色定位: 抽象工厂 (Abstract Factory)
+职责说明: 声明能够一揽子生产 Agent 全套基础设施（产品族）的方法族
+"""
+from abc import ABC, abstractmethod
+from base.products import LLMEngine, MemoryStore, ToolSandbox
+
+
+class AgentInfrastructureFactory(ABC):
+    """
+    【抽象工厂】：任何具体环境工厂（本地/云端/边缘）都必须实现此接口
+    """
+
+    @abstractmethod
+    def create_llm_engine(self) -> LLMEngine:
+        """创建配套的大模型引擎"""
+        pass
+
+    @abstractmethod
+    def create_memory_store(self) -> MemoryStore:
+        """创建配套的记忆存储库"""
+        pass
+
+    @abstractmethod
+    def create_tool_sandbox(self) -> ToolSandbox:
+        """创建配套的安全执行沙箱"""
+        pass`
+            },
+            {
+                step: 'Step 03',
+                title: '实现具体产品：本地安全离线三件套',
+                path: 'products/local_products.py',
+                role: '具体产品 (Concrete Products - 本地产品族)',
+                reason: '【开发第三步】：实现适用于内网物理隔离环境的具体产品（Ollama、SQLite、Docker 沙箱）。',
+                code: `"""
+文件路径: products/local_products.py
+角色定位: 具体产品 (Concrete Products - 本地产品族)
+职责说明: 实现满足内网隔离、低资源消耗的本地组件
+"""
+from typing import List, Dict, Any
+from base.products import LLMEngine, MemoryStore, ToolSandbox
+
+
+class LocalOllamaEngine(LLMEngine):
+    """具体产品 A1：基于本地 Ollama 的离线模型"""
+    
+    def __init__(self, model_tag: str = "deepseek-r1:7b"):
+        self.model_tag = model_tag
+
+    def generate_response(self, prompt: str) -> str:
+        return f"[Local-Ollama({self.model_tag})] 离线思考中... 针对「{prompt}」已生成合规安全应答。"
+
+
+class SqliteVectorMemory(MemoryStore):
+    """具体产品 B1：基于本地 SQLite 文件的嵌入向量存储"""
+    
+    def __init__(self, db_file: str = "agent_local_memory.db"):
+        self.db_file = db_file
+        self._mock_storage: List[str] = []
+
+    def save_context(self, session_id: str, context: str) -> None:
+        self._mock_storage.append(context)
+        print(f"  └─ [Local-SQLite({self.db_file})] 记忆已持久化至本地硬盘 (条数: {len(self._mock_storage)})")
+
+    def search_relevant(self, query: str, top_k: int = 3) -> List[str]:
+        return self._mock_storage[-top_k:] if self._mock_storage else ["(暂无本地历史记忆)"]
+
+
+class DockerLocalSandbox(ToolSandbox):
+    """具体产品 C1：基于本地 Docker 守护进程的容器沙箱"""
+    
+    def __init__(self, container_image: str = "python:3.11-slim"):
+        self.container_image = container_image
+
+    def run_code(self, script: str) -> Dict[str, Any]:
+        return {
+            "status": "success",
+            "runtime": f"DockerContainer[{self.container_image}]",
+            "output": f"本地容器隔离执行成功：>>> {script} -> Result: OK (0 错误)"
+        }`
+            },
+            {
+                step: 'Step 04',
+                title: '实现具体产品：云端企业分布式三件套',
+                path: 'products/cloud_products.py',
+                role: '具体产品 (Concrete Products - 云端产品族)',
+                reason: '【开发第四步】：实现适用于公有云高并发集群环境的具体产品（OpenAI API、Milvus 集群、MicroVM）。',
+                code: `"""
+文件路径: products/cloud_products.py
+角色定位: 具体产品 (Concrete Products - 云端产品族)
+职责说明: 实现满足高并发、分布式、弹性的云端企业级组件
+"""
+from typing import List, Dict, Any
+from base.products import LLMEngine, MemoryStore, ToolSandbox
+
+
+class CloudOpenAIEngine(LLMEngine):
+    """具体产品 A2：云端高算力大模型"""
+    
+    def __init__(self, api_endpoint: str = "https://api.openai.com/v1"):
+        self.api_endpoint = api_endpoint
+
+    def generate_response(self, prompt: str) -> str:
+        return f"[Cloud-OpenAI] 通过全球弹性网关，针对「{prompt}」完成深度推理。"
+
+
+class MilvusClusterMemory(MemoryStore):
+    """具体产品 B2：云端分布式向量数据库集群"""
+    
+    def __init__(self, cluster_uri: str = "https://milvus.internal.cloud:19530"):
+        self.cluster_uri = cluster_uri
+        self._distributed_cache: List[str] = []
+
+    def save_context(self, session_id: str, context: str) -> None:
+        self._distributed_cache.append(context)
+        print(f"  └─ [Cloud-MilvusCluster({self.cluster_uri})] 已同步至分布式向量节点")
+
+    def search_relevant(self, query: str, top_k: int = 3) -> List[str]:
+        return [f"[高精分布式向量匹配结果 Top-{i+1}]" for i in range(min(top_k, 2))]
+
+
+class RemoteMicroVMSandbox(ToolSandbox):
+    """具体产品 C2：云端毫秒级微虚拟机沙箱 (如 Firecracker)"""
+    
+    def __init__(self, pool_region: str = "us-west-2"):
+        self.pool_region = pool_region
+
+    def run_code(self, script: str) -> Dict[str, Any]:
+        return {
+            "status": "success",
+            "runtime": f"CloudMicroVM[{self.pool_region}-ZoneA]",
+            "output": f"云端微虚机毫秒拉起执行：>>> {script} -> Result: 200 OK (0.03s)"
+        }`
+            },
+            {
+                step: 'Step 05',
+                title: '实现具体工厂：本地安全生态工厂',
+                path: 'factories/local_factory.py',
+                role: '具体工厂 (Concrete Factory)',
+                reason: '【开发第五步】：实现专门生产本地三件套的工厂，彻底隔绝组件混搭风险。',
+                code: `"""
+文件路径: factories/local_factory.py
+角色定位: 具体工厂 (Concrete Factory)
+职责说明: 生产整套内网合规的本地安全生态产品族
+"""
+from base.factory import AgentInfrastructureFactory
+from base.products import LLMEngine, MemoryStore, ToolSandbox
+from products.local_products import LocalOllamaEngine, SqliteVectorMemory, DockerLocalSandbox
+
+
+class LocalSecureStackFactory(AgentInfrastructureFactory):
+    """【具体工厂 1】：负责生产全套本地离线生态组件"""
+
+    def create_llm_engine(self) -> LLMEngine:
+        return LocalOllamaEngine(model_tag="deepseek-r1:7b")
+
+    def create_memory_store(self) -> MemoryStore:
+        return SqliteVectorMemory(db_file="secure_agent_vault.db")
+
+    def create_tool_sandbox(self) -> ToolSandbox:
+        return DockerLocalSandbox(container_image="alpine-python:3.11")`
+            },
+            {
+                step: 'Step 06',
+                title: '实现具体工厂：云端企业生态工厂',
+                path: 'factories/cloud_factory.py',
+                role: '具体工厂 (Concrete Factory)',
+                reason: '【开发第六步】：实现专门生产云端高并发分布式三件套的工厂。',
+                code: `"""
+文件路径: factories/cloud_factory.py
+角色定位: 具体工厂 (Concrete Factory)
+职责说明: 生产整套云端弹性分布式企业生态产品族
+"""
+from base.factory import AgentInfrastructureFactory
+from base.products import LLMEngine, MemoryStore, ToolSandbox
+from products.cloud_products import CloudOpenAIEngine, MilvusClusterMemory, RemoteMicroVMSandbox
+
+
+class CloudEnterpriseStackFactory(AgentInfrastructureFactory):
+    """【具体工厂 2】：负责生产全套云端分布式企业生态组件"""
+
+    def create_llm_engine(self) -> LLMEngine:
+        return CloudOpenAIEngine(api_endpoint="https://gateway.cloud-ai.com/v1")
+
+    def create_memory_store(self) -> MemoryStore:
+        return MilvusClusterMemory(cluster_uri="https://milvus-prod.internal:19530")
+
+    def create_tool_sandbox(self) -> ToolSandbox:
+        return RemoteMicroVMSandbox(pool_region="ap-east-1")`
+            },
+            {
+                step: 'Step 07',
+                title: '客户端业务调度中心与一键环境热切换',
+                path: 'runtime/main.py',
+                role: '业务客户端 (Client Entry)',
+                reason: '【开发第七步·最终组装】：客户端 AgentRuntime 只依赖抽象工厂，实现零耦合与一键环境热切换！',
+                code: `"""
+文件路径: runtime/main.py
+角色定位: 业务调度客户端 (Client Orchestrator)
+职责说明: 演示客户端如何面向抽象工厂编程，实现基础设施生态的一键热插拔
+"""
+from base.factory import AgentInfrastructureFactory
+from factories.local_factory import LocalSecureStackFactory
+from factories.cloud_factory import CloudEnterpriseStackFactory
+
+
+class AgentRuntime:
+    """
+    智能体运行时 (Client)
+    
+    【核心思想】：通过构造函数依赖注入抽象工厂，一次性获得一整套无缝协同的产品族！
+    """
+
+    def __init__(self, factory: AgentInfrastructureFactory, agent_name: str):
+        self.agent_name = agent_name
+        
+        # 关键点：客户端直接调用抽象工厂方法，获取成套组件
+        print(f"\\n🚀 [初始化 Agent: {self.agent_name}] 正在装配基础设施...")
+        self.llm = factory.create_llm_engine()
+        self.memory = factory.create_memory_store()
+        self.sandbox = factory.create_tool_sandbox()
+        print(f"✅ 基础设施装配完毕！大脑: {type(self.llm).__name__}, 存储: {type(self.memory).__name__}, 沙箱: {type(self.sandbox).__name__}")
+
+    def execute_mission(self, user_goal: str) -> None:
+        print(f"\\n🎯 [{self.agent_name}] 开始执行任务: 「{user_goal}」")
+        
+        # 1. 检索上下文记忆
+        relevant_memories = self.memory.search_relevant(user_goal)
+        print(f"  ├─ 1. 记忆检索: 查找到 {len(relevant_memories)} 条相关知识")
+        
+        # 2. 调用大模型思考
+        plan_prompt = f"目标: {user_goal} | 参考背景: {relevant_memories}"
+        llm_decision = self.llm.generate_response(plan_prompt)
+        print(f"  ├─ 2. 思考决策: {llm_decision}")
+        
+        # 3. 在安全沙箱中执行工具代码
+        code_to_exec = "import os; print('Calculating mission telemetry...')"
+        sandbox_res = self.sandbox.run_code(code_to_exec)
+        print(f"  ├─ 3. 工具执行: {sandbox_res['output']}")
+        
+        # 4. 回写记忆
+        self.memory.save_context(session_id="session_001", context=f"任务[{user_goal}]已顺利达成。")
+        print(f"  └─ 4. 任务闭环完成！")
+
+
+if __name__ == "__main__":
+    print("🎯 === 多智能体抽象工厂模式生产架构启动 ===")
+
+    # 1. 涉密金融内网 -> 传入本地安全工厂
+    local_factory = LocalSecureStackFactory()
+    airgapped_agent = AgentRuntime(factory=local_factory, agent_name="Financial-Audit-Bot")
+    airgapped_agent.execute_mission("审查 Q3 离线财务凭证与交易流水")
+
+    # 2. 公有云弹性集群 -> 传入云端企业工厂
+    cloud_factory = CloudEnterpriseStackFactory()
+    cloud_agent = AgentRuntime(factory=cloud_factory, agent_name="Global-Web-Researcher")
+    cloud_agent.execute_mission("检索全球 100 家科技媒体最新财报趋势")`
+            }
+        ];
+
+        let curPyFileIdx = 0;
+
+        function toggleHtmlFolder(folderId) {
+            const content = document.getElementById('folder-content-' + folderId);
+            const icon = document.getElementById('folder-icon-' + folderId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.innerText = '📂';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.innerText = '📁';
+            }
+        }
+
+        function changePyFileStep(delta) {
+            const nextIdx = Math.max(0, Math.min(pyFilesData.length - 1, curPyFileIdx + delta));
+            const files = document.querySelectorAll('#py-tree-container .py-tree-file');
+            if (files[nextIdx]) {
+                switchPyFile(nextIdx, files[nextIdx]);
+            }
+        }
+
+        function switchPyFile(idx, el) {
+            curPyFileIdx = idx;
+            const files = document.querySelectorAll('#py-tree-container .py-tree-file');
+            files.forEach((f, i) => {
+                const badge = f.querySelector('.py-step-tag');
+                const isPast = i < idx;
+                if (i === idx) {
+                    f.style.background = '#eef2ff';
+                    f.style.borderLeft = '3px solid #4f46e5';
+                    f.style.color = '#312e81';
+                    f.style.fontWeight = '700';
+                    if (badge) {
+                        badge.style.background = '#4f46e5';
+                        badge.style.color = '#ffffff';
+                        badge.innerText = pyFilesData[i].step;
+                    }
+                } else if (isPast) {
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#334155';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#dcfce7';
+                        badge.style.color = '#166534';
+                        badge.innerText = '✓ ' + pyFilesData[i].step;
+                    }
+                } else {
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#64748b';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#f1f5f9';
+                        badge.style.color = '#64748b';
+                        badge.innerText = pyFilesData[i].step;
+                    }
+                }
+            });
+
+            const item = pyFilesData[idx];
+            document.getElementById('py-file-badge').innerText = item.step;
+            document.getElementById('py-file-title').innerText = item.title;
+            document.getElementById('py-file-role').innerText = item.role;
+            document.getElementById('py-file-reason').innerText = item.reason;
+            document.getElementById('py-breadcrumb-path').innerHTML = `agent_infrastructure / ${item.path.includes('/') ? item.path.split('/')[0] + ' / ' : ''}<strong>${item.path.split('/').pop()}</strong>`;
+            
+            const stepCurNum = document.getElementById('py-step-cur-num');
+            if (stepCurNum) stepCurNum.innerText = (idx + 1);
+
+            const progressBar = document.getElementById('py-step-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${((idx + 1) / pyFilesData.length) * 100}%`;
+            }
+
+            // 更新上一步/下一步按钮
+            const prevBtn = document.getElementById('py-prev-btn');
+            const nextBtn = document.getElementById('py-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.color = (idx === 0) ? '#cbd5e1' : '#334155';
+                prevBtn.style.cursor = (idx === 0) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (idx === pyFilesData.length - 1) {
+                    nextBtn.innerText = '从头重温 ↺';
+                } else {
+                    nextBtn.innerText = `下一步：第 ${idx + 2}/7 步 →`;
+                }
+            }
+
+            const codeEl = document.getElementById('py-file-code-block');
+            delete codeEl.dataset.highlighted;
+            codeEl.className = 'language-python hljs';
+            codeEl.textContent = item.code;
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightElement(codeEl);
+            }
+        }
+
+        function runHtmlTerminal() {
+            const logBox = document.getElementById('html-terminal-logs');
+            logBox.innerHTML = '<div style="color:#38bdf8;">$ python runtime/main.py</div><div style="color:#f8fafc;">🎯 === 多智能体抽象工厂模式生产架构启动 ===</div>';
+            
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">==================================================</div>
+<div style="color:#e2e8f0;">[场景 1：在涉密金融内网环境部署「离线合规 Agent」]</div>
+<div style="color:#38bdf8;">🚀 [初始化 Agent: Financial-Audit-Bot] 正在装配基础设施...</div>
+<div style="color:#cbd5e1;">  └─ 装配大脑: LocalOllamaEngine (deepseek-r1:7b)</div>
+<div style="color:#cbd5e1;">  └─ 装配存储: SqliteVectorMemory (secure_agent_vault.db)</div>
+<div style="color:#cbd5e1;">  └─ 装配沙箱: DockerLocalSandbox (alpine-python:3.11)</div>
+<div style="color:#4ade80;">✅ 基础设施装配完毕！成套组件 100% 物理隔离离线合规！</div>
+<div style="color:#e2e8f0; margin-top:4px;">🎯 [Financial-Audit-Bot] 开始执行任务: 「审查 Q3 离线财务凭证与交易流水」</div>
+<div style="color:#94a3b8;">  ├─ 1. 记忆检索: 查找到 1 条相关知识</div>
+<div style="color:#94a3b8;">  ├─ 2. 思考决策: [Local-Ollama] 离线思考完成，输出合规分析。</div>
+<div style="color:#94a3b8;">  ├─ 3. 工具执行: 本地容器隔离执行成功：>>> Result: OK (0 错误)</div>
+<div style="color:#4ade80;">  └─ 4. 任务闭环完成！</div>
+`;
+            }, 350);
+
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">==================================================</div>
+<div style="color:#e2e8f0;">[场景 2：在公有云弹性集群部署「全网实时 Agent」]</div>
+<div style="color:#38bdf8;">🚀 [初始化 Agent: Global-Web-Researcher] 正在装配基础设施...</div>
+<div style="color:#cbd5e1;">  └─ 装配大脑: CloudOpenAIEngine (gateway.cloud-ai.com)</div>
+<div style="color:#cbd5e1;">  └─ 装配存储: MilvusClusterMemory (milvus-prod.internal:19530)</div>
+<div style="color:#cbd5e1;">  └─ 装配沙箱: RemoteMicroVMSandbox (ap-east-1)</div>
+<div style="color:#4ade80;">✅ 基础设施装配完毕！成套组件弹性高并发就绪！</div>
+<div style="color:#e2e8f0; margin-top:4px;">🎯 [Global-Web-Researcher] 开始执行任务: 「检索全球 100 家科技媒体最新财报趋势」</div>
+<div style="color:#94a3b8;">  ├─ 1. 记忆检索: 查找到 2 条分布式向量知识</div>
+<div style="color:#94a3b8;">  ├─ 2. 思考决策: [Cloud-OpenAI] 全球集群完成深度推理。</div>
+<div style="color:#94a3b8;">  ├─ 3. 工具执行: 云端微虚机毫秒拉起执行：>>> Result: 200 OK (0.03s)</div>
+<div style="color:#4ade80;">  └─ 4. 任务闭环完成！</div>
+<div style="color:#38bdf8; margin-top:6px;">✨ [Execution Completed] 进程退出码 Exit: 0</div>
+`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }, 800);
+        }
+
+        // 测验判断与解析
+        function checkQuiz(quizNum, optionIdx, isCorrect) {
+            const card = document.getElementById(`quiz-${quizNum}`);
+            const feedback = document.getElementById(`feedback-${quizNum}`);
+            const buttons = card.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach((b, idx) => {
+                b.classList.remove('correct', 'wrong');
+                if (idx === optionIdx) {
+                    b.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+            });
+
+            feedback.style.display = 'block';
+            if (isCorrect) {
+                feedback.className = 'quiz-feedback callout-success';
+                feedback.innerHTML = `<strong>🎉 回答正确！</strong> ${quizNum === 1 ? '虚线+空心三角代表实现接口 (Realization)；实线+空心三角才代表类的继承 (Generalization)。' : '这正是抽象工厂的经典代价：增加产品族很容易（写新工厂即可），但增加新的产品种类会导致必须修改抽象基类，并级联修改所有具体工厂。'}`;
+            } else {
+                feedback.className = 'quiz-feedback callout-warning';
+                feedback.innerHTML = `<strong>💡 差点就对啦！</strong> ${quizNum === 1 ? '注意观察：虚线代表非直接实现机制（接口实现），实线才是类与类之间的直接继承。' : '增加产品族很容易，但增加新的产品种类（等级结构）会导致顶层接口改变，从而破坏现有工厂的稳定性。'}`;
+            }
+        }
+
+        // 页面加载默认初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            switchPyFile(0, document.querySelector('.py-tree-file'));
+            updateClassStepView();
+            updateStepView();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+:root {
+  /* 浅色系配色体系：柔和、雅致、科技感与高可读性 */
+  --bg-canvas: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-highlight: #f8faff;
+  
+  --border-light: #e2e8f0;
+  --border-focus: #cbd5e1;
+  --border-accent: #6366f1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --primary-hover: #4338ca;
+  --primary-glow: rgba(79, 70, 229, 0.14);
+
+  --accent-emerald: #059669;
+  --accent-emerald-light: #ecfdf5;
+  --accent-amber: #d97706;
+  --accent-amber-light: #fffbeb;
+  --accent-rose: #e11d48;
+  --accent-rose-light: #fff1f2;
+  --accent-cyan: #0891b2;
+  --accent-cyan-light: #ecfeff;
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  --shadow-float: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+  --radius-outer: 24px;
+  --radius-inner: 16px;
+  --radius-pill: 9999px;
+
+  --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  font-size: 15.5px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* 统一 Double-Bezel 结构 (双层边框嵌套质感) */
+.bezel-card {
+  background: rgba(241, 245, 249, 0.6);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-outer);
+  padding: 10px;
+  margin-bottom: 48px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.bezel-card:hover {
+  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.07);
+}
+
+.bezel-core {
+  background: var(--bg-surface);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius-inner);
+  padding: 36px 36px 40px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+/* 响应式导航 */
+.nav-links-desktop {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 860px) {
+  .nav-links-desktop {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .bezel-core {
+    padding: 22px 18px;
+  }
+  .bezel-card {
+    padding: 6px;
+    margin-bottom: 32px;
+  }
+}
+
+/* 触觉按钮物理反馈与微动效 */
+button, a {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:active, a:active {
+  transform: scale(0.98);
+}
+
+/* 初学者术语初次出现时的灰色通俗备注样式 */
+.term-inline-note {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #64748b;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin: 2px 4px;
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.term-inline-note strong {
+  color: #475569;
+  font-weight: 600;
+}
+
+/* 优雅暗色代码与终端滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
