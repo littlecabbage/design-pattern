@@ -824,6 +824,79 @@
             </div>
         </section>
 
+        <!-- 附录：初学者概念大白话速查字典 (顶部可折叠) -->
+        <section id="section-glossary" style="margin: 24px 0 28px;">
+            <div style="background: #ffffff; border: 1.5px solid #e0e7ff; border-radius: 16px; box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.06); overflow: hidden; transition: all 0.25s ease;">
+                <!-- 可点击折叠栏 Header -->
+                <div onclick="toggleGlossary()" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; cursor: pointer; background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%); user-select: none; transition: background 0.15s;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="font-size: 22px; line-height: 1;">💡</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3 style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典</h3>
+                                <span style="background: #eef2ff; color: #4f46e5; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #c7d2fe;">通俗比喻 · 点击展开/折叠</span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 3px 0 0;">全篇核心概念通俗比喻速查（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="glossary-toggle-text" style="font-size: 12px; font-weight: 700; color: #4f46e5;">展开字典 ▾</span>
+                        <div id="glossary-toggle-btn" style="width: 26px; height: 26px; border-radius: 7px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; transition: transform 0.2s ease;">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 折叠主体内容 -->
+                <div id="glossary-content" style="display: none; padding: 4px 22px 20px; border-top: 1px dashed #e2e8f0; background: #ffffff;">
+                    <div style="height: 12px;"></div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 13px;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">📐 抽象类 (Abstract Class)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                抽象类是包含规范但未完全完工的基类。<strong>如果你不理解，你就理解为：一张盖了公章的「半成品汽车设计图纸」</strong>——规定了车必须有方向盘和刹车，但不能直接当真车开上路。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">🔌 接口 (Interface)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                接口是纯粹的方法协议。<strong>如果你不理解，你就理解为：「墙上的国标五孔插座标准」</strong>——强制规定插头尺寸，不管你后面连的是电视还是电饭煲都能通电。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🚗 具体类 / 具体产品 (Concrete Product)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                具体类是拥有所有零部件的实体。<strong>如果你不理解，你就理解为：「真正出厂能跑的特斯拉真车」</strong>——装配好所有零件，踩油门就能跑。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🎭 多态 (Polymorphism)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                多态是同一调用在不同子类上有不同表现。<strong>如果你不理解，你就理解为：「老师喊一声开始做作业」</strong>——数学课代表掏出稿纸算题，语文课代表开始背诗，指令相同但动作不同。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #dc2626; margin-bottom: 4px;">🔓 开闭原则 (OCP)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                对扩展开放，对修改关闭。<strong>如果你不理解，你就理解为：「智能手机装新 App」</strong>——想要新功能直接下载新应用，绝不需要用螺丝刀拆开手机主板改线路。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🏭 工厂方法模式 (Factory Method)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                把对象的具体创建推迟到子类完成。<strong>如果你不理解，你就理解为：「总公司把制造工序外包给专业代工厂」</strong>——总公司只下达造车指标，由各分厂自己完成零件装配。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 第 1 节：直觉认知与现实痛点 -->
         <section id="section-intro" class="bezel-card">
             <div class="bezel-core">
@@ -1879,65 +1952,6 @@ sequenceDiagram
             </div>
         </section>
 
-        <!-- 附录：初学者概念大白话速查字典 -->
-        <section id="section-glossary" style="margin-top: 36px;">
-            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04); text-align: left;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 20px;">💡</span>
-                        <div>
-                            <h3 style="font-size: 16.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典</h3>
-                            <p style="font-size: 12.5px; color: #64748b; margin: 2px 0 0;">全篇概念通俗比喻总览（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 13px;">
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">📐 抽象类 (Abstract Class)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            抽象类是包含规范但未完全完工的基类。<strong>如果你不理解，你就理解为：一张盖了公章的「半成品汽车设计图纸」</strong>——规定了车必须有方向盘和刹车，但不能直接当真车开上路。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">🔌 接口 (Interface)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            接口是纯粹的方法协议。<strong>如果你不理解，你就理解为：「墙上的国标五孔插座标准」</strong>——强制规定插头尺寸，不管你后面连的是电视还是电饭煲都能通电。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🚗 具体类 / 具体产品 (Concrete Product)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            具体类是拥有所有零部件的实体。<strong>如果你不理解，你就理解为：「真正出厂能跑的特斯拉真车」</strong>——装配好所有零件，踩油门就能跑。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🎭 多态 (Polymorphism)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            多态是同一调用在不同子类上有不同表现。<strong>如果你不理解，你就理解为：「老师喊一声开始做作业」</strong>——数学课代表掏出稿纸算题，语文课代表开始背诗，指令相同但动作不同。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #dc2626; margin-bottom: 4px;">🔓 开闭原则 (OCP)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            对扩展开放，对修改关闭。<strong>如果你不理解，你就理解为：「智能手机装新 App」</strong>——想要新功能直接下载新应用，绝不需要用螺丝刀拆开手机主板改线路。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🏭 工厂方法模式 (Factory Method)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            把对象的具体创建推迟到子类完成。<strong>如果你不理解，你就理解为：「总公司把制造工序外包给专业代工厂」</strong>——总公司只下达造车指标，由各分厂自己完成零件装配。
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- 总结提炼卡片 -->
         <div style="background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%); border: 1px solid #c7d2fe; border-radius: 16px; padding: 32px; text-align: center; margin-top: 40px;">
             <h3 style="font-size: 20px; font-weight: 800; color: #1e1b4b; margin-bottom: 12px;">🎉 恭喜完成工厂方法模式的探索！</h3>
@@ -2714,6 +2728,22 @@ if __name__ == "__main__":
             } else {
                 feedback.className = 'quiz-feedback callout-warning';
                 feedback.innerHTML = `<strong>💡 差点就对啦！</strong> ${quizNum === 1 ? '注意观察：虚线代表非直接实现机制（接口实现），实线才代表继承。' : '简单工厂模式每次新增产品都需要修改工厂内部的 if-else，而工厂方法通过子类扩展避开了对现有源码的修改。'}`;
+            }
+        }
+
+        // 大白话速查字典折叠/展开
+        function toggleGlossary() {
+            const content = document.getElementById('glossary-content');
+            const toggleText = document.getElementById('glossary-toggle-text');
+            const toggleBtn = document.getElementById('glossary-toggle-btn');
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                if (toggleText) toggleText.innerText = '收起字典 ▴';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                if (toggleText) toggleText.innerText = '展开字典 ▾';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(0deg)';
             }
         }
     </script>

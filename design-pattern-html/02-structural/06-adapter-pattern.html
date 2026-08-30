@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深入浅出适配器模式 (Adapter Pattern) —— 基于 AI Agent 智能体系统的架构教学</title>
+    <!-- 引入 Google 优质无衬线字体与代码字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Highlight.js 用于代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+
+    <!-- 引入 Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            /* 浅色系配色体系：科技感、高可读性与优雅质感 */
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-highlight: #f8faff;
+            
+            --border-light: #e2e8f0;
+            --border-focus: #cbd5e1;
+            --border-accent: #0284c7;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --text-muted: #94a3b8;
+
+            --primary: #0284c7;
+            --primary-light: #e0f2fe;
+            --primary-hover: #0369a1;
+            --primary-glow: rgba(2, 132, 199, 0.12);
+
+            --accent-emerald: #059669;
+            --accent-emerald-light: #ecfdf5;
+            --accent-amber: #d97706;
+            --accent-amber-light: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-light: #fff1f2;
+            --accent-indigo: #4f46e5;
+            --accent-indigo-light: #eef2ff;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #f5f3ff;
+
+            --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-elevated: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+
+            --radius-outer: 24px;
+            --radius-inner: 16px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 顶部阅读进度指示条 */
+        #read-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3.5px;
+            background: linear-gradient(90deg, #0284c7, #6366f1, #10b981);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 顶部导航栏 */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 100;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            background: var(--bg-subtle);
+        }
+
+        /* 页面主体主容器 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        /* Hero 头部 */
+        .hero-section {
+            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 48px 36px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-pattern-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            border: 1px solid #bae6fd;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .hero-title span {
+            color: var(--primary);
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 900px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-feature-item {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        /* 工业级 Bezel 经典两层卡片容器 */
+        .bezel-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 8px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .bezel-core {
+            background: var(--bg-canvas);
+            border-radius: var(--radius-inner);
+            padding: 32px 28px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            font-family: var(--font-mono);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .section-desc {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.65;
+        }
+
+        /* 角色卡片 Bento Grid */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .role-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 20px;
+            box-shadow: var(--shadow-subtle);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .role-type {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .type-target { background: #e0f2fe; color: #0369a1; }
+        .type-adaptee { background: #fef3c7; color: #92400e; }
+        .type-adapter { background: #eef2ff; color: #4338ca; }
+        .type-client { background: #ecfdf5; color: #065f46; }
+
+        .role-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .role-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            margin-bottom: 12px;
+        }
+
+        .agent-analogy {
+            background: var(--bg-subtle);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            border-left: 3px solid var(--primary);
+            color: var(--text-secondary);
+        }
+
+        /* 视口与图表控制台 */
+        .diagram-viewport {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .diagram-toggle-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .diagram-title-tag {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .diagram-view-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            background: #ffffff;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diagram-view-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* SVG 样式 */
+        .svg-canvas {
+            width: 100%;
+            height: auto;
+            max-height: 480px;
+            display: block;
+        }
+
+        /* 代码高亮区域容器 */
+        .code-container {
+            border-radius: var(--radius-inner);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            margin: 20px 0;
+            background: #ffffff;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 18px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-light);
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .code-header-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #ffffff;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        pre code {
+            font-family: var(--font-mono) !important;
+            font-size: 13.5px !important;
+            line-height: 1.65 !important;
+            padding: 18px 20px !important;
+            display: block;
+            overflow-x: auto;
+        }
+
+        /* 测验小组件 */
+        .quiz-card {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option-btn {
+            text-align: left;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-light);
+            background: #ffffff;
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option-btn:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+            color: var(--primary);
+        }
+
+        .quiz-option-btn.correct {
+            background: #ecfdf5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+            font-weight: 700;
+        }
+
+        .quiz-option-btn.wrong {
+            background: #fff1f2 !important;
+            border-color: #f43f5e !important;
+            color: #9f1239 !important;
+        }
+
+        .quiz-feedback {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        /* 提示块 */
+        .callout-info { background: #f0f9ff; border-left: 4px solid var(--primary); color: #0369a1; }
+        .callout-warning { background: #fffbeb; border-left: 4px solid var(--accent-amber); color: #92400e; }
+        .callout-success { background: #ecfdf5; border-left: 4px solid var(--accent-emerald); color: #065f46; }
+
+        /* 底部导航 */
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border-light);
+            background: #ffffff;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .footer-nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .hero-section { padding: 32px 20px; }
+            .hero-title { font-size: 24px; }
+            .bezel-core { padding: 20px 16px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部固定阅读进度条 -->
+    <div id="read-progress"></div>
+
+    <!-- 顶部统一导航条 -->
+    <header class="top-navbar">
+        <a href="../../index.html" class="nav-brand">
+            <span>🏛️ GoF 23 架构课件库</span>
+            <span class="brand-badge">AI Agent 场景化</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#section-glossary">📖 大白话字典</a></li>
+            <li><a href="#section-intro">💡 直觉与痛点</a></li>
+            <li><a href="#section-core">📊 5 步 UML 类图</a></li>
+            <li><a href="#section-code">💻 代码实战</a></li>
+            <li><a href="#section-sequence">⏱️ 7 步调用时序</a></li>
+            <li><a href="#section-compare">⚖️ 模式对比</a></li>
+            <li><a href="#section-quiz">🎯 随堂测验</a></li>
+            <li><a href="../../index.html" style="color: var(--primary); font-weight: 700;">🏠 返回主站</a></li>
+        </ul>
+    </header>
+
+    <!-- 主容器 -->
+    <main class="main-container">
+
+        <!-- Hero 头部介绍 -->
+        <section class="hero-section">
+            <div class="hero-pattern-tag">
+                <span>02 结构型模式 (Structural Patterns) · 第 06 模式</span>
+            </div>
+            <h1 class="hero-title">
+                适配器模式 <span>(Adapter Pattern)</span>
+            </h1>
+            <p class="hero-subtitle">
+                消除异构协议与参数鸿沟：如何将遗留 XML/REST API、企业 GraphQL 知识图谱与本地 Shell CLI 统一封装为 AI Agent 标准的 MCP (Model Context Protocol) 即插即用工具生态。
+            </p>
+            <div class="hero-features">
+                <div class="hero-feature-item">🔌 <strong>协议平滑转换</strong> · 零侵入遗留服务</div>
+                <div class="hero-feature-item">🔄 <strong>对象适配器 (组合)</strong> vs 🧬 <strong>类适配器 (继承)</strong></div>
+                <div class="hero-feature-item">📊 <strong>5 步交互式 UML 类图</strong> · 架构演练</div>
+                <div class="hero-feature-item">⏱️ <strong>7 步运行期时序图</strong> · 动态调用链路</div>
+                <div class="hero-feature-item">💻 <strong>Python 3.11+ 工程 IDE</strong> · 完整生产级实现</div>
+                <div class="hero-feature-item">🎮 <strong>可交互终端模拟器</strong> · 场景即点即跑</div>
+            </div>
+        </section>
+
+        <!-- 第 0 节：大白话速查字典 -->
+        <section id="section-glossary" style="margin: 24px 0 28px;">
+            <div style="background: #ffffff; border: 1.5px solid #e0f2fe; border-radius: 16px; padding: 18px 24px; box-shadow: 0 4px 15px -2px rgba(2, 132, 199, 0.06);">
+                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleGlossary()">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">📖</span>
+                        <h3 style="font-size: 15.5px; font-weight: 700; color: #0284c7; margin: 0;">
+                            初学者概念大白话速查字典 (点击展开 / 折叠)
+                        </h3>
+                        <span style="font-size: 12px; color: #64748b; background: #f0f9ff; padding: 2px 8px; border-radius: 9999px; border: 1px solid #bae6fd;">新手友好</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: #0284c7; font-size: 13px; font-weight: 600;">
+                        <span id="glossary-toggle-text">展开字典 ▾</span>
+                        <span id="glossary-toggle-btn" style="transition: transform 0.2s;">▾</span>
+                    </div>
+                </div>
+
+                <div id="glossary-content" style="display: none; margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; font-size: 13.5px;">
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #0284c7; margin-bottom: 4px;">🎯 Target (目标接口)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>客户端直接面向并依赖的公共业务契约。<br>
+                                <strong>🗣️ 大白话：</strong>全国统一的 <strong>Type-C 充电协议</strong>，或者 Agent 认定的标准工具接口，所有工具必须遵循它。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #d97706; margin-bottom: 4px;">📦 Adaptee (被适配者)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>已有但接口不兼容的现存类库、遗留系统或第三方 API。<br>
+                                <strong>🗣️ 大白话：</strong>只能插圆孔插座的老式欧洲进口吹风机，功能好使但插头形状与现有插座不匹配。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #4f46e5; margin-bottom: 4px;">🔌 Adapter (适配器)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>实现目标接口，内部封装被适配者并负责数据与调用转换的中介类。<br>
+                                <strong>🗣️ 大白话：</strong>一头插在老式吹风机上、另一头变成国标扁头的<strong>电源万能旅行转换器</strong>。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #059669; margin-bottom: 4px;">👤 Client (客户端)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>包含系统业务逻辑、只通过目标接口与各服务交互的代码。<br>
+                                <strong>🗣️ 大白话：</strong>只管向转换插头插座送电的用户（在本项目中为 Agent 调度核心），完全不需拆机改装吹风机内部电路。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #7c3aed; margin-bottom: 4px;">🔄 Object Adapter (对象适配器)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>通过<strong>组合持有 (Composition)</strong> 被适配者对象实现的适配器。<br>
+                                <strong>🗣️ 大白话：</strong>转换插头是个独立的外接盒子，随时可以把不同的老插头拔下来换另一个插进去（最推荐，符合合成复用）。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 12px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #e11d48; margin-bottom: 4px;">🧬 Class Adapter (类适配器)</div>
+                            <div style="color: #475569; line-height: 1.55;">
+                                <strong>标准定义：</strong>通过<strong>多重继承 (Multi-Inheritance)</strong> 同时继承目标接口与被适配者实现的适配器。<br>
+                                <strong>🗣️ 大白话：</strong>直接给老吹风机焊死一个新插头（在 Python/C++ 等支持多重继承的语言中使用）。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 1 节：直觉认知与痛点具象化 (Problem & Intuition) -->
+        <section id="section-intro" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">01</div>
+                    <h2 class="section-title">直觉认知：从“硬编码胶水地狱”到“万能协议转换器”</h2>
+                </div>
+
+                <p class="section-desc">
+                    想象你正在打造一个企业级 <strong>AI Agent 智能体系统</strong>。
+                    Agent 的大脑（LLM）通过 <strong>ReAct (Reasoning + Acting)</strong> 循环或 <strong>Anthropic MCP (Model Context Protocol)</strong> 标准协议自主调用外部工具。
+                    大模型要求所有工具都遵循标准 JSON Schema 契约：入参是统一的 JSON，返回统一的 <code>ToolResult</code> 对象。
+                </p>
+
+                <!-- Before vs After 对比网格 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 24px 0;">
+                    
+                    <!-- 痛点卡片 (Before) -->
+                    <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: var(--radius-inner); padding: 24px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #e11d48; color: white; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 700;">❌ 痛点现状 (无适配器)</span>
+                            <span style="font-weight: 700; color: #9f1239; font-size: 15px;">硬编码胶水地狱</span>
+                        </div>
+                        <p style="font-size: 13.5px; color: #4c0519; line-height: 1.6; margin-bottom: 12px;">
+                            企业现存的系统五花八门：
+                            <br>• <strong>遗留气象局 API</strong>：只接受 URL 查询串，返回未经解析的原始 XML 报文；
+                            <br>• <strong>企业研发知识图谱</strong>：采用 GraphQL 查询，必须构造深层查询语句与鉴权 Header；
+                            <br>• <strong>运维 Shell CLI 工具</strong>：需要拼接命令行参数、捕获 stdout/stderr 与退出码。
+                        </p>
+                        <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #be123c; border: 1px solid #fda4af;">
+                            # Agent 调度引擎充斥着恶性 if-else：<br>
+                            if tool.type == 'legacy_xml':<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;xml = parse_xml(http_get(...))<br>
+                            elif tool.type == 'graphql':<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;res = send_gql(build_query(...))<br>
+                            elif tool.type == 'bash':<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;subprocess.run(...)<br>
+                            💥 <strong>致命隐患：</strong>新增一个工具，必须修改 Agent 核心调度器，严重违反开闭原则 (OCP)！
+                        </div>
+                    </div>
+
+                    <!-- 优雅破局卡片 (After) -->
+                    <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-inner); padding: 24px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="background: #059669; color: white; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 700;">✅ 优雅破局 (适配器模式)</span>
+                            <span style="font-weight: 700; color: #065f46; font-size: 15px;">标准插头，协议自适应</span>
+                        </div>
+                        <p style="font-size: 13.5px; color: #064e3b; line-height: 1.6; margin-bottom: 12px;">
+                            通过<strong>适配器模式 (Adapter)</strong>：
+                            <br>1. 定义统一的 <code>AgentTool</code> 目标接口 (Target)；
+                            <br>2. 为每一种异构三方服务开发专属的 <code>Adapter</code>；
+                            <br>3. 适配器内部完成<strong>参数正向转换</strong>、<strong>三方服务委托调用</strong>与<strong>结果逆向清洗</strong>。
+                        </p>
+                        <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #047857; border: 1px solid #6ee7b7;">
+                            # Agent 核心引擎极度清爽且完全解耦：<br>
+                            for tool in agent.registered_tools:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;# 统一调用标准 execute(input_data)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;result: ToolResult = tool.execute(params)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;agent.feed_observation(result)<br>
+                            ✨ <strong>核心收益：</strong>接入 100 种异构三方系统，Agent 核心引擎零修改！
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 真实世界的三大经典比喻 -->
+                <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-inner); padding: 20px 24px; margin-top: 20px;">
+                    <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                        <span>🌍</span> 真实世界中的经典适配器比喻
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; font-size: 13.5px;">
+                        <div style="padding: 10px 14px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong>🔌 跨国旅行电源万能转换插头：</strong><br>
+                            英国插座是粗三方脚（被适配者），中国买的笔记本电脑是扁两脚插头（客户端期望的目标接口）。通过一个小巧的转换插头（适配器），电脑即可直接通电工作。
+                        </div>
+                        <div style="padding: 10px 14px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong>🗣️ 联合国同声传译耳机：</strong><br>
+                            法国代表说法语、日本代表说日语（被适配者）。中国代表只听懂中文（目标接口）。同声传译员（适配器）实时转换语言，代表们只需专注讨论决策。
+                        </div>
+                        <div style="padding: 10px 14px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong>💾 多合一内存卡读卡器：</strong><br>
+                            现代轻薄笔记本只有 Type-C 接口（目标接口），相机使用的是老式 SD/TF 卡（被适配者）。通过多功能读卡器（适配器），电脑可以像读取普通硬盘一样读取老卡数据。
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 2 节：适配器模式的四大核心角色 (角色拆解) -->
+        <section id="section-core" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">02</div>
+                    <h2 class="section-title">适配器模式的四大核心角色与 UML 架构演练</h2>
+                </div>
+
+                <p class="section-desc">
+                    根据 GoF 经典定义与 RefactoringGuru 规范，适配器模式由以下 4 大核心角色构成：
+                </p>
+
+                <!-- 四大角色 Bento Grid -->
+                <div class="role-grid">
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-target">1. 目标接口</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Target Interface</span>
+                        </div>
+                        <h3>AgentTool (抽象工具基类)</h3>
+                        <p>定义智能体调用外部工具的公共标准契约，包含 <code>name</code>、<code>description</code>、<code>parameters_schema</code> 与 <code>execute(input_data) -> ToolResult</code>。</p>
+                        <div class="agent-analogy">📱 <strong>比喻：</strong>国家强制标准的 USB Type-C 接口协议规范。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-adaptee">2. 被适配者</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Adaptee</span>
+                        </div>
+                        <h3>LegacyWeatherRestService / GraphQLKnowledgeGraph / ShellRunner</h3>
+                        <p>已有但接口不兼容的现存类。它们拥有核心业务功能（如查询气象、企业知识图谱、运行系统诊断），但方法签名、传参方式或返回数据结构与 <code>AgentTool</code> 规范不一致。</p>
+                        <div class="agent-analogy">🔌 <strong>比喻：</strong>各家厂商定制的圆孔、三方脚或特定形状电源插座。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-adapter">3. 适配器</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Adapter</span>
+                        </div>
+                        <h3>WeatherRestToolAdapter / GraphQLToolAdapter</h3>
+                        <p>连接客户端与被适配者的桥梁。实现 <code>AgentTool</code> 接口，在 <code>execute()</code> 方法内部将大模型生成的 JSON 参数转换为被适配者所需格式，调用其原生方法，并将结果洗涤封装为标准 <code>ToolResult</code>。</p>
+                        <div class="agent-analogy">🔌 <strong>比喻：</strong>万能电源转换插头硬件，一侧接老设备，另一侧接新标准插孔。</div>
+                    </div>
+
+                    <div class="role-card">
+                        <div class="role-header">
+                            <span class="role-type type-client">4. 业务客户端</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Client</span>
+                        </div>
+                        <h3>AgentCoreEngine (智能体调度核心)</h3>
+                        <p>客户端<strong>仅与 <code>AgentTool</code> 目标接口交互</strong>。客户端无需知道背后到底是一个 REST API、GraphQL 服务还是本地 Shell 命令，实现了完全多态调度与零耦合。</p>
+                        <div class="agent-analogy">👤 <strong>比喻：</strong>手持 Type-C 充电线给手机充电的用户，不用关心电网发电厂具体使用了水力还是风力。</div>
+                    </div>
+                </div>
+
+                <!-- 5 步交互式 UML 类图构建演练器 -->
+                <h3 style="font-size: 18px; margin: 36px 0 12px; font-weight: 700;">📊 5 步分步演练：UML 类图构建教学</h3>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                    点击下方分步按钮，逐步观察对象适配器（组合）与类适配器（多重继承）如何在 UML 中清晰表达：
+                </p>
+
+                <div class="diagram-viewport">
+                    <div class="diagram-toggle-bar">
+                        <div class="diagram-title-tag">
+                            <span>📖 5 步交互式类图构建全景</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="diagram-view-btn active" onclick="switchDiagramView('class', 'svg', this)">🎨 5 步交互式类图</button>
+                            <button class="diagram-view-btn" onclick="switchDiagramView('class', 'mermaid', this)">📊 Mermaid 渲染</button>
+                        </div>
+                    </div>
+
+                    <!-- 5 步横向进度轴 -->
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;" id="class-step-tabs">
+                        <button class="class-step-tab-btn active" onclick="goToClassStep(1)" style="padding: 6px 4px; border: 1.5px solid #0284c7; border-radius: 8px; background: #e0f2fe; color: #0284c7; font-weight: 700; cursor: pointer; font-size: 11px;">1. 目标接口</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(2)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 异构服务</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(3)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 对象适配器</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(4)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 类适配器</button>
+                        <button class="class-step-tab-btn" onclick="goToClassStep(5)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 全景多态闭环</button>
+                    </div>
+
+                    <!-- 分步控制条 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="prev-class-step-btn" onclick="changeClassStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                                ← 上一步
+                            </button>
+                            <button id="next-class-step-btn" onclick="changeClassStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #0284c7; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
+                                下一步：第 2/5 步 →
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            💡 点击按钮逐步观察 Target、Adaptee 与 Adapter 之间的继承、实现与组合关系
+                        </div>
+                    </div>
+
+                    <!-- 视图 1：高清交互式分步 SVG 图表 (三列对称架构，无重叠) -->
+                    <div id="class-svg-view">
+                        <svg class="svg-canvas" viewBox="0 0 900 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06"/>
+                                </filter>
+                                <marker id="arrow-triangle-hollow" markerWidth="14" markerHeight="14" refX="1" refY="7" orient="auto">
+                                    <polygon points="1 1, 13 7, 1 13" fill="#ffffff" stroke="#64748b" stroke-width="1.8" />
+                                </marker>
+                                <marker id="arrow-diamond-hollow" markerWidth="16" markerHeight="16" refX="1" refY="8" orient="auto">
+                                    <polygon points="1 8, 8 1, 15 8, 8 15" fill="#ffffff" stroke="#4f46e5" stroke-width="1.8" />
+                                </marker>
+                                <marker id="arrow-open-dependency" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+                                    <path d="M 1 1 L 11 6 L 1 11" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round" />
+                                </marker>
+                            </defs>
+
+                            <!-- 左上角：Client (AgentCoreEngine) -->
+                            <g id="class-node-client" transform="translate(30, 20)" filter="url(#shadow)" style="opacity: 0.2; transition: opacity 0.3s;">
+                                <rect width="240" height="115" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+                                <path d="M0 0 H240 V32 H0 Z" fill="#ecfdf5" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="120" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">AgentCoreEngine (Client)</text>
+                                <line x1="0" y1="32" x2="240" y2="32" stroke="#a7f3d0" stroke-width="1"/>
+                                <text x="14" y="52" font-family="JetBrains Mono, monospace" font-size="11" fill="#475569">- tools: List[AgentTool]</text>
+                                <text x="14" y="74" font-family="JetBrains Mono, monospace" font-size="11" fill="#059669">+ register_tool(tool: AgentTool)</text>
+                                <text x="14" y="94" font-family="JetBrains Mono, monospace" font-size="11" fill="#059669">+ dispatch_action(goal: str)</text>
+                            </g>
+
+                            <!-- 中上：Target 目标接口 (AgentTool) -->
+                            <g id="class-node-target" transform="translate(325, 20)" filter="url(#shadow)" style="opacity: 1; transition: opacity 0.3s;">
+                                <rect width="250" height="125" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="2.5"/>
+                                <path d="M0 0 H250 V34 H0 Z" fill="#e0f2fe" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="125" y="16" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">&lt;&lt;interface&gt;&gt;</text>
+                                <text x="125" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#0c4a6e" font-style="italic">AgentTool (Target)</text>
+                                <line x1="0" y1="34" x2="250" y2="34" stroke="#bae6fd" stroke-width="1"/>
+                                <text x="14" y="54" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ name: str</text>
+                                <text x="14" y="72" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ parameters_schema: dict</text>
+                                <text x="14" y="90" font-family="JetBrains Mono, monospace" font-size="11" fill="#0284c7" font-weight="600">+ execute(input_data)* : ToolResult</text>
+                                <text x="14" y="108" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b">+ get_spec() : dict</text>
+                            </g>
+
+                            <!-- 右上角：Adaptee 2 (EnterpriseGraphQLKG) -->
+                            <g id="class-node-adaptee-2" transform="translate(620, 20)" filter="url(#shadow)" style="opacity: 0.2; transition: opacity 0.3s;">
+                                <rect width="250" height="115" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                                <path d="M0 0 H250 V32 H0 Z" fill="#fef3c7" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="125" y="15" text-anchor="middle" font-size="10.5" font-weight="600" fill="#92400e">&lt;&lt;service&gt;&gt; Adaptee 2</text>
+                                <text x="125" y="28" text-anchor="middle" font-size="12" font-weight="700" fill="#78350f">EnterpriseGraphQLKG</text>
+                                <line x1="0" y1="32" x2="250" y2="32" stroke="#fde68a" stroke-width="1"/>
+                                <text x="12" y="52" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#475569">- auth_token: str</text>
+                                <text x="12" y="72" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#475569">+ execute_raw_graphql(q, vars)</text>
+                                <text x="12" y="92" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#475569">+ introspect_schema() : list</text>
+                            </g>
+
+                            <!-- 左中：对象适配器 (WeatherRestToolAdapter) -->
+                            <g id="class-node-obj-adapter" transform="translate(30, 190)" filter="url(#shadow)" style="opacity: 0.2; transition: opacity 0.3s;">
+                                <rect width="240" height="105" rx="10" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+                                <path d="M0 0 H240 V30 H0 Z" fill="#eef2ff" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="120" y="14" text-anchor="middle" font-size="10.5" font-weight="600" fill="#4338ca">Object Adapter (组合式)</text>
+                                <text x="120" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#312e81">WeatherRestToolAdapter</text>
+                                <line x1="0" y1="30" x2="240" y2="30" stroke="#c7d2fe" stroke-width="1"/>
+                                <text x="12" y="50" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#4f46e5">- service: LegacyWeatherService</text>
+                                <text x="12" y="70" font-family="JetBrains Mono, monospace" font-size="11" fill="#0f172a" font-weight="600">+ execute(input_data) : ToolResult</text>
+                                <text x="12" y="88" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#64748b">  └─ json -&gt; url query -&gt; XML -&gt; Result</text>
+                            </g>
+
+                            <!-- 左下：被适配者 1 (LegacyWeatherRestService) -->
+                            <g id="class-node-adaptee-1" transform="translate(30, 335)" filter="url(#shadow)" style="opacity: 0.2; transition: opacity 0.3s;">
+                                <rect width="240" height="85" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                                <path d="M0 0 H240 V28 H0 Z" fill="#fef3c7" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="120" y="14" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e">&lt;&lt;legacy&gt;&gt; Adaptee 1</text>
+                                <text x="120" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="#78350f">LegacyWeatherRestService</text>
+                                <line x1="0" y1="28" x2="240" y2="28" stroke="#fde68a" stroke-width="1"/>
+                                <text x="12" y="48" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#475569">- api_endpoint: str</text>
+                                <text x="12" y="68" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#b45309" font-weight="600">+ query_legacy_weather(query_str)</text>
+                            </g>
+
+                            <!-- 右中：类适配器 (GraphQLToolClassAdapter) -->
+                            <g id="class-node-class-adapter" transform="translate(620, 190)" filter="url(#shadow)" style="opacity: 0.2; transition: opacity 0.3s;">
+                                <rect width="250" height="105" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+                                <path d="M0 0 H250 V30 H0 Z" fill="#f5f3ff" clip-path="inset(0 0 0 0 round 10px 10px 0 0)"/>
+                                <text x="125" y="14" text-anchor="middle" font-size="10.5" font-weight="600" fill="#6d28d9">Class Adapter (多重继承式)</text>
+                                <text x="125" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#4c1d95">GraphQLToolClassAdapter</text>
+                                <line x1="0" y1="30" x2="250" y2="30" stroke="#ddd6fe" stroke-width="1"/>
+                                <text x="12" y="48" font-family="JetBrains Mono, monospace" font-size="10" fill="#7c3aed">&lt;&lt;inherits: AgentTool + GraphQLKG&gt;&gt;</text>
+                                <text x="12" y="68" font-family="JetBrains Mono, monospace" font-size="11" fill="#0f172a" font-weight="600">+ execute(input_data) : ToolResult</text>
+                                <text x="12" y="88" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#64748b">  └─ json -&gt; self.query_gql()</text>
+                            </g>
+
+                            <!-- 连线 1: Client -> Target 依赖调用 (uses) -->
+                            <g id="class-rel-client-target" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="270" y1="75" x2="315" y2="75" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-open-dependency)"/>
+                                <rect x="278" y="58" width="34" height="16" rx="3" fill="#ffffff" stroke="#e2e8f0"/>
+                                <text x="295" y="70" text-anchor="middle" font-size="9" font-weight="700" fill="#0284c7">1..*</text>
+                            </g>
+
+                            <!-- 连线 2: Object Adapter 实现 Target 接口 (虚线 + 空心三角形) -->
+                            <g id="class-rel-obj-realize" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <path d="M 150 190 V 160 H 375 V 148" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="5,5" marker-end="url(#arrow-triangle-hollow)"/>
+                                <rect x="210" y="150" width="110" height="20" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+                                <text x="265" y="164" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">实现接口 (Realization)</text>
+                            </g>
+
+                            <!-- 连线 3: Object Adapter 组合持有 Adaptee 1 (实线 + 空心菱形) -->
+                            <g id="class-rel-obj-compose" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="150" y1="295" x2="150" y2="330" stroke="#4f46e5" stroke-width="2" marker-start="url(#arrow-diamond-hollow)"/>
+                                <rect x="85" y="302" width="130" height="18" rx="3" fill="#eef2ff" stroke="#c7d2fe"/>
+                                <text x="150" y="315" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4338ca">holds reference (组合)</text>
+                            </g>
+
+                            <!-- 连线 4: Class Adapter 双重继承 (实现 Target + 泛化 Adaptee 2) -->
+                            <g id="class-rel-class-inherit" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <!-- 实现 Target (虚线三角形) -->
+                                <path d="M 745 190 V 160 H 525 V 148" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="5,5" marker-end="url(#arrow-triangle-hollow)"/>
+                                <rect x="580" y="150" width="110" height="20" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+                                <text x="635" y="164" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">实现接口 (Realization)</text>
+                                
+                                <!-- 继承 Adaptee 2 (实线三角形) -->
+                                <line x1="745" y1="190" x2="745" y2="138" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arrow-triangle-hollow)"/>
+                                <rect x="690" y="150" width="110" height="20" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+                                <text x="745" y="164" text-anchor="middle" font-size="10" font-weight="700" fill="#6d28d9">继承 (Inheritance)</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 专属类图分步教学卡片 -->
+                    <div id="class-teaching-card" style="margin-top: 16px; padding: 20px 24px; border-radius: 14px; background: #fafbfc; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="class-teach-badge" style="background: #0284c7; color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 13px; font-family: monospace;">Step 1 / 5</span>
+                                <h4 id="class-teach-title" style="font-size: 16px; font-weight: 800; color: #0f172a;">第一步：声明目标契约接口 (Target Interface)</h4>
+                            </div>
+                            <div id="class-teach-role" style="font-size: 12.5px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 3px 10px; border-radius: 6px; border: 1px solid #bae6fd;">
+                                聚焦：AgentTool (抽象基类)
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; font-size: 13px; line-height: 1.65;">
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #0284c7; margin-bottom: 4px;">🎯 架构设计要点</div>
+                                <div id="class-teach-concept" style="color: #334155;">设计先行！首先声明 Agent 能够识别并调度的公共接口标准。包含名称、描述、JSON Schema 入参规范与统一的 execute() 执行方法。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #059669; margin-bottom: 4px;">📐 UML 图示符号规范</div>
+                                <div id="class-teach-uml" style="color: #334155;">带有 &lt;&lt;interface&gt;&gt; 标识且类名为斜体；纯虚方法带 * 号，代表纯契约不包含硬编码业务。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #d97706;">
+                                <div style="font-weight: 700; color: #d97706; margin-bottom: 4px;">🗣️ 初学者大白话理解</div>
+                                <div id="class-teach-analogy" style="color: #334155;">目标接口是国家规定的「插座国标孔位」。如果你不理解，你就理解为：规定所有工具都必须长这个样子才能插入 Agent 系统。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 视图 2：标准 Mermaid 源码渲染 -->
+                    <div id="class-mermaid-view" style="display: none;">
+                        <div class="mermaid">
+classDiagram
+    direction TB
+
+    class AgentCoreEngine {
+        -List~AgentTool~ tools
+        +register_tool(tool: AgentTool)
+        +dispatch_action(goal: str)
+    }
+
+    class AgentTool {
+        &lt;&lt;interface&gt;&gt;
+        +str name
+        +dict parameters_schema
+        +execute(input_data: dict)* ToolResult
+        +get_spec() dict
+    }
+
+    class LegacyWeatherRestService {
+        +query_legacy_weather(query: str) str
+    }
+
+    class EnterpriseGraphQLKnowledgeGraph {
+        +execute_raw_graphql(query: str, vars: dict) dict
+        +introspect_schema() list
+    }
+
+    class WeatherRestToolAdapter {
+        -LegacyWeatherRestService service
+        +execute(input_data: dict) ToolResult
+    }
+
+    class GraphQLToolClassAdapter {
+        +execute(input_data: dict) ToolResult
+    }
+
+    AgentCoreEngine ..> AgentTool : uses (1..*)
+    AgentTool &lt;|.. WeatherRestToolAdapter : realizes
+    WeatherRestToolAdapter o-- LegacyWeatherRestService : composes (has-a)
+
+    AgentTool &lt;|.. GraphQLToolClassAdapter : realizes
+    EnterpriseGraphQLKnowledgeGraph &lt;|-- GraphQLToolClassAdapter : inherits
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 3 节：完整高质量代码实战 (IDE 目录树与交互式终端) -->
+        <section id="section-code" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">03</div>
+                    <h2 class="section-title">代码实战：AI Agent 工具适配生态系统 (Python 3.11+)</h2>
+                </div>
+
+                <p class="section-desc">
+                    以下是按照<strong>真实工业级开发顺序 (Step 01 → Step 07)</strong> 拆解的完整工程项目代码（纯 Python 3.11+ 标准类型注解与清晰模块化结构）：
+                </p>
+
+                <!-- 左右分栏 IDE 目录树代码浏览器 -->
+                <div style="border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #ffffff; margin: 20px 0; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);">
+                    <div style="display: grid; grid-template-columns: minmax(250px, 290px) 1fr; min-height: 540px;">
+                        
+                        <!-- 左侧：IDE 目录树侧边栏 (Explorer) -->
+                        <div style="background: #fafbfc; border-right: 1px solid #e2e8f0; padding: 16px 14px; display: flex; flex-direction: column;">
+                            <div>
+                                <!-- 顶部切步小导航 -->
+                                <div style="padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                                        <span style="font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px;">
+                                            ⚙️ 编码构建流水线
+                                        </span>
+                                        <span style="color: #64748b; font-family: var(--font-mono);">
+                                            第 <strong id="py-step-cur-num" style="color: #0284c7; font-weight: 800;">1</strong> / 7 步
+                                        </span>
+                                    </div>
+
+                                    <!-- 极简进度条指示器 -->
+                                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+                                        <div id="py-step-progress-bar" style="width: 14.28%; height: 100%; background: #0284c7; border-radius: 9999px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 6px;">
+                                        <button id="py-prev-btn" onclick="changePyFileStep(-1)" disabled style="flex: 1; padding: 7px 10px; border-radius: 7px; border: 1px solid #cbd5e1; background: #ffffff; color: #cbd5e1; cursor: not-allowed; font-size: 12px; font-weight: 600; transition: all 0.15s ease;">
+                                            ← 上一步
+                                        </button>
+                                        <button id="py-next-btn" onclick="changePyFileStep(1)" style="flex: 1.2; padding: 7px 12px; border-radius: 7px; border: none; background: #0284c7; color: #ffffff; cursor: pointer; font-size: 12px; font-weight: 700; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.25); transition: all 0.15s ease;">
+                                            下一步 →
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-left: 6px;">
+                                    PROJECT EXPLORER (7 步构建文件)
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 4px; overflow-y: auto;" id="py-tree-container">
+                                
+                                <!-- 文件夹 1: base/ -->
+                                <div>
+                                    <div style="padding: 6px 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="toggleHtmlFolder('base')">
+                                        <span id="folder-icon-base">📂</span>
+                                        <span>base /</span>
+                                    </div>
+                                    <div id="folder-content-base" style="padding-left: 14px; display: flex; flex-direction: column; gap: 2px;">
+                                        <div class="py-tree-file active" onclick="switchPyFile(0, this)" data-file-idx="0" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #0284c7; background: #e0f2fe; border-left: 3px solid #0284c7; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 tool.py</span>
+                                            <span class="py-step-tag" style="background: #0284c7; color: white; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 01</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 文件夹 2: adaptees/ -->
+                                <div>
+                                    <div style="padding: 6px 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="toggleHtmlFolder('adaptees')">
+                                        <span id="folder-icon-adaptees">📂</span>
+                                        <span>adaptees / (异构服务)</span>
+                                    </div>
+                                    <div id="folder-content-adaptees" style="padding-left: 14px; display: flex; flex-direction: column; gap: 2px;">
+                                        <div class="py-tree-file" onclick="switchPyFile(1, this)" data-file-idx="1" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 weather_rest.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 02</span>
+                                        </div>
+                                        <div class="py-tree-file" onclick="switchPyFile(2, this)" data-file-idx="2" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 graphql_kg.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 03</span>
+                                        </div>
+                                        <div class="py-tree-file" onclick="switchPyFile(3, this)" data-file-idx="3" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 shell_cli.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 04</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 文件夹 3: adapters/ -->
+                                <div>
+                                    <div style="padding: 6px 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="toggleHtmlFolder('adapters')">
+                                        <span id="folder-icon-adapters">📂</span>
+                                        <span>adapters / (适配器)</span>
+                                    </div>
+                                    <div id="folder-content-adapters" style="padding-left: 14px; display: flex; flex-direction: column; gap: 2px;">
+                                        <div class="py-tree-file" onclick="switchPyFile(4, this)" data-file-idx="4" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 weather_adapter.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 05</span>
+                                        </div>
+                                        <div class="py-tree-file" onclick="switchPyFile(5, this)" data-file-idx="5" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 graphql_adapter.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 06</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 文件夹 4: runtime/ -->
+                                <div>
+                                    <div style="padding: 6px 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;" onclick="toggleHtmlFolder('runtime')">
+                                        <span id="folder-icon-runtime">📂</span>
+                                        <span>runtime / (客户端引擎)</span>
+                                    </div>
+                                    <div id="folder-content-runtime" style="padding-left: 14px; display: flex; flex-direction: column; gap: 2px;">
+                                        <div class="py-tree-file" onclick="switchPyFile(6, this)" data-file-idx="6" style="padding: 6px 8px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono); color: #64748b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>📄 main.py</span>
+                                            <span class="py-step-tag" style="background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 4px; font-size: 10px;">Step 07</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- 右侧：代码查看器 + 专属教学指引面板 -->
+                        <div style="display: flex; flex-direction: column; background: #ffffff;">
+                            
+                            <!-- 顶部面包屑与角色标签 -->
+                            <div style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12.5px; color: #475569;" id="py-breadcrumb-path">
+                                    agent_tool_adapter / base / <strong>tool.py</strong>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="py-file-badge" style="font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 6px; border: 1px solid #bae6fd;">Step 01</span>
+                                    <button class="copy-btn" onclick="copyCurrentCode()">📋 复制代码</button>
+                                </div>
+                            </div>
+
+                            <!-- 文件设计与实现要点解读卡片 -->
+                            <div style="padding: 14px 20px; background: #f0fdf4; border-bottom: 1px solid #bbf7d0; font-size: 13px; line-height: 1.6;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <span style="font-weight: 800; color: #166534;" id="py-file-title">第一步：声明统一目标接口 AgentTool (Target)</span>
+                                    <span id="py-file-role" style="font-size: 11px; background: #dcfce7; color: #15803d; padding: 1px 6px; border-radius: 4px; font-weight: 600;">目标接口 (Target)</span>
+                                </div>
+                                <div style="color: #14532d;" id="py-file-reason">
+                                    【设计先行】：智能体核心引擎不应该与任何具体的三方协议强绑定。首先定义所有工具必须遵循的标准契约与 JSON Schema 参数规范。
+                                </div>
+                            </div>
+
+                            <!-- 代码高亮展示区 -->
+                            <div style="position: relative; flex: 1;">
+                                <pre style="margin: 0; border: none; border-radius: 0; background: #ffffff; height: 100%; overflow: auto;"><code class="language-python" id="py-file-code-block" style="background: #ffffff !important; padding: 20px !important;"># 代码加载中...</code></pre>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 交互式终端模拟器 (Terminal Playground) -->
+                <div style="background: #0f172a; border-radius: 14px; overflow: hidden; margin-top: 28px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4);">
+                    <div style="background: #1e293b; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="code-header-dots">
+                                <div class="dot dot-red"></div>
+                                <div class="dot dot-yellow"></div>
+                                <div class="dot dot-green"></div>
+                            </div>
+                            <span style="color: #94a3b8; font-family: var(--font-mono); font-size: 12px; font-weight: 600;">⚡ Terminal: Agent Tool Adapter Execution Playground</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="runHtmlTerminal('weather')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid #0284c7; background: #0369a1; color: white; font-size: 11.5px; cursor: pointer; font-weight: 600;">运行场景 1: 天气对象适配器</button>
+                            <button onclick="runHtmlTerminal('graphql')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid #7c3aed; background: #6d28d9; color: white; font-size: 11.5px; cursor: pointer; font-weight: 600;">运行场景 2: 知识图谱类适配器</button>
+                            <button onclick="runHtmlTerminal('mcp_export')" style="padding: 4px 10px; border-radius: 6px; border: 1px solid #10b981; background: #059669; color: white; font-size: 11.5px; cursor: pointer; font-weight: 600;">导出 MCP 标准协议清单</button>
+                        </div>
+                    </div>
+                    <div style="padding: 16px 20px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #a5f3fc; min-height: 180px; max-height: 280px; overflow-y: auto;" id="html-terminal-logs">
+                        <div style="color: #64748b;">// 点击上方场景按钮，模拟 Agent 调度异构适配器并观察内部转换与返回数据...</div>
+                        <div style="color: #38bdf8;">$ python runtime/main.py --ready</div>
+                        <div style="color: #4ade80;">✔ AgentCoreEngine 初始化就绪，已多态注册 3 款异构适配工具 (REST/GraphQL/CLI)</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 4 节：运行期动态调用时序图 (7 步 UML Sequence) -->
+        <section id="section-sequence" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">04</div>
+                    <h2 class="section-title">运行期时序交互：7 步动态调用链路 (UML Sequence Diagram)</h2>
+                </div>
+
+                <p class="section-desc">
+                    以下交互式时序图完整还原了：大模型从决策调用、适配器参数正向转换、委托底层服务、结果逆向解析清洗到最后返回 Agent 的完整闭环流程。
+                </p>
+
+                <div class="diagram-viewport">
+                    <div class="diagram-toggle-bar">
+                        <div class="diagram-title-tag">
+                            <span>⏱️ 7 步交互式运行期时序图</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="diagram-view-btn active" onclick="switchDiagramView('seq', 'svg', this)">🎨 7 步交互式时序图</button>
+                            <button class="diagram-view-btn" onclick="switchDiagramView('seq', 'mermaid', this)">📊 Mermaid 渲染</button>
+                        </div>
+                    </div>
+
+                    <!-- 7 步横向进度条 -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px;" id="seq-step-tabs">
+                        <button class="seq-step-tab-btn active" onclick="goToStep(1)" style="padding: 6px 2px; border: 1.5px solid #0284c7; border-radius: 6px; background: #e0f2fe; color: #0284c7; font-weight: 700; cursor: pointer; font-size: 11px;">1. 获取规范</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(2)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 模型决策</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(3)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 统一分发</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(4)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 正向翻译</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(5)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 委托执行</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(6)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">6. 逆向清洗</button>
+                        <button class="seq-step-tab-btn" onclick="goToStep(7)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 6px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">7. 闭环反馈</button>
+                    </div>
+
+                    <!-- 分步控制条 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="prev-step-btn" onclick="changeStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                                ← 上一步
+                            </button>
+                            <button id="next-step-btn" onclick="changeStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #0284c7; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
+                                下一步：第 2/7 步 →
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            💡 点击按钮或使用键盘左右方向键进行步进演练
+                        </div>
+                    </div>
+
+                    <!-- 视图 1：高清交互式分步 SVG 时序图 -->
+                    <div id="seq-svg-view">
+                        <svg class="svg-canvas" viewBox="0 0 900 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="seq-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                    <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round"/>
+                                </marker>
+                                <marker id="seq-arrow-return" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                    <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round"/>
+                                </marker>
+                            </defs>
+
+                            <!-- 参与者 1: LLM Engine (大模型大脑) -->
+                            <g transform="translate(40, 20)">
+                                <rect width="140" height="38" rx="8" fill="#f8fafc" stroke="#6366f1" stroke-width="1.8"/>
+                                <text x="70" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#312e81">🧠 LLMEngine</text>
+                                <line x1="70" y1="38" x2="70" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+                            </g>
+
+                            <!-- 参与者 2: AgentCoreEngine (Client) -->
+                            <g transform="translate(240, 20)">
+                                <rect width="160" height="38" rx="8" fill="#f8fafc" stroke="#059669" stroke-width="1.8"/>
+                                <text x="80" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#065f46">👤 AgentCore (Client)</text>
+                                <line x1="80" y1="38" x2="80" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+                            </g>
+
+                            <!-- 参与者 3: WeatherRestToolAdapter (Adapter) -->
+                            <g transform="translate(470, 20)">
+                                <rect width="180" height="38" rx="8" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+                                <text x="90" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">🔌 ToolAdapter (Target)</text>
+                                <line x1="90" y1="38" x2="90" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+                            </g>
+
+                            <!-- 参与者 4: LegacyWeatherAPI (Adaptee) -->
+                            <g transform="translate(710, 20)">
+                                <rect width="150" height="38" rx="8" fill="#f8fafc" stroke="#d97706" stroke-width="1.8"/>
+                                <text x="75" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">📦 LegacyService (Adaptee)</text>
+                                <line x1="75" y1="38" x2="75" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+                            </g>
+
+                            <!-- 步骤 1: Agent 提取工具 JSON Schema 规范 -->
+                            <g id="seq-step-1" style="opacity: 1; transition: opacity 0.3s;">
+                                <line x1="320" y1="80" x2="550" y2="80" stroke="#0284c7" stroke-width="1.8" marker-end="url(#seq-arrow)"/>
+                                <rect x="360" y="66" width="150" height="20" rx="4" fill="#ffffff" stroke="#bae6fd"/>
+                                <text x="435" y="80" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0369a1">1. get_spec() -> Schema</text>
+                            </g>
+
+                            <!-- 步骤 2: Agent 携带工具元数据提示词请求 LLM 决策 -->
+                            <g id="seq-step-2" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="320" y1="130" x2="120" y2="130" stroke="#6366f1" stroke-width="1.8" marker-end="url(#seq-arrow)"/>
+                                <line x1="110" y1="165" x2="310" y2="165" stroke="#6366f1" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#seq-arrow-return)"/>
+                                <rect x="140" y="116" width="160" height="20" rx="4" fill="#ffffff" stroke="#c7d2fe"/>
+                                <text x="220" y="130" text-anchor="middle" font-size="10.5" font-weight="600" fill="#4338ca">2. prompt + tool_schemas</text>
+                                <rect x="135" y="152" width="170" height="20" rx="4" fill="#ffffff" stroke="#c7d2fe"/>
+                                <text x="220" y="166" text-anchor="middle" font-size="10" font-weight="600" fill="#4338ca">ToolCall(name, json_args)</text>
+                            </g>
+
+                            <!-- 步骤 3: Agent 调度标准 execute(input_data) -->
+                            <g id="seq-step-3" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="320" y1="210" x2="550" y2="210" stroke="#0284c7" stroke-width="2" marker-end="url(#seq-arrow)"/>
+                                <rect x="360" y="196" width="150" height="22" rx="4" fill="#e0f2fe" stroke="#0284c7"/>
+                                <text x="435" y="211" text-anchor="middle" font-size="11" font-weight="700" fill="#0284c7">3. execute(input_data)</text>
+                            </g>
+
+                            <!-- 步骤 4: 适配器内部将 JSON 转化为三方特定参数 -->
+                            <g id="seq-step-4" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <path d="M 560 235 H 610 V 265 H 565" fill="none" stroke="#4f46e5" stroke-width="1.8" marker-end="url(#seq-arrow)"/>
+                                <rect x="580" y="240" width="130" height="20" rx="4" fill="#eef2ff" stroke="#c7d2fe"/>
+                                <text x="645" y="254" text-anchor="middle" font-size="10" font-weight="600" fill="#4338ca">4. 正向参数转换 (JSON->URL)</text>
+                            </g>
+
+                            <!-- 步骤 5: 适配器委托调用遗留 API 原生接口 -->
+                            <g id="seq-step-5" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="560" y1="290" x2="775" y2="290" stroke="#d97706" stroke-width="1.8" marker-end="url(#seq-arrow)"/>
+                                <rect x="600" y="276" width="145" height="20" rx="4" fill="#fef3c7" stroke="#fde68a"/>
+                                <text x="672" y="290" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">5. query_legacy(query_str)</text>
+                            </g>
+
+                            <!-- 步骤 6: 遗留服务返回原始 XML，适配器逆向清洗为标准字典 -->
+                            <g id="seq-step-6" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="785" y1="330" x2="570" y2="330" stroke="#d97706" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#seq-arrow-return)"/>
+                                <rect x="620" y="318" width="115" height="18" rx="4" fill="#ffffff" stroke="#fde68a"/>
+                                <text x="677" y="331" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e">Raw XML 响应报文</text>
+                                <path d="M 560 345 H 610 V 370 H 565" fill="none" stroke="#059669" stroke-width="1.8" marker-end="url(#seq-arrow)"/>
+                                <rect x="580" y="350" width="130" height="20" rx="4" fill="#ecfdf5" stroke="#a7f3d0"/>
+                                <text x="645" y="364" text-anchor="middle" font-size="10" font-weight="700" fill="#065f46">6. 逆向清洗 (XML->ToolResult)</text>
+                            </g>
+
+                            <!-- 步骤 7: 最终将统一 ToolResult 闭环交付给 Agent 调度器 -->
+                            <g id="seq-step-7" style="opacity: 0.15; transition: opacity 0.3s;">
+                                <line x1="560" y1="390" x2="330" y2="390" stroke="#059669" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#seq-arrow-return)"/>
+                                <rect x="375" y="378" width="140" height="22" rx="4" fill="#ecfdf5" stroke="#10b981"/>
+                                <text x="445" y="393" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">7. 返回 ToolResult 结果</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 专属时序图分步教学卡片 -->
+                    <div id="teaching-card" style="margin-top: 16px; padding: 20px 24px; border-radius: 14px; background: #fafbfc; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="teach-badge" style="background: #0284c7; color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 13px; font-family: monospace;">Step 1 / 7</span>
+                                <h4 id="teach-title" style="font-size: 16px; font-weight: 800; color: #0f172a;">第一步：Agent 启动并提取工具标准规范 (Schema Discovery)</h4>
+                            </div>
+                            <div id="teach-flow" style="font-size: 12.5px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 3px 10px; border-radius: 6px; border: 1px solid #bae6fd;">
+                                交互方向：AgentCore ──> ToolAdapter
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; font-size: 13px; line-height: 1.65;">
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #0284c7; margin-bottom: 4px;">🎬 动作行为拆解</div>
+                                <div id="teach-action" style="color: #334155;">Agent 初始化阶段，遍历所有已注册的适配器，调用其 get_spec() 方法提取名称、描述与 JSON Schema 入参定义。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #059669; margin-bottom: 4px;">⚙️ 底层架构机制</div>
+                                <div id="teach-mechanism" style="color: #334155;">符合 Anthropic MCP (Model Context Protocol) 规范，大模型不需要知道底层是 REST 还是 GraphQL，只需要拿到这份标准工具字典。</div>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 700; color: #d97706; margin-bottom: 4px;">📐 UML 时序表达</div>
+                                <div id="teach-uml" style="color: #334155;">实线开放箭头代表同步请求调用，上方标注调用的具体方法名称与参数。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 视图 2：标准 Mermaid 源码渲染 -->
+                    <div id="seq-mermaid-view" style="display: none;">
+                        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 👤 用户
+    participant LLM as 🧠 LLMEngine
+    participant Agent as 👤 AgentCoreEngine
+    participant Adapter as 🔌 WeatherRestToolAdapter
+    participant Service as 📦 LegacyWeatherService
+
+    Agent->>Adapter: 1. get_spec() 提取工具参数 Schema
+    Agent->>LLM: 2. 携带用户目标与所有 Tool Schemas 提示词
+    LLM-->>Agent: 3. 决定调用: ToolCall(name, JSON 参数)
+    Agent->>Adapter: 4. execute(input_data) [面向标准契约]
+    critical 适配器内部封装
+        Adapter->>Adapter: 5. 参数正向转换 (JSON -> URL Query String)
+        Adapter->>Service: 6. query_legacy_weather(query_str)
+        Service-->>Adapter: 7. 返回原始老旧 XML 报文
+        Adapter->>Adapter: 8. 逆向数据清洗 (XML -> ToolResult 标准字典)
+    end
+    Adapter-->>Agent: 9. 返回标准 ToolResult 对象
+    Agent-->>User: 10. 整合最终分析结论并反馈
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 5 节：模式对比矩阵、优缺点与工业级避坑指南 (Deep Dive) -->
+        <section id="section-compare" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">05</div>
+                    <h2 class="section-title">架构深潜：模式对比矩阵、优缺点与工业级避坑指南</h2>
+                </div>
+
+                <!-- 1. 对象适配器 vs 类适配器全方位对比表 -->
+                <h3 style="font-size: 16px; font-weight: 700; margin: 20px 0 12px; color: var(--text-primary);">
+                    ⚖️ 核心实现机制对比：对象适配器 vs 类适配器
+                </h3>
+                <div style="overflow-x: auto; margin-bottom: 24px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-light);">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 1px solid var(--border-light); color: var(--text-primary);">
+                                <th style="padding: 12px 16px; font-weight: 700;">对比维度</th>
+                                <th style="padding: 12px 16px; font-weight: 700; color: #4f46e5;">🔄 对象适配器 (Object Adapter · 推荐)</th>
+                                <th style="padding: 12px 16px; font-weight: 700; color: #7c3aed;">🧬 类适配器 (Class Adapter · 特异)</th>
+                            </tr>
+                        </div>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 12px 16px; font-weight: 600; color: #475569;">实现原理</td>
+                                <td style="padding: 12px 16px; color: #334155;"><strong>组合 (Composition)</strong>：持有 Adaptee 对象的引用</td>
+                                <td style="padding: 12px 16px; color: #334155;"><strong>多重继承 (Inheritance)</strong>：同时继承 Target 接口与 Adaptee 类</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 12px 16px; font-weight: 600; color: #475569;">语言普适性</td>
+                                <td style="padding: 12px 16px; color: #334155;">极高（Python, TypeScript, Java, Go, C# 等全部语言）</td>
+                                <td style="padding: 12px 16px; color: #334155;">受限（仅支持支持多重继承的语言，如 Python, C++）</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 12px 16px; font-weight: 600; color: #475569;">子类多态支持</td>
+                                <td style="padding: 12px 16px; color: #059669;"><strong>极强</strong>：不仅能适配 Adaptee 本身，还能动态适配其所有子类</td>
+                                <td style="padding: 12px 16px; color: #e11d48;">较弱：编译期绑定了特定的 Adaptee 类，无法同时适配其子类</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 12px 16px; font-weight: 600; color: #475569;">方法重写与特化</td>
+                                <td style="padding: 12px 16px; color: #334155;">需通过包装方法转发，无法直接覆盖 Adaptee 的私有内部逻辑</td>
+                                <td style="padding: 12px 16px; color: #059669;">极易重写：可以直接在子类中 override 覆盖被适配者的方法行为</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px 16px; font-weight: 600; color: #475569;">设计原则评价</td>
+                                <td style="padding: 12px 16px; color: #059669;"><strong>★★★★★</strong> 彻底贯彻“多用组合，少用继承 (Favor Composition)”</td>
+                                <td style="padding: 12px 16px; color: #d97706;">★★★☆☆ 存在类层次紧耦合风险，但调用开销略微极小</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 2. 相似设计模式全维度辨析表 -->
+                <h3 style="font-size: 16px; font-weight: 700; margin: 28px 0 12px; color: var(--text-primary);">
+                    🧩 结构型设计模式家族深度辨析 (Adapter vs Decorator vs Proxy vs Facade vs Bridge)
+                </h3>
+                <div style="overflow-x: auto; margin-bottom: 24px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-light);">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 1px solid var(--border-light); color: var(--text-primary);">
+                                <th style="padding: 10px 14px; font-weight: 700;">设计模式</th>
+                                <th style="padding: 10px 14px; font-weight: 700;">核心意图 (Intent)</th>
+                                <th style="padding: 10px 14px; font-weight: 700;">接口是否改变？</th>
+                                <th style="padding: 10px 14px; font-weight: 700;">AI Agent 典型应用场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #f1f5f9; background: #f0fdf4;">
+                                <td style="padding: 10px 14px; font-weight: 700; color: #0284c7;">🔌 适配器模式 (Adapter)</td>
+                                <td style="padding: 10px 14px; color: #334155;"><strong>转换接口</strong>，让不兼容的现存服务协同工作</td>
+                                <td style="padding: 10px 14px; font-weight: 700; color: #0284c7;">改变 (新接口包装旧接口)</td>
+                                <td style="padding: 10px 14px; color: #166534;">将遗留 REST / GraphQL / CLI 工具接入标准 MCP 协议</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 700; color: #4f46e5;">✨ 装饰器模式 (Decorator)</td>
+                                <td style="padding: 10px 14px; color: #334155;"><strong>动态增强职责</strong>，在不修改原类的前提下叠加能力</td>
+                                <td style="padding: 10px 14px; color: #64748b;">保持不变 (实现完全相同接口)</td>
+                                <td style="padding: 10px 14px; color: #475569;">为 Agent 工具链路叠加 Token 计量、流式输出、审计日志与安全脱敏</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 700; color: #059669;">🛡️ 代理模式 (Proxy)</td>
+                                <td style="padding: 10px 14px; color: #334155;"><strong>控制访问权限</strong>，提供一个替身以控制对原对象的访问</td>
+                                <td style="padding: 10px 14px; color: #64748b;">保持不变 (与被代理对象同接口)</td>
+                                <td style="padding: 10px 14px; color: #475569;">远程 GPU 推理集群的虚拟代理、权限校验拦截与断网本地缓存降级</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 700; color: #d97706;">🏛️ 外观模式 (Facade)</td>
+                                <td style="padding: 10px 14px; color: #334155;"><strong>提供极简门面</strong>，为复杂子系统提供一个高层统一入口</td>
+                                <td style="padding: 10px 14px; color: #d97706;">定义全新的粗粒度高层接口</td>
+                                <td style="padding: 10px 14px; color: #475569;">对上层 UI 暴露统一 <code>auto_solve()</code>，隐藏内部 Planning/Memory/RAG 细节</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 700; color: #7c3aed;">🌉 桥接模式 (Bridge)</td>
+                                <td style="padding: 10px 14px; color: #334155;"><strong>维度双向解耦</strong>，将抽象部分与它的实现部分分离独立演化</td>
+                                <td style="padding: 10px 14px; color: #7c3aed;">设计初期双维度正交独立</td>
+                                <td style="padding: 10px 14px; color: #475569;">智能体业务角色维度（Coder/Tester）与底层推理后端（Cloud/Local）解耦</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 3. 工业级落地避坑指南 -->
+                <h3 style="font-size: 16px; font-weight: 700; margin: 28px 0 12px; color: var(--text-primary);">
+                    🚨 工业级落地避坑指南与反模式警示
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; font-size: 13.5px;">
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px 16px;">
+                        <div style="font-weight: 700; color: #b45309; margin-bottom: 6px;">⚠️ 避坑 1：切忌在适配器中硬塞过重业务逻辑</div>
+                        <p style="color: #78350f; line-height: 1.6;">
+                            适配器的核心职责是<strong>协议转换与参数映射 (Mapping & Translation)</strong>。千万不要在适配器里编写复杂的 Agent 规划、反思或提示词调优逻辑，否则会导致适配器变成难以维护的“大泥球”，违背单一职责原则 (SRP)。
+                        </p>
+                    </div>
+
+                    <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 14px 16px;">
+                        <div style="font-weight: 700; color: #be123c; margin-bottom: 6px;">⚠️ 避坑 2：警惕过度适配 (Over-Adapting)</div>
+                        <p style="color: #881337; line-height: 1.6;">
+                            如果一个新系统是你自己从零开发的，请<strong>直接让新系统实现 <code>AgentTool</code> 接口</strong>！适配器模式主要是为了应对“既成事实的遗留系统”或“不可修改源码的第三方 SDK”。不要对自己完全掌控的代码盲目层层套适配器。
+                        </p>
+                    </div>
+
+                    <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 14px 16px;">
+                        <div style="font-weight: 700; color: #3730a3; margin-bottom: 6px;">💡 建议 3：双向适配器 (Two-way Adapter) 的使用考量</div>
+                        <p style="color: #312e81; line-height: 1.6;">
+                            当系统处于新老系统过渡期，老客户端需要调用新服务、新 Agent 又需要调用老服务时，可以实现同时支持两套接口的“双向适配器”，平滑推进系统的渐进式重构迁移。
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 6 节：极速随堂测验 (4 道即时选择题) -->
+        <section id="section-quiz" class="bezel-card">
+            <div class="bezel-core">
+                <div class="section-header">
+                    <div class="section-badge">06</div>
+                    <h2 class="section-title">极速自测：4 题检验你的适配器架构真功底</h2>
+                </div>
+
+                <p class="section-desc">
+                    以下 4 道题目精心设计，点击选项即可即时获得正误反馈与深度原理解析：
+                </p>
+
+                <!-- 题目 1 -->
+                <div class="quiz-card" id="quiz-1">
+                    <div class="quiz-question">1. 在 AI Agent 工具接入场景中，使用适配器模式的最大核心收益是什么？</div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 0, false)">A. 能够提升底层三方服务的网络吞吐量与请求并发数</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 1, true)">B. 使得接入新的异构三方工具时，Agent 核心调度引擎代码完全无需修改，满足开闭原则 (OCP)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 2, false)">C. 允许 Agent 绕过三方服务的 API 鉴权直接访问底层数据库</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(1, 3, false)">D. 将同步调用强制变为异步调用以节省 GPU 显存</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-1"></div>
+                </div>
+
+                <!-- 题目 2 -->
+                <div class="quiz-card" id="quiz-2">
+                    <div class="quiz-question">2. 为什么在工业级开发中，通常优先推荐使用「对象适配器」而非「类适配器」？</div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 0, false)">A. 因为类适配器在 Python 语言中无法运行</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 1, false)">B. 对象适配器占用的内存更小，执行速度比类适配器快 10 倍</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 2, true)">C. 对象适配器基于组合复用，不仅与所有编程语言兼容，还能透明地适配被适配者的所有派生子类</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(2, 3, false)">D. 类适配器不支持向客户端返回字典类型的结果</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-2"></div>
+                </div>
+
+                <!-- 题目 3 -->
+                <div class="quiz-card" id="quiz-3">
+                    <div class="quiz-question">3. 「适配器模式 (Adapter)」与「装饰器模式 (Decorator)」最根本的本质区别在于？</div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(3, 0, true)">A. 适配器的意图是「改变接口」以解决兼容性；而装饰器的意图是「保持接口不变」以动态增强职责</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(3, 1, false)">B. 适配器只能用在结构型模式中，装饰器只能用在行为型模式中</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(3, 2, false)">C. 适配器不需要实例化被适配者，装饰器必须使用全局单例</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(3, 3, false)">D. 适配器用于前后端交互，装饰器只能用于操作系统底层内核</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-3"></div>
+                </div>
+
+                <!-- 题目 4 -->
+                <div class="quiz-card" id="quiz-4">
+                    <div class="quiz-question">4. 在 UML 类图设计中，对象适配器（Object Adapter）与被适配者（Adaptee）之间表达的依赖关系通常是？</div>
+                    <div class="quiz-options">
+                        <button class="quiz-option-btn" onclick="checkQuiz(4, 0, false)">A. 泛化继承关系 (Generalization，带空心三角的实线)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(4, 1, false)">B. 接口实现关系 (Realization，带空心三角的虚线)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(4, 2, true)">C. 关联/组合聚合关系 (Association / Composition，带菱形或普通箭头的实线)</button>
+                        <button class="quiz-option-btn" onclick="checkQuiz(4, 3, false)">D. 依赖返回关系 (带虚线开放箭头的返回类型)</button>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-4"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 底部导航与翻页 -->
+        <footer class="footer-nav">
+            <a href="../01-creational/02-abstract-factory-pattern.html" class="footer-nav-btn">
+                ← 上一章：02 · 抽象工厂模式 (Abstract Factory)
+            </a>
+            <a href="../../index.html" class="footer-nav-btn" style="background: #f0f9ff; color: #0284c7; border-color: #bae6fd;">
+                🏠 返回设计模式总览大厅
+            </a>
+            <a href="./07-decorator-pattern.html" class="footer-nav-btn">
+                下一章：07 · 装饰器模式 (Decorator) →
+            </a>
+        </footer>
+
+    </main>
+
+    <script>
+        // 初始化 Mermaid 与页面视图
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'neutral',
+                    themeVariables: {
+                        primaryColor: '#e0f2fe',
+                        primaryBorderColor: '#0284c7',
+                        primaryTextColor: '#0c4a6e',
+                        lineColor: '#64748b'
+                    }
+                });
+            }
+            // 默认渲染第一个 Python 文件
+            switchPyFile(0);
+            // 默认初始化类图第 1 步
+            goToClassStep(1);
+            // 默认初始化时序图第 1 步
+            goToStep(1);
+        });
+
+        // 视图切换 (SVG vs Mermaid)
+        function switchDiagramView(type, view, btn) {
+            const container = btn.closest('.diagram-viewport');
+            const btns = container.querySelectorAll('.diagram-view-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById(`${type}-svg-view`);
+            const mermaidView = document.getElementById(`${type}-mermaid-view`);
+            const tabs = document.getElementById(`${type}-step-tabs`);
+            const teachCard = document.getElementById(`${type === 'seq' ? 'teaching' : 'class-teaching'}-card`);
+
+            if (view === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+                if (tabs) tabs.style.display = 'grid';
+                if (teachCard) teachCard.style.display = 'block';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+                if (tabs) tabs.style.display = 'none';
+                if (teachCard) teachCard.style.display = 'none';
+            }
+        }
+
+        // 阅读进度条监听
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('read-progress').style.width = scrolled + '%';
+        });
+
+        // 7 步时序图数据与控制逻辑
+        const seqStepsData = [
+            {
+                step: 1,
+                title: '第一步：Agent 启动并提取工具标准规范 (Schema Discovery)',
+                flow: '交互方向：AgentCore ──> ToolAdapter',
+                action: 'Agent 初始化阶段，遍历所有已注册的适配器，调用其 get_spec() 方法提取名称、描述与 JSON Schema 入参定义。',
+                mechanism: '符合 Anthropic MCP (Model Context Protocol) 规范，大模型不需要知道底层是 REST 还是 GraphQL，只需要拿到这份标准工具字典。',
+                uml: '实线开放箭头代表同步请求调用，上方标注调用的具体方法名称与参数。'
+            },
+            {
+                step: 2,
+                title: '第二步：用户输入任务，Agent 携带工具元数据请求 LLM 决策 (Reasoning)',
+                flow: '交互方向：AgentCore <──> LLMEngine',
+                action: 'Agent 将用户 Goal 与刚才提取的全部 Tool Schemas 组装为 System Prompt，发送给大模型（如 Claude 3.7 / GPT-4o）。',
+                mechanism: 'LLM 进行思考 (Chain-of-Thought)，返回结构化的 ToolCall 决策，指定工具名称为 get_live_weather，入参为 {"city": "Beijing"}。',
+                uml: '双向箭头交互：向左发起 prompt 请求，虚线箭头返回生成的 tool_calls JSON 响应。'
+            },
+            {
+                step: 3,
+                title: '第三步：Agent 调度核心统一分发标准 execute(input_data)',
+                flow: '交互方向：AgentCore ──> WeatherRestToolAdapter',
+                action: 'Agent 核心引擎完全不写 if-else！直接通过目标接口的多态契约，执行 target_tool.execute(json_args)。',
+                mechanism: '客户端代码只认 AgentTool 基类，这一步是彻底解耦的关键，满足迪米特法则 (Law of Demeter)。',
+                uml: '粗体实线箭头，代表业务客户端对目标接口的发起调用。'
+            },
+            {
+                step: 4,
+                title: '第四步：适配器内部进行正向参数翻译转换 (Forward Translation)',
+                flow: '交互方向：WeatherRestToolAdapter (内部自循环转换)',
+                action: 'WeatherRestToolAdapter 接收到 {"city": "Beijing"}，在内部拼接为老旧气象局需要的 URL 查询串 "city=Beijing&lang=zh&token=sec_9988"。',
+                mechanism: '适配器承担了“脏活累活”，将现代大模型的结构化 JSON 翻译为老系统的专属协议格式。',
+                uml: '自调用弧形折线 (Self-Call)，代表对象内部私有逻辑处理。'
+            },
+            {
+                step: 5,
+                title: '第五步：适配器委托调用遗留 API 原生接口 (Delegation)',
+                flow: '交互方向：WeatherRestToolAdapter ──> LegacyWeatherService',
+                action: '适配器调用持有的 LegacyWeatherService.query_legacy_weather(query_str)，发送底层 HTTP 请求。',
+                mechanism: '委托而非重写：适配器并不重复实现气象查询算法，而是直接委托底层现存的成熟服务。',
+                uml: '跨边界实线调用箭头，指向外部被适配者 (Adaptee)。'
+            },
+            {
+                step: 6,
+                title: '第六步：遗留服务返回原始 XML，适配器逆向清洗为标准字典 (Reverse Cleaning)',
+                flow: '交互方向：LegacyWeatherService ──> WeatherRestToolAdapter (内部清洗)',
+                action: '老旧服务返回包含 XML 标签的原始报文；适配器在内部调用 xml.etree 解析标签，清洗提取出温度、天气、风向，封装进标准 ToolResult。',
+                mechanism: '逆向转换保证了流回 Agent 核心的数据绝对干净合规，屏蔽了底层所有的脏格式。',
+                uml: '虚线返回箭头 + 内部自调用清洗折线。'
+            },
+            {
+                step: 7,
+                title: '第七步：返回标准 ToolResult 对象，Agent 完成闭环反思 (Observation Feed)',
+                flow: '交互方向：WeatherRestToolAdapter ──> AgentCore',
+                action: '适配器向 AgentCoreEngine 返回 ToolResult(success=True, data={...})。Agent 将其作为 Observation 喂给大模型完成后续回答。',
+                mechanism: '全链路闭环达成！Agent 成功获取了天气数据，而整套核心引擎自始至终没有出现一行处理 XML 的胶水代码。',
+                uml: '高亮绿色虚线返回箭头，代表完整生命周期的优雅闭环。'
+            }
+        ];
+
+        let curStepIdx = 1;
+
+        function goToStep(step) {
+            curStepIdx = step;
+            updateStepView();
+        }
+
+        function changeStep(delta) {
+            curStepIdx = Math.max(1, Math.min(7, curStepIdx + delta));
+            updateStepView();
+        }
+
+        function updateStepView() {
+            const data = seqStepsData[curStepIdx - 1];
+
+            // 更新 7 步 tabs
+            const tabs = document.querySelectorAll('.seq-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curStepIdx) {
+                    tab.style.borderColor = '#0284c7';
+                    tab.style.background = '#e0f2fe';
+                    tab.style.color = '#0284c7';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新 SVG 时序步骤透明度
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById(`seq-step-${i}`);
+                if (el) {
+                    el.style.opacity = (i === curStepIdx) ? '1' : (i < curStepIdx ? '0.4' : '0.12');
+                }
+            }
+
+            // 更新按钮状态
+            document.getElementById('prev-step-btn').disabled = (curStepIdx === 1);
+            document.getElementById('prev-step-btn').style.color = (curStepIdx === 1) ? '#94a3b8' : '#1e293b';
+            document.getElementById('prev-step-btn').style.cursor = (curStepIdx === 1) ? 'not-allowed' : 'pointer';
+
+            const nextBtn = document.getElementById('next-step-btn');
+            if (curStepIdx === 7) {
+                nextBtn.innerText = '重新从第 1 步开始 ↺';
+            } else {
+                nextBtn.innerText = `下一步：第 ${curStepIdx + 1}/7 步 →`;
+            }
+
+            // 更新卡片内容
+            document.getElementById('teach-badge').innerText = `Step ${data.step} / 7`;
+            document.getElementById('teach-title').innerText = data.title;
+            document.getElementById('teach-flow').innerText = data.flow;
+            document.getElementById('teach-action').innerText = data.action;
+            document.getElementById('teach-mechanism').innerText = data.mechanism;
+            document.getElementById('teach-uml').innerText = data.uml;
+        }
+
+        // 5 步类图构建教学数据与控制
+        const classStepsData = [
+            {
+                step: 1,
+                title: '第一步：声明目标契约接口 (Target Interface)',
+                role: '目标契约 (AgentTool 抽象基类)',
+                activeElements: ['target'],
+                concept: '设计先行！首先声明 Agent 能够识别并调度的公共接口标准。包含名称、描述、JSON Schema 入参规范与统一的 execute() 执行方法。',
+                uml: '带有 <<interface>> 标识且类名为斜体；纯虚方法带 * 号，代表纯契约不包含硬编码业务。',
+                analogy: '目标接口是国家规定的「插座国标孔位」。如果你不理解，你就理解为：规定所有工具都必须长这个样子才能插入 Agent 系统。'
+            },
+            {
+                step: 2,
+                title: '第二步：引入现存异构被适配者 (Adaptees)',
+                role: '三方遗留服务 (LegacyWeatherRestService & EnterpriseGraphQLKG)',
+                activeElements: ['target', 'adaptee-1', 'adaptee-2'],
+                concept: '企业中已存在的遗留系统和三方服务。它们功能强大但接口与 AgentTool 不兼容（左侧使用 XML，右侧使用 GraphQL 查询）。',
+                uml: '独立的业务类，方法签名与 Target 完全不同，直接依赖会导致系统严重耦合。',
+                analogy: '被适配者是带有圆脚插头的进口老式电器。功能完全正常，但无法直接插进国标扁孔插座中。'
+            },
+            {
+                step: 3,
+                title: '第三步：构建对象适配器 (Object Adapter via 组合)',
+                role: '对象适配器 (WeatherRestToolAdapter)',
+                activeElements: ['target', 'adaptee-1', 'obj-adapter', 'rel-obj-realize', 'rel-obj-compose'],
+                concept: '【左侧推荐链路】：实现 AgentTool 目标接口，内部通过组合持有 LegacyWeatherRestService 实例。在 execute() 内部完成 JSON 到 XML 转换，完美符合合成复用原则！',
+                uml: '实现虚线 (╌╌▷) 指向 Target；组合实线 (◇──) 指向 LegacyWeatherRestService。',
+                analogy: '对象适配器是外接转换插头盒子，插头插在里面，插头坏了随时可以替换，灵活性极高。'
+            },
+            {
+                step: 4,
+                title: '第四步：构建类适配器 (Class Adapter via 多重继承)',
+                role: '类适配器 (GraphQLToolClassAdapter)',
+                activeElements: ['target', 'adaptee-2', 'class-adapter', 'rel-class-inherit'],
+                concept: '【右侧继承链路】：在 Python 中利用多重继承，同时继承 AgentTool 与 EnterpriseGraphQLKG。直接在子类方法中调用父类的 query_gql()。',
+                uml: '同时带有两条继承线：一条是指向 Target 接口的实现虚线，一条是指向 Adaptee 类的泛化实线。',
+                analogy: '类适配器是直接在老电器外壳上焊上新插头，紧凑直接但耦合度较高。'
+            },
+            {
+                step: 5,
+                title: '第五步：建立客户端调度与全景多态闭环',
+                role: '全景四大角色大闭环 (Full Architecture)',
+                activeElements: ['target', 'adaptee-1', 'adaptee-2', 'obj-adapter', 'class-adapter', 'client', 'rel-client-target', 'rel-obj-realize', 'rel-obj-compose', 'rel-class-inherit'],
+                concept: '完整解耦大闭环！客户端 AgentCoreEngine 仅依赖顶层 AgentTool 集合。无论底层接入多少种异构系统，客户端代码零修改，彻底遵循开闭原则 (OCP)！',
+                uml: '客户端向 AgentTool 发起依赖调用 (╌╌>)，多态分发到左侧对象适配器与右侧类适配器。',
+                analogy: '全景多态闭环。无论房间里插了电灯、风扇还是电脑，用户只需按下总开关，所有设备通过各自的转换器稳健供电！'
+            }
+        ];
+
+        let curClassStepIdx = 1;
+
+        function goToClassStep(step) {
+            curClassStepIdx = step;
+            updateClassStepView();
+        }
+
+        function changeClassStep(delta) {
+            curClassStepIdx = Math.max(1, Math.min(5, curClassStepIdx + delta));
+            updateClassStepView();
+        }
+
+        function updateClassStepView() {
+            const data = classStepsData[curClassStepIdx - 1];
+
+            // 更新 5 步 tabs
+            const tabs = document.querySelectorAll('.class-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curClassStepIdx) {
+                    tab.style.borderColor = '#0284c7';
+                    tab.style.background = '#e0f2fe';
+                    tab.style.color = '#0284c7';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新节点与连线透明度
+            const nodeMap = {
+                'target': 'class-node-target',
+                'adaptee-1': 'class-node-adaptee-1',
+                'adaptee-2': 'class-node-adaptee-2',
+                'obj-adapter': 'class-node-obj-adapter',
+                'class-adapter': 'class-node-class-adapter',
+                'client': 'class-node-client',
+                'rel-client-target': 'class-rel-client-target',
+                'rel-obj-realize': 'class-rel-obj-realize',
+                'rel-obj-compose': 'class-rel-obj-compose',
+                'rel-class-inherit': 'class-rel-class-inherit'
+            };
+
+            for (const [key, domId] of Object.entries(nodeMap)) {
+                const el = document.getElementById(domId);
+                if (el) {
+                    if (data.activeElements.includes(key)) {
+                        el.style.opacity = '1';
+                    } else {
+                        el.style.opacity = key.startsWith('rel-') ? '0.10' : '0.18';
+                    }
+                }
+            }
+
+            // 更新按钮状态
+            document.getElementById('prev-class-step-btn').disabled = (curClassStepIdx === 1);
+            document.getElementById('prev-class-step-btn').style.color = (curClassStepIdx === 1) ? '#94a3b8' : '#1e293b';
+            document.getElementById('prev-class-step-btn').style.cursor = (curClassStepIdx === 1) ? 'not-allowed' : 'pointer';
+
+            const nextBtn = document.getElementById('next-class-step-btn');
+            if (curClassStepIdx === 5) {
+                nextBtn.innerText = '重新从第 1 步开始 ↺';
+            } else {
+                nextBtn.innerText = `下一步：第 ${curClassStepIdx + 1}/5 步 →`;
+            }
+
+            // 更新卡片内容
+            document.getElementById('class-teach-badge').innerText = `Step ${data.step} / 5`;
+            document.getElementById('class-teach-title').innerText = data.title;
+            document.getElementById('class-teach-role').innerText = `聚焦：${data.role}`;
+            document.getElementById('class-teach-concept').innerText = data.concept;
+            document.getElementById('class-teach-uml').innerText = data.uml;
+            document.getElementById('class-teach-analogy').innerText = data.analogy;
+        }
+
+        // 7 步 Python 完整代码与文件数据
+        const pyFilesData = [
+            {
+                step: 'Step 01',
+                title: '目标接口定义：标准 AgentTool 契约与 ToolResult',
+                path: 'base/tool.py',
+                role: '目标接口 (Target)',
+                reason: '【架构第一步】：定义所有工具必须遵循的标准抽象基类。屏蔽底层调用差异，统一入参 Schema 与返回结构。',
+                code: `"""
+文件路径: base/tool.py
+角色定位: 目标接口 (Target)
+职责说明: 规定所有 Agent 外部工具必须实现的通用契约规范与标准返回结构
+"""
+from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional
+from dataclasses import dataclass, field
+import json
+
+
+@dataclass
+class ToolResult:
+    """
+    统一工具返回数据模型
+    无论底层三方返回 XML、GraphQL 还是 CLI stdout，最终必须清洗为标准 ToolResult
+    """
+    success: bool
+    data: Dict[str, Any] = field(default_factory=dict)
+    error_message: Optional[str] = None
+    raw_output: Optional[str] = None
+
+    def to_llm_observation(self) -> str:
+        """序列化为供大模型阅读的观察结论 (Observation)"""
+        if not self.success:
+            return f"[Tool Error]: {self.error_message}"
+        return json.dumps(self.data, ensure_ascii=False, indent=2)
+
+
+class AgentTool(ABC):
+    """
+    【目标接口 (Target)】：AI Agent 统一工具契约
+    所有具体工具（或工具适配器）必须实现该接口
+    """
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """工具唯一标识符 (例如: get_live_weather)"""
+        pass
+
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        """工具自然语言描述 (用于注入 LLM Prompt 供模型决策)"""
+        pass
+
+    @property
+    @abstractmethod
+    def parameters_schema(self) -> Dict[str, Any]:
+        """入参的 JSON Schema 规范定义"""
+        pass
+
+    @abstractmethod
+    def execute(self, input_data: Dict[str, Any]) -> ToolResult:
+        """
+        统一执行入口
+        :param input_data: LLM 生成的标准 JSON 字典参数
+        :return: 标准化 ToolResult 对象
+        """
+        pass
+
+    def get_spec(self) -> Dict[str, Any]:
+        """导出符合 Anthropic MCP / OpenAI Function 协议的规范字典"""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "input_schema": self.parameters_schema
+        }`
+            },
+            {
+                step: 'Step 02',
+                title: '遗留三方服务：天气 REST API (XML 报文)',
+                path: 'adaptees/weather_rest.py',
+                role: '被适配者 (Adaptee 1 - REST XML API)',
+                reason: '【开发第二步】：模拟企业现存的老旧气象系统，仅接受 URL 查询字符串，并返回未清洗的原始 XML 报文。',
+                code: `"""
+文件路径: adaptees/weather_rest.py
+角色定位: 被适配者 1 (Adaptee)
+职责说明: 模拟遗留气象 REST API 服务 (接口格式不兼容，返回原始 XML 报文)
+"""
+import urllib.parse
+from typing import Dict
+
+
+class LegacyWeatherRestService:
+    """
+    【被适配者 1】：遗留天气 REST 服务
+    痛点：方法签名不一致，传参需要 URL query string，返回原始 XML 文本
+    """
+
+    def __init__(self, api_endpoint: str = "https://legacy-weather.internal.gov/api/v1"):
+        self.api_endpoint = api_endpoint
+
+    def query_legacy_weather(self, url_encoded_query: str) -> str:
+        """
+        原生方法：接收 URL 查询字符串，返回原始 XML 响应报文
+        例如传入: "city=Beijing&lang=zh&token=sec_key_9988"
+        """
+        params: Dict[str, str] = dict(urllib.parse.parse_qsl(url_encoded_query))
+        city = params.get("city", "Unknown")
+        
+        # 模拟老旧系统返回的 XML 格式报文
+        raw_xml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+<weather_report timestamp="2026-08-31T08:00:00Z">
+    <status code="200">OK</status>
+    <location name="{city}" country="CN"/>
+    <condition text="Sunny" temp_c="26" humidity="45%"/>
+    <forecast day="Today">
+        <wind speed="12km/h" direction="NW"/>
+        <air_quality index="42" status="Good"/>
+    </forecast>
+</weather_report>"""
+        return raw_xml_response`
+            },
+            {
+                step: 'Step 03',
+                title: '企业服务：GraphQL 知识图谱后端',
+                path: 'adaptees/graphql_kg.py',
+                role: '被适配者 (Adaptee 2 - Enterprise GraphQL Service)',
+                reason: '【开发第三步】：模拟企业内部 GraphQL 知识图谱服务，要求编写复杂的 GraphQL Query 结构并携带 Auth Header。',
+                code: `"""
+文件路径: adaptees/graphql_kg.py
+角色定位: 被适配者 2 (Adaptee)
+职责说明: 企业 GraphQL 知识图谱服务 (要求 GraphQL DSL 查询与特定 Token 鉴权)
+"""
+from typing import Dict, Any, List
+
+
+class EnterpriseGraphQLKnowledgeGraph:
+    """
+    【被适配者 2】：企业级 GraphQL 知识图谱服务
+    痛点：需要构造 GraphQL DSL 语句，返回深层嵌套的 GraphQL Response 结构
+    """
+
+    def __init__(self, endpoint: str = "https://kg.enterprise.ai/graphql", auth_token: str = "bearer_kg_9901"):
+        self.endpoint = endpoint
+        self.auth_token = auth_token
+
+    def execute_raw_graphql(self, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        原生方法：执行 GraphQL 查询
+        """
+        # 模拟后端知识图谱图数据解析
+        entity_name = variables.get("entity", "Unknown")
+        return {
+            "data": {
+                "knowledgeGraph": {
+                    "node": {
+                        "name": entity_name,
+                        "category": "ArchitectureDesignPattern",
+                        "relatedConcepts": [
+                            {"name": "Decorator Pattern", "relation": "SimilarStructure"},
+                            {"name": "Facade Pattern", "relation": "InterfaceSimplification"},
+                            {"name": "Model Context Protocol", "relation": "ModernStandard"}
+                        ],
+                        "summary": f"{entity_name} 是一种结构型设计模式，旨在解决不兼容接口的协同问题。"
+                    }
+                }
+            },
+            "extensions": {"cost_ms": 14, "auth_verified": True}
+        }
+
+    def introspect_schema(self) -> List[str]:
+        """获取图谱元数据类型"""
+        return ["Node", "Edge", "RelationType", "Property"]`
+            },
+            {
+                step: 'Step 04',
+                title: '系统底层工具：Shell 命令行诊断器',
+                path: 'adaptees/shell_cli.py',
+                role: '被适配者 (Adaptee 3 - CLI Utility)',
+                reason: '【开发第四步】：模拟主机上的 Bash/Shell CLI 工具，需要参数拼接与返回码捕获。',
+                code: `"""
+文件路径: adaptees/shell_cli.py
+角色定位: 被适配者 3 (Adaptee)
+职责说明: 本地 Shell 命令行工具 (基于 stdout/stderr 与退出码)
+"""
+import subprocess
+from typing import Tuple
+
+
+class LocalSystemDiagnosticsRunner:
+    """
+    【被适配者 3】：本地 Shell 诊断运行器
+    """
+
+    def run_command(self, cmd_args: list[str]) -> Tuple[int, str, str]:
+        """
+        执行原生系统命令，返回 (exit_code, stdout, stderr)
+        """
+        # 此处模拟安全的只读环境状态查询
+        if "free" in cmd_args or "mem" in cmd_args:
+            stdout = "MemTotal: 32768 MB \nMemAvailable: 24512 MB \nSwapTotal: 0 MB"
+            return 0, stdout, ""
+        elif "df" in cmd_args or "disk" in cmd_args:
+            stdout = "Filesystem 1G-blocks Used Available Use% Mounted on\n/dev/disk1s1 500G 120G 380G 24% /"
+            return 0, stdout, ""
+        return 0, f"Executed command: {' '.join(cmd_args)} [Simulated OK]", ""`
+            },
+            {
+                step: 'Step 05',
+                title: '对象适配器实战：WeatherRestToolAdapter (组合式)',
+                path: 'adapters/weather_adapter.py',
+                role: '对象适配器 (Object Adapter via Composition)',
+                reason: '【开发第五步】：重点！实现 AgentTool 目标契约，内部组合 LegacyWeatherRestService。在 execute() 中实现双向翻译清洗。',
+                code: `"""
+文件路径: adapters/weather_adapter.py
+角色定位: 对象适配器 (Object Adapter)
+职责说明: 将遗留天气 REST API (XML 格式) 适配转换为 Agent 标准 AgentTool
+核心机制: 基于「组合 (Composition)」持有被适配者对象，符合合成复用原则
+"""
+import urllib.parse
+import xml.etree.ElementTree as ET
+from typing import Dict, Any
+
+from base.tool import AgentTool, ToolResult
+from adaptees.weather_rest import LegacyWeatherRestService
+
+
+class WeatherRestToolAdapter(AgentTool):
+    """
+    【对象适配器】：将 LegacyWeatherRestService 适配为 AgentTool
+    """
+
+    def __init__(self, service: LegacyWeatherRestService = None):
+        # 内部持有被适配者的引用 (组合关系)
+        self._service = service or LegacyWeatherRestService()
+
+    @property
+    def name(self) -> str:
+        return "get_live_weather"
+
+    @property
+    def description(self) -> str:
+        return "查询指定城市的实时气象信息（包含温度、湿度、风速与空气质量指数）"
+
+    @property
+    def parameters_schema(self) -> Dict[str, Any]:
+        return {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "description": "需要查询的城市名称，例如: Beijing, Shanghai, Tokyo"
+                },
+                "language": {
+                    "type": "string",
+                    "enum": ["zh", "en"],
+                    "default": "zh",
+                    "description": "返回语言偏好"
+                }
+            },
+            "required": ["city"]
+        }
+
+    def execute(self, input_data: Dict[str, Any]) -> ToolResult:
+        """
+        统一契约入口：完成正向参数转换 -> 原生方法调用 -> 逆向数据清洗
+        """
+        city = input_data.get("city", "")
+        lang = input_data.get("language", "zh")
+
+        # 1. 正向转换：将标准 JSON 参数转换为遗留 API 要求的 URL Query String
+        query_dict = {
+            "city": city,
+            "lang": lang,
+            "token": "agent_sec_2026",
+            "format": "xml"
+        }
+        encoded_query = urllib.parse.urlencode(query_dict)
+
+        # 2. 委托调用：调用老旧系统原生方法
+        try:
+            raw_xml = self._service.query_legacy_weather(encoded_query)
+
+            # 3. 逆向清洗：解析 XML 报文，提取结构化字典
+            root = ET.fromstring(raw_xml)
+            location_elem = root.find("location")
+            condition_elem = root.find("condition")
+            wind_elem = root.find("forecast/wind")
+            aqi_elem = root.find("forecast/air_quality")
+
+            clean_data = {
+                "city": location_elem.get("name") if location_elem is not None else city,
+                "weather": condition_elem.get("text") if condition_elem is not None else "Unknown",
+                "temperature_celsius": int(condition_elem.get("temp_c", 0)) if condition_elem is not None else 0,
+                "humidity": condition_elem.get("humidity") if condition_elem is not None else "N/A",
+                "wind": wind_elem.get("speed") if wind_elem is not None else "N/A",
+                "air_quality": aqi_elem.get("status") if aqi_elem is not None else "Good"
+            }
+
+            return ToolResult(
+                success=True,
+                data=clean_data,
+                raw_output=raw_xml
+            )
+
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                error_message=f"天气数据解析适配失败: {str(e)}",
+                raw_output=None
+            )`
+            },
+            {
+                step: 'Step 06',
+                title: '类适配器实战：GraphQLToolClassAdapter (多重继承式)',
+                path: 'adapters/graphql_adapter.py',
+                role: '类适配器 (Class Adapter via Multi-Inheritance)',
+                reason: '【开发第六步】：利用 Python 多重继承特性，同时继承 AgentTool 与 EnterpriseGraphQLKnowledgeGraph。',
+                code: `"""
+文件路径: adapters/graphql_adapter.py
+角色定位: 类适配器 (Class Adapter)
+职责说明: 通过多重继承同时继承 AgentTool 与 EnterpriseGraphQLKnowledgeGraph
+核心机制: 在 Python 中利用多继承直接调用父类方法
+"""
+from typing import Dict, Any
+
+from base.tool import AgentTool, ToolResult
+from adaptees.graphql_kg import EnterpriseGraphQLKnowledgeGraph
+
+
+class GraphQLToolClassAdapter(AgentTool, EnterpriseGraphQLKnowledgeGraph):
+    """
+    【类适配器】：同时继承 目标接口 (AgentTool) 与 被适配者类 (EnterpriseGraphQLKnowledgeGraph)
+    """
+
+    def __init__(self, endpoint: str = "https://kg.enterprise.ai/graphql"):
+        # 调用被适配者父类的构造函数
+        EnterpriseGraphQLKnowledgeGraph.__init__(self, endpoint=endpoint)
+
+    @property
+    def name(self) -> str:
+        return "query_enterprise_knowledge_graph"
+
+    @property
+    def description(self) -> str:
+        return "在企业知识图谱中检索指定实体的关联概念、关系网络与专业摘要定义"
+
+    @property
+    def parameters_schema(self) -> Dict[str, Any]:
+        return {
+            "type": "object",
+            "properties": {
+                "entity": {
+                    "type": "string",
+                    "description": "需要查询的实体名称，例如: Adapter Pattern, MCP"
+                }
+            },
+            "required": ["entity"]
+        }
+
+    def execute(self, input_data: Dict[str, Any]) -> ToolResult:
+        """
+        统一执行契约：直接调用自身继承得到的 execute_raw_graphql 方法
+        """
+        entity = input_data.get("entity", "")
+
+        # 1. 构造 GraphQL 查询 DSL
+        gql_query = """
+        query QueryEntity($entity: String!) {
+            knowledgeGraph {
+                node(name: $entity) {
+                    name
+                    category
+                    relatedConcepts { name relation }
+                    summary
+                }
+            }
+        }
+        """
+        variables = {"entity": entity}
+
+        try:
+            # 2. 直接调用父类方法 (类适配器继承优势)
+            raw_response = self.execute_raw_graphql(gql_query, variables)
+
+            # 3. 逆向清洗深层嵌套响应
+            node_data = raw_response.get("data", {}).get("knowledgeGraph", {}).get("node", {})
+
+            clean_data = {
+                "entity": node_data.get("name", entity),
+                "type": node_data.get("category", "Concept"),
+                "summary": node_data.get("summary", ""),
+                "relations": [
+                    f"{r.get('relation')}: {r.get('name')}"
+                    for r in node_data.get("relatedConcepts", [])
+                ]
+            }
+
+            return ToolResult(
+                success=True,
+                data=clean_data,
+                raw_output=str(raw_response)
+            )
+
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                error_message=f"知识图谱类适配器调用异常: {str(e)}"
+            )`
+            },
+            {
+                step: 'Step 07',
+                title: '客户端引擎与多态调度：AgentCoreEngine',
+                path: 'runtime/main.py',
+                role: '客户端 (Client)',
+                reason: '【开发第七步】：大功告成！客户端 AgentCoreEngine 仅面向 AgentTool 编程，实现完全解耦的统一调度与 MCP 规范导出。',
+                code: `"""
+文件路径: runtime/main.py
+角色定位: 客户端 (Client)
+职责说明: AI Agent 核心引擎，演示面向 AgentTool 接口的多态工具调度与 MCP 清单导出
+"""
+from typing import List, Dict, Any
+import json
+
+from base.tool import AgentTool, ToolResult
+from adapters.weather_adapter import WeatherRestToolAdapter
+from adapters.graphql_adapter import GraphQLToolClassAdapter
+
+
+class AgentCoreEngine:
+    """
+    【业务客户端 (Client)】：AI Agent 智能体核心调度引擎
+    关键设计：仅依赖 AgentTool 抽象目标接口，与任何三方底层服务实现零耦合！
+    """
+
+    def __init__(self, agent_name: str = "Atlas-Agent"):
+        self.agent_name = agent_name
+        self._tools_registry: Dict[str, AgentTool] = {}
+
+    def register_tool(self, tool: AgentTool) -> None:
+        """注册适配工具 (多态接入)"""
+        self._tools_registry[tool.name] = tool
+        print(f"[{self.agent_name}] 成功挂载适配工具: {tool.name}")
+
+    def export_mcp_tool_manifest(self) -> str:
+        """导出符合 Anthropic MCP 协议的工具规范清单 (供大模型读取)"""
+        manifest = [tool.get_spec() for tool in self._tools_registry.values()]
+        return json.dumps(manifest, ensure_ascii=False, indent=2)
+
+    def dispatch_tool_call(self, tool_name: str, parameters: Dict[str, Any]) -> str:
+        """
+        统一多态分发
+        无论背后是天气 REST XML 还是企业 GraphQL，统一调用 execute()
+        """
+        if tool_name not in self._tools_registry:
+            return f"[Agent Error]: 未知工具 {tool_name}"
+
+        tool: AgentTool = self._tools_registry[tool_name]
+        print(f"[{self.agent_name}] 正在向适配器分发调用: {tool_name}，入参: {parameters}")
+        
+        # 统一多态调用
+        result: ToolResult = tool.execute(parameters)
+        return result.to_llm_observation()
+
+
+def main():
+    print("=" * 65)
+    print("🤖 启动 AI Agent 智能体系统 —— 适配器模式全景演示")
+    print("=" * 65)
+
+    # 1. 实例化 Agent 核心引擎 (Client)
+    agent = AgentCoreEngine(agent_name="Nexus-Agent")
+
+    # 2. 挂载对象适配器 (WeatherRestToolAdapter)
+    weather_adapter = WeatherRestToolAdapter()
+    agent.register_tool(weather_adapter)
+
+    # 3. 挂载类适配器 (GraphQLToolClassAdapter)
+    kg_adapter = GraphQLToolClassAdapter()
+    agent.register_tool(kg_adapter)
+
+    print("\n📋 导出 MCP 标准工具描述清单 (用于注入大模型 Prompt):")
+    print(agent.export_mcp_tool_manifest())
+
+    print("\n" + "-" * 65)
+    print("🎯 场景 1: Agent 自主调度天气查询工具 (对象适配器)")
+    obs_1 = agent.dispatch_tool_call("get_live_weather", {"city": "Beijing", "language": "zh"})
+    print("📥 Agent 接收到的标准 Observation:")
+    print(obs_1)
+
+    print("\n" + "-" * 65)
+    print("🎯 场景 2: Agent 自主调度知识图谱查询 (类适配器)")
+    obs_2 = agent.dispatch_tool_call("query_enterprise_knowledge_graph", {"entity": "Adapter Pattern"})
+    print("📥 Agent 接收到的标准 Observation:")
+    print(obs_2)
+
+    print("\n✨ 适配器模式运行大闭环演示完毕！")
+
+
+if __name__ == "__main__":
+    main()`
+            }
+        ];
+
+        let curPyFileIdx = 0;
+
+        function toggleHtmlFolder(folderId) {
+            const content = document.getElementById('folder-content-' + folderId);
+            const icon = document.getElementById('folder-icon-' + folderId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.innerText = '📂';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.innerText = '📁';
+            }
+        }
+
+        function changePyFileStep(delta) {
+            let nextIdx = curPyFileIdx + delta;
+            if (nextIdx >= pyFilesData.length) {
+                nextIdx = 0;
+            } else if (nextIdx < 0) {
+                nextIdx = 0;
+            }
+            switchPyFile(nextIdx);
+        }
+
+        function switchPyFile(idx, el) {
+            if (idx < 0 || idx >= pyFilesData.length) return;
+            curPyFileIdx = idx;
+            const files = document.querySelectorAll('#py-tree-container .py-tree-file');
+            files.forEach(f => {
+                const fileIdx = parseInt(f.getAttribute('data-file-idx') !== null ? f.getAttribute('data-file-idx') : '-1', 10);
+                const badge = f.querySelector('.py-step-tag');
+                if (fileIdx < 0 || !pyFilesData[fileIdx]) return;
+
+                const fileStepData = pyFilesData[fileIdx];
+
+                if (fileIdx === idx) {
+                    f.classList.add('active');
+                    f.style.background = '#e0f2fe';
+                    f.style.borderLeft = '3px solid #0284c7';
+                    f.style.color = '#0369a1';
+                    f.style.fontWeight = '700';
+                    if (badge) {
+                        badge.style.background = '#0284c7';
+                        badge.style.color = '#ffffff';
+                        badge.innerText = fileStepData.step;
+                    }
+
+                    // 自动展开文件夹
+                    const folderContent = f.closest('[id^="folder-content-"]');
+                    if (folderContent && folderContent.style.display === 'none') {
+                        folderContent.style.display = 'block';
+                        const folderKey = folderContent.id.replace('folder-content-', '');
+                        const icon = document.getElementById('folder-icon-' + folderKey);
+                        if (icon) icon.innerText = '📂';
+                    }
+                } else if (fileIdx < idx) {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#334155';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#dcfce7';
+                        badge.style.color = '#166534';
+                        badge.innerText = '✓ ' + fileStepData.step;
+                    }
+                } else {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#64748b';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#f1f5f9';
+                        badge.style.color = '#64748b';
+                        badge.innerText = fileStepData.step;
+                    }
+                }
+            });
+
+            const item = pyFilesData[idx];
+            document.getElementById('py-file-badge').innerText = item.step;
+            document.getElementById('py-file-title').innerText = item.title;
+            document.getElementById('py-file-role').innerText = item.role;
+            document.getElementById('py-file-reason').innerText = item.reason;
+            document.getElementById('py-breadcrumb-path').innerHTML = `agent_tool_adapter / ${item.path.includes('/') ? item.path.split('/')[0] + ' / ' : ''}<strong>${item.path.split('/').pop()}</strong>`;
+            
+            const stepCurNum = document.getElementById('py-step-cur-num');
+            if (stepCurNum) stepCurNum.innerText = (idx + 1);
+
+            const progressBar = document.getElementById('py-step-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${((idx + 1) / pyFilesData.length) * 100}%`;
+            }
+
+            // 更新上一步/下一步按钮
+            const prevBtn = document.getElementById('py-prev-btn');
+            const nextBtn = document.getElementById('py-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.color = (idx === 0) ? '#cbd5e1' : '#334155';
+                prevBtn.style.cursor = (idx === 0) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (idx === pyFilesData.length - 1) {
+                    nextBtn.innerText = '从头重温 ↺';
+                } else {
+                    nextBtn.innerText = `下一步：第 ${idx + 2}/7 步 →`;
+                }
+            }
+
+            const codeEl = document.getElementById('py-file-code-block');
+            delete codeEl.dataset.highlighted;
+            codeEl.className = 'language-python hljs';
+            codeEl.textContent = item.code;
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightElement(codeEl);
+            }
+        }
+
+        // 交互式终端模拟器场景执行逻辑
+        function runHtmlTerminal(scene) {
+            const logBox = document.getElementById('html-terminal-logs');
+            logBox.innerHTML = '<div style="color:#38bdf8;">$ python runtime/main.py --scene=' + scene + '</div>';
+            
+            if (scene === 'weather') {
+                setTimeout(() => {
+                    logBox.innerHTML += `
+<div style="color:#f8fafc;">🚀 [Atlas-Agent] 正在调度工具: 「get_live_weather」 (对象适配器模式)</div>
+<div style="color:#94a3b8;">  ├─ 1. LLM 原始入参: {"city": "Beijing", "language": "zh"}</div>
+<div style="color:#e0f2fe;">  ├─ 2. [WeatherRestToolAdapter] 正在将 JSON 转换为 URL Query: "city=Beijing&lang=zh&token=agent_sec_2026"</div>
+<div style="color:#fef3c7;">  ├─ 3. [LegacyWeatherRestService] 接收 HTTP GET，返回原始 XML 报文 (Size: 412 Bytes)</div>
+<div style="color:#a7f3d0;">  ├─ 4. [WeatherRestToolAdapter] 逆向解析 XML 标签 -> 洗涤封装为标准 ToolResult 字典</div>
+<div style="color:#4ade80;">✔ [Observation Feed 返回 Agent]:</div>
+<div style="background:#022c22; border:1px solid #059669; padding:8px 12px; border-radius:6px; margin-top:4px; color:#6ee7b7;">
+{
+  "city": "Beijing",
+  "weather": "Sunny",
+  "temperature_celsius": 26,
+  "humidity": "45%",
+  "wind": "12km/h",
+  "air_quality": "Good"
+}
+</div>
+`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                }, 300);
+            } else if (scene === 'graphql') {
+                setTimeout(() => {
+                    logBox.innerHTML += `
+<div style="color:#f8fafc;">🚀 [Atlas-Agent] 正在调度工具: 「query_enterprise_knowledge_graph」 (类适配器模式)</div>
+<div style="color:#94a3b8;">  ├─ 1. LLM 原始入参: {"entity": "Adapter Pattern"}</div>
+<div style="color:#ddd6fe;">  ├─ 2. [GraphQLToolClassAdapter] 构造 GraphQL DSL 查询语句与 Auth Header</div>
+<div style="color:#fef3c7;">  ├─ 3. [EnterpriseGraphQLKG] 执行 Graph 查询，耗时: 14ms (Auth: Verified)</div>
+<div style="color:#a7f3d0;">  ├─ 4. [GraphQLToolClassAdapter] 提取嵌套节点 -> 封装为标准 ToolResult 实体网络</div>
+<div style="color:#4ade80;">✔ [Observation Feed 返回 Agent]:</div>
+<div style="background:#2e1065; border:1px solid #7c3aed; padding:8px 12px; border-radius:6px; margin-top:4px; color:#c4b5fd;">
+{
+  "entity": "Adapter Pattern",
+  "type": "ArchitectureDesignPattern",
+  "summary": "适配器模式是一种结构型设计模式，旨在解决不兼容接口的协同问题。",
+  "relations": [
+    "SimilarStructure: Decorator Pattern",
+    "InterfaceSimplification: Facade Pattern",
+    "ModernStandard: Model Context Protocol"
+  ]
+}
+</div>
+`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                }, 300);
+            } else if (scene === 'mcp_export') {
+                setTimeout(() => {
+                    logBox.innerHTML += `
+<div style="color:#f8fafc;">📋 [Atlas-Agent] 正在导出 Anthropic MCP 工具声明注册清单 (Tool Manifest):</div>
+<div style="background:#0f172a; border:1px solid #38bdf8; padding:8px 12px; border-radius:6px; margin-top:4px; color:#bae6fd; font-size:11.5px;">
+[
+  {
+    "name": "get_live_weather",
+    "description": "查询指定城市的实时气象信息（包含温度、湿度、风速与空气质量指数）",
+    "input_schema": {
+      "type": "object",
+      "properties": {"city": {"type": "string"}, "language": {"type": "string"}},
+      "required": ["city"]
+    }
+  },
+  {
+    "name": "query_enterprise_knowledge_graph",
+    "description": "在企业知识图谱中检索指定实体的关联概念、关系网络与专业摘要定义",
+    "input_schema": {
+      "type": "object",
+      "properties": {"entity": {"type": "string"}},
+      "required": ["entity"]
+    }
+  }
+]
+</div>
+<div style="color:#38bdf8; margin-top:6px;">✨ [MCP Tool Registration JSON 导出成功，可供任意标准客户端调用] Exit: 0</div>
+`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                }, 300);
+            }
+        }
+
+        // 测验判断与解析
+        function checkQuiz(quizNum, optionIdx, isCorrect) {
+            const card = document.getElementById(`quiz-${quizNum}`);
+            const feedback = document.getElementById(`feedback-${quizNum}`);
+            const buttons = card.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach((b, idx) => {
+                b.classList.remove('correct', 'wrong');
+                if (idx === optionIdx) {
+                    b.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+            });
+
+            feedback.style.display = 'block';
+            if (isCorrect) {
+                feedback.className = 'quiz-feedback callout-success';
+                if (quizNum === 1) {
+                    feedback.innerHTML = `<strong>🎉 回答正确！</strong> 这正是适配器模式的核心价值：将接口协议转换与数据清洗抽离到独立适配器中，既满足单一职责原则 (SRP)，又使得接入新三方 API 时完全不用修改 Agent 核心代码，满足开闭原则 (OCP)。`;
+                } else if (quizNum === 2) {
+                    feedback.innerHTML = `<strong>🎉 回答正确！</strong> 对象适配器基于组合 (Composition)，符合“多用组合，少用继承”的设计原则，通用性高且能动态适配被适配者的子类；类适配器受限于单继承语言（如 Java 无法多继承类）。`;
+                } else if (quizNum === 3) {
+                    feedback.innerHTML = `<strong>🎉 回答正确！</strong> 经典辨析：适配器（Adapter）改变接口，解决不兼容；装饰器（Decorator）保持接口不变，动态增强额外职责。`;
+                } else {
+                    feedback.innerHTML = `<strong>🎉 回答正确！</strong> 对象适配器在内部持有被适配者对象引用（组合关系），在 UML 中表达为带菱形或开放箭头的关联/聚合连线。`;
+                }
+            } else {
+                feedback.className = 'quiz-feedback callout-warning';
+                feedback.innerHTML = `<strong>💡 差点就对啦！</strong> 请重新审视适配器模式的职责定位：适配器的本质是<strong>接口转换与协议翻译</strong>，它不改变原有服务核心逻辑，而是通过实现目标接口与持有被适配者引用，让两套不兼容的系统协同工作。`;
+            }
+        }
+
+        // 大白话速查字典折叠/展开
+        function toggleGlossary() {
+            const content = document.getElementById('glossary-content');
+            const toggleText = document.getElementById('glossary-toggle-text');
+            const toggleBtn = document.getElementById('glossary-toggle-btn');
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                if (toggleText) toggleText.innerText = '收起字典 ▴';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                if (toggleText) toggleText.innerText = '展开字典 ▾';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function copyCurrentCode() {
+            const item = pyFilesData[curPyFileIdx];
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(item.code).then(() => {
+                    const btn = document.querySelector('.copy-btn');
+                    if (btn) {
+                        btn.innerText = '✅ 已复制！';
+                        setTimeout(() => btn.innerText = '📋 复制代码', 2000);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

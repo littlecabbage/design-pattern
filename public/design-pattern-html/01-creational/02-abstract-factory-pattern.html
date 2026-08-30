@@ -816,6 +816,79 @@
             </div>
         </section>
 
+        <!-- 附录：初学者概念大白话速查字典 (顶部可折叠) -->
+        <section id="section-glossary" style="margin: 24px 0 28px;">
+            <div style="background: #ffffff; border: 1.5px solid #e0e7ff; border-radius: 16px; box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.06); overflow: hidden; transition: all 0.25s ease;">
+                <!-- 可点击折叠栏 Header -->
+                <div onclick="toggleGlossary()" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; cursor: pointer; background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%); user-select: none; transition: background 0.15s;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="font-size: 22px; line-height: 1;">💡</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3 style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典</h3>
+                                <span style="background: #eef2ff; color: #4f46e5; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #c7d2fe;">通俗比喻 · 点击展开/折叠</span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 3px 0 0;">全篇核心概念通俗比喻速查（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="glossary-toggle-text" style="font-size: 12px; font-weight: 700; color: #4f46e5;">展开字典 ▾</span>
+                        <div id="glossary-toggle-btn" style="width: 26px; height: 26px; border-radius: 7px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; transition: transform 0.2s ease;">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 折叠主体内容 -->
+                <div id="glossary-content" style="display: none; padding: 4px 22px 20px; border-top: 1px dashed #e2e8f0; background: #ffffff;">
+                    <div style="height: 12px;"></div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 13px;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">🏛️ 抽象工厂模式 (Abstract Factory)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                提供一揽子生产互相关联产品族的工厂接口。<strong>如果你不理解，你就理解为：「品牌生态专营店」</strong>——苹果店一次性卖给你 iPhone + Mac + Watch 全套原装套件。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">📦 产品族 (Product Family)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                由同一体系生产、相互配合的一整套不同产品（横向）。<strong>如果你不理解，你就理解为：「麦当劳开心乐园套餐」</strong>——汉堡 + 薯条 + 可乐，成套打包。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🪜 产品等级结构 (Product Hierarchy)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                同一种功能产品的不同派生实现（纵向）。<strong>如果你不理解，你就理解为：「所有品牌的手机」</strong>——iPhone、华为手机、小米手机都属于手机这个等级。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🧩 抽象基类 / 接口 (ABC / Interface)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                定义规范契约但不包含完整实现。<strong>如果你不理解，你就理解为：「国家强制标准插座图纸」</strong>——规定了插孔尺寸，厂商按图纸生产真插座。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #dc2626; margin-bottom: 4px;">🔓 开闭原则的倾斜性 (Slanted OCP)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                增加新产品族容易，增加新产品等级困难。<strong>如果你不理解，你就理解为：「专卖店多卖一个品牌很容易，但在所有专营店里硬塞一种新家电很难」</strong>。
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🛡️ 依赖倒置原则 (DIP)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                高层模块与底层模块都依赖于抽象。<strong>如果你不理解，你就理解为：「驾驶员只根据方向盘和刹车标准开车」</strong>——不论底层是燃油引擎还是纯电电机，驾驶操作完全一样。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 第 1 节：直觉认知与现实痛点 -->
         <section id="section-intro" class="bezel-card">
             <div class="bezel-core">
@@ -1859,65 +1932,6 @@ sequenceDiagram
             </div>
         </section>
 
-        <!-- 附录：初学者概念大白话速查字典 -->
-        <section id="section-glossary" style="margin-top: 36px;">
-            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04); text-align: left;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 20px;">💡</span>
-                        <div>
-                            <h3 style="font-size: 16.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典</h3>
-                            <p style="font-size: 12.5px; color: #64748b; margin: 2px 0 0;">全篇核心概念通俗比喻总览（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 13px;">
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">🏛️ 抽象工厂模式 (Abstract Factory)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            提供一揽子生产互相关联产品族的工厂接口。<strong>如果你不理解，你就理解为：「品牌生态专营店」</strong>——苹果店一次性卖给你 iPhone + Mac + Watch 全套原装套件。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">📦 产品族 (Product Family)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            由同一体系生产、相互配合的一整套不同产品（横向）。<strong>如果你不理解，你就理解为：「麦当劳开心乐园套餐」</strong>——汉堡 + 薯条 + 可乐，成套打包。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🪜 产品等级结构 (Product Hierarchy)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            同一种功能产品的不同派生实现（纵向）。<strong>如果你不理解，你就理解为：「所有品牌的手机」</strong>——iPhone、华为手机、小米手机都属于手机这个等级。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🧩 抽象基类 / 接口 (ABC / Interface)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            定义规范契约但不包含完整实现。<strong>如果你不理解，你就理解为：「国家强制标准插座图纸」</strong>——规定了插孔尺寸，厂商按图纸生产真插座。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #dc2626; margin-bottom: 4px;">🔓 开闭原则的倾斜性 (Slanted OCP)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            增加新产品族容易，增加新产品等级困难。<strong>如果你不理解，你就理解为：「专卖店多卖一个品牌很容易，但在所有专营店里硬塞一种新家电很难」</strong>。
-                        </div>
-                    </div>
-
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
-                        <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🛡️ 依赖倒置原则 (DIP)</div>
-                        <div style="color: #334155; line-height: 1.55;">
-                            高层模块与底层模块都依赖于抽象。<strong>如果你不理解，你就理解为：「驾驶员只根据方向盘和刹车标准开车」</strong>——不论底层是燃油引擎还是纯电电机，驾驶操作完全一样。
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- 总结提炼卡片 -->
         <div style="background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%); border: 1px solid #c7d2fe; border-radius: 16px; padding: 32px; text-align: center; margin-top: 40px;">
             <h3 style="font-size: 20px; font-weight: 800; color: #1e1b4b; margin-bottom: 12px;">🎉 恭喜完成抽象工厂模式的探索！</h3>
@@ -2768,6 +2782,22 @@ if __name__ == "__main__":
             } else {
                 feedback.className = 'quiz-feedback callout-warning';
                 feedback.innerHTML = `<strong>💡 差点就对啦！</strong> ${quizNum === 1 ? '注意观察：虚线代表非直接实现机制（接口实现），实线才是类与类之间的直接继承。' : '增加产品族很容易，但增加新的产品种类（等级结构）会导致顶层接口改变，从而破坏现有工厂的稳定性。'}`;
+            }
+        }
+
+        // 大白话速查字典折叠/展开
+        function toggleGlossary() {
+            const content = document.getElementById('glossary-content');
+            const toggleText = document.getElementById('glossary-toggle-text');
+            const toggleBtn = document.getElementById('glossary-toggle-btn');
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                if (toggleText) toggleText.innerText = '收起字典 ▴';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                if (toggleText) toggleText.innerText = '展开字典 ▾';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(0deg)';
             }
         }
 

@@ -25,6 +25,8 @@
 | 🏠 **总览导航大厅 (Hub Portal)** | **[👉 点击进入设计模式总览主页](https://littlecabbage.github.io/design-pattern/)** | 包含 23 种设计模式分类检索、路线图与各章节直达入口 |
 | 📘 **01 · 工厂方法模式** | **[👉 01-factory-method-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/01-factory-method-pattern.html)** | 解密 CodeAgent 与 ResearchAgent 的动态生命周期流水线 |
 | 🏛️ **02 · 抽象工厂模式** | **[👉 02-abstract-factory-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/02-abstract-factory-pattern.html)** | 解决本地涉密栈 vs 云端高并发栈的产品族协同与混搭痛点 |
+| 🔌 **06 · 适配器模式** | **[👉 06-adapter-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/06-adapter-pattern.html)** | 消除协议鸿沟 · 将传统 REST/GraphQL 与本地 CLI 封装为 Agent MCP 标准工具 |
+| ✨ **07 · 装饰器模式** | **[👉 07-decorator-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/07-decorator-pattern.html)** | 动态无侵入增强 · 俄罗斯套娃叠加流式输出、Token 预算限流、敏感词安全脱敏与审计日志 |
 
 ---
 
@@ -51,10 +53,10 @@
 | **05** | **原型模式** *(Prototype)* | 状态快照 · 智能体思维链 (Tree-of-Thought) 分支环境深度克隆 | 🟡 规划中 | 敬请期待 |
 
 ### 02. 结构型模式 (Structural Patterns) · 7 种
-| 序号 | 模式名称 | 核心定位与 AI Agent 落地场景 | 状态 |
-| :---: | :--- | :--- | :---: |
-| **06** | **适配器模式** *(Adapter)* | 协议转换 · 将传统 REST/GraphQL API 转换为 Agent MCP 标准工具 | 🟡 规划中 |
-| **07** | **装饰器模式** *(Decorator)* | 动态增强 · 无侵入叠加流式输出、Token 预算限流与安全脱敏 | 🟡 规划中 |
+| 序号 | 模式名称 | 核心定位与 AI Agent 落地场景 | 状态 | 在线课件 |
+| :---: | :--- | :--- | :---: | :---: |
+| **06** | **适配器模式** *(Adapter)* | 协议转换 · 将传统 REST/GraphQL API 转换为 Agent MCP 标准工具 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/06-adapter-pattern.html) |
+| **07** | **装饰器模式** *(Decorator)* | 动态增强 · 无侵入叠加流式输出、Token 预算限流与安全脱敏 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/07-decorator-pattern.html) |
 | **08** | **代理模式** *(Proxy)* | 访问控制 · 本地 Agent 对远程 GPU 推理集群的虚拟代理与断网降级 | 🟡 规划中 |
 | **09** | **外观模式** *(Facade)* | 极简门面 · 对外暴露统一 `auto_solve()`，隐藏 Planning/RAG 复杂细节 | 🟡 规划中 |
 | **10** | **桥接模式** *(Bridge)* | 独立演进 · Agent 业务角色层与底层推理后端的双维度解耦 | 🟡 规划中 |
@@ -115,9 +117,12 @@ npm run build
 design-pattern/
 ├── .github/workflows/deploy.yml          # GitHub Pages CI/CD 自动化流水线
 ├── design-pattern-html/                  # 独立单文件 HTML 教学课件库
-│   └── 01-creational/
-│       ├── 01-factory-method-pattern.html
-│       └── 02-abstract-factory-pattern.html
+│   ├── 01-creational/
+│   │   ├── 01-factory-method-pattern.html
+│   │   └── 02-abstract-factory-pattern.html
+│   └── 02-structural/
+│       ├── 06-adapter-pattern.html
+│       └── 07-decorator-pattern.html
 ├── public/                               # 静态资源与 HTML 镜像
 ├── src/                                  # React 交互式教学导航大厅源码
 │   ├── components/                       # 可复用架构教学组件库
