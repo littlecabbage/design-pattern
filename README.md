@@ -28,6 +28,7 @@
 | 🔒 **03 · 单例模式** | **[👉 03-singleton-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/03-singleton-pattern.html)** | 全局唯一电表房 · Agent 集中式 Token 计量网关与 Embedding 缓存 |
 | 🔌 **06 · 适配器模式** | **[👉 06-adapter-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/06-adapter-pattern.html)** | 消除协议鸿沟 · 将传统 REST/GraphQL 与本地 CLI 封装为 Agent MCP 标准工具 |
 | ✨ **07 · 装饰器模式** | **[👉 07-decorator-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/07-decorator-pattern.html)** | 动态无侵入增强 · 俄罗斯套娃叠加流式输出、Token 预算限流、敏感词安全脱敏与审计日志 |
+| 🛡️ **15 · 责任链模式** | **[👉 15-chain-of-responsibility-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/03-behavioral/15-chain-of-responsibility-pattern.html)** | 安检通道式多层防护 · Prompt 注入拦截、敏感词过滤与代码静态审查流水线 |
 
 ---
 
@@ -69,7 +70,7 @@
 | :---: | :--- | :--- | :---: |
 | **13** | **策略模式** *(Strategy)* | 算法替换 · ReAct 单步决策 / Plan-Solve 批处理 / ToT 树搜索动态切换 | 🟡 规划中 |
 | **14** | **观察者模式** *(Observer)* | 事件总线 · Leader 任务分解事件自动广播给各 Worker 智能体监听 | 🟡 规划中 |
-| **15** | **责任链模式** *(Chain of Responsibility)* | 多层防护 · Prompt 注入防御 -> 敏感词过滤 -> 代码静态审查流水线 | 🟡 规划中 |
+| **15** | **责任链模式** *(Chain of Responsibility)* | 多层防护 · Prompt 注入防御 -> 敏感词过滤 -> 代码静态审查流水线 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/03-behavioral/15-chain-of-responsibility-pattern.html) |
 | **16** | **状态模式** *(State)* | 状态驱动 · [IDLE] -> [PLANNING] -> [EXECUTING] -> [REFLECTING] 状态机 | 🟡 规划中 |
 | **17** | **命令模式** *(Command)* | 请求封装 · Agent 工具调用 (Tool Call) 的序列化、撤销与回放队列 | 🟡 规划中 |
 | **18** | **模板方法** *(Template Method)* | 骨架约束 · 定义 Agent 思考-行动-反思标准骨架，子类重写特定环节 | 🟡 规划中 |
@@ -122,9 +123,11 @@ design-pattern/
 │   │   ├── 01-factory-method-pattern.html
 │   │   ├── 02-abstract-factory-pattern.html
 │   │   └── 03-singleton-pattern.html
-│   └── 02-structural/
-│       ├── 06-adapter-pattern.html
-│       └── 07-decorator-pattern.html
+│   ├── 02-structural/
+│   │   ├── 06-adapter-pattern.html
+│   │   └── 07-decorator-pattern.html
+│   └── 03-behavioral/
+│       └── 15-chain-of-responsibility-pattern.html
 ├── public/                               # 静态资源与 HTML 镜像
 ├── src/                                  # React 交互式教学导航大厅源码
 │   ├── components/                       # 可复用架构教学组件库
