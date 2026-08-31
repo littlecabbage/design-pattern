@@ -25,6 +25,7 @@
 | 🏠 **总览导航大厅 (Hub Portal)** | **[👉 点击进入设计模式总览主页](https://littlecabbage.github.io/design-pattern/)** | 包含 23 种设计模式分类检索、路线图与各章节直达入口 |
 | 📘 **01 · 工厂方法模式** | **[👉 01-factory-method-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/01-factory-method-pattern.html)** | 解密 CodeAgent 与 ResearchAgent 的动态生命周期流水线 |
 | 🏛️ **02 · 抽象工厂模式** | **[👉 02-abstract-factory-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/02-abstract-factory-pattern.html)** | 解决本地涉密栈 vs 云端高并发栈的产品族协同与混搭痛点 |
+| 🔒 **03 · 单例模式** | **[👉 03-singleton-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/03-singleton-pattern.html)** | 全局唯一电表房 · Agent 集中式 Token 计量网关与 Embedding 缓存 |
 | 🔌 **06 · 适配器模式** | **[👉 06-adapter-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/06-adapter-pattern.html)** | 消除协议鸿沟 · 将传统 REST/GraphQL 与本地 CLI 封装为 Agent MCP 标准工具 |
 | ✨ **07 · 装饰器模式** | **[👉 07-decorator-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/07-decorator-pattern.html)** | 动态无侵入增强 · 俄罗斯套娃叠加流式输出、Token 预算限流、敏感词安全脱敏与审计日志 |
 
@@ -48,7 +49,7 @@
 | :---: | :--- | :--- | :---: | :---: |
 | **01** | **工厂方法模式** *(Factory Method)* | 多态创建 · 解耦 CodeAgent 与 ResearchAgent 生命周期流水线 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/01-factory-method-pattern.html) |
 | **02** | **抽象工厂模式** *(Abstract Factory)* | 产品族生态 · 本地涉密隔离栈 vs 云端高并发栈成套热插拔 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/02-abstract-factory-pattern.html) |
-| **03** | **单例模式** *(Singleton)* | 全局唯一 · Agent 集中式 Token 计量网关与 Embedding 缓存 | 🟡 规划中 | 敬请期待 |
+| **03** | **单例模式** *(Singleton)* | 全局唯一 · Agent 集中式 Token 计量网关与 Embedding 缓存 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/03-singleton-pattern.html) |
 | **04** | **建造者模式** *(Builder)* | 链式装配 · 复杂 Agent 执行管线 (Prompt+工具+记忆+权限) | 🟡 规划中 | 敬请期待 |
 | **05** | **原型模式** *(Prototype)* | 状态快照 · 智能体思维链 (Tree-of-Thought) 分支环境深度克隆 | 🟡 规划中 | 敬请期待 |
 
@@ -119,7 +120,8 @@ design-pattern/
 ├── design-pattern-html/                  # 独立单文件 HTML 教学课件库
 │   ├── 01-creational/
 │   │   ├── 01-factory-method-pattern.html
-│   │   └── 02-abstract-factory-pattern.html
+│   │   ├── 02-abstract-factory-pattern.html
+│   │   └── 03-singleton-pattern.html
 │   └── 02-structural/
 │       ├── 06-adapter-pattern.html
 │       └── 07-decorator-pattern.html
