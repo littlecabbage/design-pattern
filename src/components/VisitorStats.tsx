@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, Users } from 'lucide-react';
 
-/**
- * 自定义 Hook: 监听与获取不蒜子 (Busuanzi) 统计数据
- * 采用隐藏挂载节点 + MutationObserver，完美兼容 React SPA 异步渲染，杜绝传统 ID 冲突。
- */
-export const useVisitorStats = () => {
-  const [pv, setPv] = useState<string | null>(null);
-  const [uv, setUv] = useState<string | null>(null);
+// 单例数据存储，避免多组件重复触发与状态不一致
+let globalPv: string | null = null;
+let globalUv: string | null = null;
+const listeners = new Set<(data: { pv: string | null; uv: string | null }) => void>();
 
-  useEffect(() => {
-    // 确保隐藏容器存在
+function notify(pv: string | null, uv: string | null) {
+  globalPv = pv;
+  globalUv = uv;
+  listeners.forEach((fn) => fn({ pv, uv }));
+}
+
+let initialized = false;
+
+function initBusuanzi() {
+  if (typeof window === 'undefined' || initialized) return;
+  initialized = true;
+
+  try {
+    // 确保隐藏挂载容器存在
     let container = document.getElementById('__busuanzi_hidden_container');
     let pvHidden = document.getElementById('busuanzi_value_site_pv');
     let uvHidden = document.getElementById('busuanzi_value_site_uv');
@@ -34,49 +43,90 @@ export const useVisitorStats = () => {
     }
 
     const updateValues = () => {
-      if (pvHidden && pvHidden.innerText && pvHidden.innerText.trim() !== '') {
-        setPv(pvHidden.innerText.trim());
-      }
-      if (uvHidden && uvHidden.innerText && uvHidden.innerText.trim() !== '') {
-        setUv(uvHidden.innerText.trim());
+      try {
+        const pvText = pvHidden?.innerText?.trim();
+        const uvText = uvHidden?.innerText?.trim();
+        if (pvText || uvText) {
+          notify(pvText || globalPv, uvText || globalUv);
+        }
+      } catch (err) {
+        console.warn('[Busuanzi] update error:', err);
       }
     };
 
     updateValues();
 
-    const observer = new MutationObserver(() => {
-      updateValues();
-    });
-
-    if (pvHidden) {
-      observer.observe(pvHidden, { childList: true, characterData: true, subtree: true });
-    }
-    if (uvHidden) {
-      observer.observe(uvHidden, { childList: true, characterData: true, subtree: true });
-    }
-
-    // 动态注入不蒜子核心脚本
-    const scriptId = 'busuanzi-script';
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = scriptId;
-      script.src = '//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-      script.async = true;
-      document.body.appendChild(script);
-    } else {
-      const bsz = (window as unknown as { bszCaller?: { fetch?: () => void } }).bszCaller;
-      if (bsz && typeof bsz.fetch === 'function') {
-        bsz.fetch();
+    if (pvHidden || uvHidden) {
+      const observer = new MutationObserver(() => {
+        updateValues();
+      });
+      if (pvHidden) {
+        observer.observe(pvHidden, { childList: true, characterData: true, subtree: true });
+      }
+      if (uvHidden) {
+        observer.observe(uvHidden, { childList: true, characterData: true, subtree: true });
       }
     }
 
+    // 检查是否已存在不蒜子脚本
+    const existingScript = document.querySelector('script[src*="busuanzi"]') as HTMLScriptElement | null;
+    const bszCaller = (window as unknown as { bszCaller?: { fetch?: (url: string, cb: (data: unknown) => void) => void } }).bszCaller;
+    const bszTag = (window as unknown as { bszTag?: { texts: (data: unknown) => void; shows: () => void } }).bszTag;
+
+    if (bszCaller && typeof bszCaller.fetch === 'function' && bszTag) {
+      try {
+        bszCaller.fetch('//busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback', (data: unknown) => {
+          bszTag.texts(data);
+          bszTag.shows();
+          updateValues();
+        });
+      } catch (e) {
+        console.warn('[Busuanzi] fetch error:', e);
+      }
+    } else if (!existingScript) {
+      const script = document.createElement('script');
+      script.id = 'busuanzi-script';
+      script.src = '//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+      script.async = true;
+      script.referrerPolicy = 'no-referrer-when-downgrade';
+      script.onerror = () => {
+        console.warn('[Busuanzi] Script failed to load (possibly blocked by Adblocker)');
+      };
+      document.head.appendChild(script);
+    }
+  } catch (e) {
+    console.warn('[Busuanzi] Initialization error:', e);
+  }
+}
+
+/**
+ * 自定义 Hook: 监听与获取不蒜子 (Busuanzi) 统计数据
+ * 采用隐藏挂载节点 + MutationObserver + 全局单例广播，防崩溃且完美适配 React SPA
+ */
+export const useVisitorStats = () => {
+  const [stats, setStats] = useState<{ pv: string | null; uv: string | null }>({
+    pv: globalPv,
+    uv: globalUv,
+  });
+
+  useEffect(() => {
+    initBusuanzi();
+
+    const listener = (newStats: { pv: string | null; uv: string | null }) => {
+      setStats(newStats);
+    };
+    listeners.add(listener);
+
+    if (globalPv !== stats.pv || globalUv !== stats.uv) {
+      setStats({ pv: globalPv, uv: globalUv });
+    }
+
     return () => {
-      observer.disconnect();
+      listeners.delete(listener);
     };
   }, []);
 
-  return { pv, uv };
+  return stats;
 };
 
 /**
