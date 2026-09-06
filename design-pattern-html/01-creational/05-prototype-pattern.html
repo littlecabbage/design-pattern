@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深入浅出原型模式 (Prototype Pattern)：基于 AI Agent 思维链树搜索状态快照与分支克隆架构教学</title>
+
+    <!-- SEO 与社交分享元信息 -->
+    <meta name="description" content="深入浅出原型模式 (Prototype Pattern)：以工业级 AI Agent 思维链树搜索 (Tree-of-Thought / ToT) 状态快照与微秒级分支克隆为主线，告别重资产对象重复初始化的性能灾难。包含 5 步交互式 UML 类图、UML 规范教学、7 步运行期交互时序图、Python 3.11+ 两栏 IDE 目录树工程代码实战与创建型五大模式终极大对比。">
+    <meta name="keywords" content="原型模式,Prototype Pattern,克隆模式,设计模式,UML 类图,时序图,Python,AI Agent,Tree-of-Thought,ToT,深拷贝,浅拷贝,状态快照,GoF 23">
+    <meta property="og:title" content="深入浅出原型模式 (Prototype Pattern)：AI Agent 思维链树搜索状态快照架构教学">
+    <meta property="og:description" content="告别重复初始化性能灾难！解密 AI Agent 状态快照的分叉克隆艺术：UML 规范全解析 + 7 步交互式时序图 + Python 3.11+ 生产级目录树代码实战。">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="GoF 23 架构课件库">
+
+    <!-- SVG Favicon：DNA 复制与分叉图标 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23059669'/%3E%3Ccircle cx='35' cy='50' r='14' fill='%23ffffff'/%3E%3Ccircle cx='65' cy='35' r='10' fill='%23a7f3d0'/%3E%3Ccircle cx='65' cy='65' r='10' fill='%23a7f3d0'/%3E%3Cpath d='M35 50 L65 35 M35 50 L65 65' stroke='white' stroke-width='4' stroke-dasharray='3,3'/%3E%3C/svg%3E">
+
+    <!-- 字体引入 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
+    <!-- Canvas Confetti 礼花特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            /* 主色调与设计系统 */
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-highlight: #f8faff;
+
+            --border-light: #e2e8f0;
+            --border-focus: #cbd5e1;
+            --border-accent: #059669;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --text-muted: #94a3b8;
+
+            --primary: #059669;
+            --primary-light: #ecfdf5;
+            --primary-hover: #047857;
+            --primary-glow: rgba(5, 150, 105, 0.12);
+
+            --accent-indigo: #4f46e5;
+            --accent-indigo-light: #eef2ff;
+            --accent-amber: #d97706;
+            --accent-amber-light: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-light: #fff1f2;
+            --accent-sky: #0284c7;
+            --accent-sky-light: #e0f2fe;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #f5f3ff;
+
+            --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-elevated: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+
+            --radius-outer: 24px;
+            --radius-inner: 16px;
+            --radius-sm: 8px;
+            --radius-pill: 9999px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background-color: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 顶部阅读进度指示条 */
+        #read-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3.5px;
+            background: linear-gradient(90deg, #059669, #0284c7, #4f46e5);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 顶部导航栏 */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 100;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(5, 150, 105, 0.25);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link-btn {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .nav-hub-btn {
+            background: var(--primary);
+            color: white !important;
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        }
+
+        .nav-hub-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        /* Hero 区域 */
+        .hero-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 44px 40px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .hero-tag {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-creational { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .tag-difficulty { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+        .tag-core { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-desc {
+            font-size: 15.5px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 900px;
+            margin-bottom: 24px;
+        }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 12px 16px;
+        }
+
+        .metric-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        /* 学习路线图导航卡片 */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .roadmap-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 14px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-subtle);
+            display: block;
+        }
+
+        .roadmap-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card);
+        }
+
+        .roadmap-card .step-num {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .roadmap-card .step-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        /* 核心通用卡片 (Bezel Card) */
+        .bezel-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 36px 36px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .section-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .section-desc {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* 专有名词气泡 Chip */
+        .term-chip {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+            cursor: help;
+            position: relative;
+            margin: 0 2px;
+        }
+
+        .term-chip:hover {
+            background: #ecfdf5;
+            color: #059669;
+            border-color: #a7f3d0;
+        }
+
+        .term-chip::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            width: max-content;
+            max-width: 300px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            font-weight: 400;
+            font-family: var(--font-sans);
+        }
+
+        .term-chip:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* 角色网格 (Role Bento Grid) */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .role-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .role-type {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .type-proto { background: #ecfdf5; color: #065f46; }
+        .type-concrete { background: #eef2ff; color: #3730a3; }
+        .type-registry { background: #fffbeb; color: #92400e; }
+        .type-snapshot { background: #fef2f2; color: #991b1b; }
+        .type-client { background: #f5f3ff; color: #5b21b6; }
+
+        .role-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .role-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .agent-analogy {
+            background: var(--bg-subtle);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* 交互式图表视窗 */
+        .diagram-viewport {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .diagram-toggle-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .diagram-title-tag {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .diagram-view-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diagram-view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* SVG 容器 */
+        .svg-canvas {
+            width: 100%;
+            height: auto;
+            max-height: 520px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        /* 代码复制按钮 */
+        .code-copy-btn {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 11.5px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            transition: all 0.2s;
+        }
+
+        .code-copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Python 语法高亮独立配色增强 */
+        .hljs {
+            background: #f8fafc !important;
+            color: #1e293b !important;
+            font-family: var(--font-mono) !important;
+            font-size: 13px !important;
+            line-height: 1.65 !important;
+            padding: 16px 20px !important;
+            display: block;
+            overflow-x: auto;
+        }
+        .hljs-comment, .hljs-quote { color: #64748b !important; font-style: italic !important; }
+        .hljs-keyword, .hljs-selector-tag, .hljs-subst { color: #7c3aed !important; font-weight: 700 !important; }
+        .hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable { color: #d97706 !important; }
+        .hljs-string, .hljs-doctag { color: #059669 !important; font-weight: 500 !important; }
+        .hljs-title, .hljs-title.class_, .hljs-title.function_ { color: #2563eb !important; font-weight: 700 !important; }
+        .hljs-meta, .hljs-meta .hljs-keyword { color: #dc2626 !important; font-weight: 600 !important; }
+        .hljs-built_in, .hljs-builtin-name { color: #0891b2 !important; font-weight: 600 !important; }
+
+        /* 对比表格 */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin: 16px 0;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .compare-table th, .compare-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .compare-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .compare-table tr:hover {
+            background: #f8faff;
+        }
+
+        /* 互动测验组件 */
+        .quiz-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 18px;
+        }
+
+        .quiz-question {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-option-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 13.5px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quiz-option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .quiz-option-btn.correct {
+            background: var(--accent-emerald-light);
+            border-color: var(--accent-emerald);
+            color: #065f46;
+            font-weight: 700;
+        }
+
+        .quiz-option-btn.wrong {
+            background: var(--accent-rose-light);
+            border-color: var(--accent-rose);
+            color: #9f1239;
+        }
+
+        .quiz-feedback {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 26px; }
+            .hero-desc { font-size: 14px; }
+            .bezel-card { padding: 22px 18px; }
+            .nav-links { display: none; }
+            .diagram-viewport { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 阅读进度条 -->
+    <div id="read-progress"></div>
+
+    <!-- 顶部统一导航栏 -->
+    <nav class="top-navbar">
+        <a href="../../index.html" class="nav-brand">
+            <span style="font-size: 20px;">🧬</span>
+            <span>GoF 23 设计模式体系</span>
+            <span class="brand-badge">05 · 原型模式 (Prototype)</span>
+        </a>
+        <div class="nav-links">
+            <a href="#section-glossary" class="nav-link-btn">📖 概念速查</a>
+            <a href="#section-intro" class="nav-link-btn">💡 痛点认知</a>
+            <a href="#section-uml-guide" class="nav-link-btn">📐 UML 规范</a>
+            <a href="#section-core" class="nav-link-btn">📊 核心类图</a>
+            <a href="#section-code" class="nav-link-btn">💻 工程代码</a>
+            <a href="#section-sequence" class="nav-link-btn">⏱️ 动态时序</a>
+            <a href="#section-principles" class="nav-link-btn">⚖️ 架构原则</a>
+            <a href="#section-quiz" class="nav-link-btn">🎯 极速自测</a>
+            <a href="../../index.html" class="nav-link-btn nav-hub-btn">🏠 返回主站大厅</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Hero 头图卡片 -->
+        <header class="hero-section">
+            <div class="hero-badge-row">
+                <span class="hero-tag tag-creational">🎨 创建型模式 · 第 05 讲 (收官之作)</span>
+                <span class="hero-tag tag-difficulty">⚡ 难度级别：初学到进阶</span>
+                <span class="hero-tag tag-core">🎯 核心精髓：克隆复制 · 状态分叉 · 零成本开销</span>
+            </div>
+            <h1 class="hero-title">深入浅出原型模式 (Prototype Pattern)</h1>
+            <p class="hero-desc">
+                当一个对象的初始化需要装载 2GB 向量索引、握手远端 API、加载复杂上下文权重等耗时数秒的昂贵操作时，如何拒绝“重复创建导致的性能灾难”？
+                本文以工业级 <strong>AI Agent 思维链树搜索 (Tree-of-Thought / ToT) 状态快照与微秒级分支克隆</strong> 为实战蓝本，从文档复印生活比喻、深浅拷贝对象图、5 步交互式类图、两栏 IDE 目录树 Python 3.11+ 工程代码到 7 步交互式运行期时序图，带你掌握对象在内存中极速克隆与无副作用分支演化的艺术！
+            </p>
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">模式英文全称</div>
+                    <div class="metric-val">Prototype Pattern / 克隆模式</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">核心解决痛点</div>
+                    <div class="metric-val">昂贵重复初始化与状态分叉开销</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">工业落地案例</div>
+                    <div class="metric-val">Agent 思维树搜索状态快照分叉</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SOLID 原则支撑</div>
+                    <div class="metric-val">单一职责 (SRP) + 开闭原则 (OCP)</div>
+                </div>
+            </div>
+
+            <!-- 学习路线图导航卡片 -->
+            <div class="roadmap-grid">
+                <a href="#section-intro" class="roadmap-card">
+                    <div class="step-num">Step 01</div>
+                    <div class="step-name">痛点剖析：重资产 Agent 初始化灾难</div>
+                </a>
+                <a href="#section-uml-guide" class="roadmap-card">
+                    <div class="step-num">Step 02</div>
+                    <div class="step-name">UML 蓝图与深浅拷贝对象图</div>
+                </a>
+                <a href="#section-core" class="roadmap-card">
+                    <div class="step-num">Step 03</div>
+                    <div class="step-name">原型五大核心角色与交互类图</div>
+                </a>
+                <a href="#section-code" class="roadmap-card">
+                    <div class="step-num">Step 04</div>
+                    <div class="step-name">Agent 树搜索两栏 IDE 实战</div>
+                </a>
+                <a href="#section-sequence" class="roadmap-card">
+                    <div class="step-num">Step 05</div>
+                    <div class="step-name">动态时序剖析 7 步交互演练</div>
+                </a>
+                <a href="#section-principles" class="roadmap-card">
+                    <div class="step-num">Step 06</div>
+                    <div class="step-name">架构原则与创建型五大模式对比</div>
+                </a>
+            </div>
+        </header>
+
+        <!-- 附录：初学者概念大白话速查字典 (顶部可折叠) -->
+        <section id="section-glossary" style="margin: 24px 0 28px;">
+            <div style="background: #ffffff; border: 1.5px solid #d1fae5; border-radius: 16px; box-shadow: 0 4px 20px -2px rgba(5, 150, 105, 0.06); overflow: hidden; transition: all 0.25s ease;">
+                <!-- 可点击折叠栏 Header -->
+                <div onclick="toggleGlossary()" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; cursor: pointer; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); user-select: none; transition: background 0.15s;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="font-size: 22px; line-height: 1;">💡</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3 style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典 (Jargon Glossary)</h3>
+                                <span style="background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #a7f3d0;">通俗比喻 · 点击展开/折叠</span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 3px 0 0;">全篇核心概念通俗比喻速查（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="glossary-toggle-text" style="font-size: 12px; font-weight: 700; color: #059669;">展开字典 ▾</span>
+                        <div id="glossary-toggle-btn" style="width: 26px; height: 26px; border-radius: 7px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; transition: transform 0.2s ease;">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 折叠主体内容 (默认隐藏) -->
+                <div id="glossary-content" style="display: none; padding: 16px 22px 24px; border-top: 1px dashed #e2e8f0; background: #ffffff;">
+                    <!-- 搜索框 -->
+                    <div style="margin-bottom: 16px;">
+                        <input type="text" id="glossary-search" placeholder="🔍 输入关键字实时过滤术语 (如：深拷贝、浅拷贝、快照、ToT、注册表)..." 
+                               style="width: 100%; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; transition: border-color 0.2s;">
+                    </div>
+
+                    <!-- 术语卡片网格 -->
+                    <div id="glossary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; font-size: 13px;">
+                        
+                        <div class="glossary-item" data-term="GoF 原型模式 Prototype Pattern 克隆" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">🧬 原型模式 (Prototype Pattern)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                用已有实例作为原型，通过内存直接复制生成新对象，避免昂贵的初始化。<strong>如果你不理解，你就理解为：印章与红印泥</strong>——刻一枚复杂公章很耗时，但一旦刻好，盖章只需要一瞬间就能印出一模一样的新文件。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Shallow Copy 浅拷贝 内存地址 引用" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">📑 浅拷贝 (Shallow Copy)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                仅复制对象的外层基本属性，内部的列表、字典或引用对象仍然指向原内存地址。<strong>如果你不理解，你就理解为：复印了一份合同</strong>——新合同纸张是新的，但上面印着的公司电话号码和原件依然是同一个。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Deep Copy 深拷贝 递归 隔离" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">📦 深拷贝 (Deep Copy)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                递归复制对象及其包含的所有层级子对象，在新内存中完全独立分配。<strong>如果你不理解，你就理解为：双胞胎克隆人</strong>——连衣服、书包里的日记本全部独立克隆了一份，一个人写日记绝不会影响另一个人。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Prototype Registry 原型管理器 原型注册表" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">🗄️ 原型管理器 / 注册表 (Prototype Registry)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                集中缓存已完成高开销预热的原型实例字典。<strong>如果你不理解，你就理解为：建筑设计院的档案室</strong>——建筑师提前把别墅、写字楼的标准蓝图存档，施工队每次要用就去档案室复印一份。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Tree-of-Thought ToT 思维链树搜索 分支" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🌲 思维链树搜索 (Tree-of-Thought / ToT)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                大语言模型在复杂问题求解时，将推理过程组织为一棵探索树，分叉探索多个假设并剪枝。<strong>如果你不理解，你就理解为：下围棋时的走法预演</strong>——在脑子里模拟每一步落子后的棋局分支，不行就回退。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="State Snapshot 状态快照 Checkpoint 存档点" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #e11d48; margin-bottom: 4px;">📸 状态快照 (State Snapshot / Checkpoint)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                将当前智能体的记忆、思维链步数和局部环境完整冻结保存。<strong>如果你不理解，你就理解为：单机游戏的存档点</strong>——在打大 Boss 前先按 F5 存个档，阵亡或走错分支立刻回溯到这一刻。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Copy-on-Write CoW 写时复制" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0891b2; margin-bottom: 4px;">⚡ 写时复制 (Copy-on-Write / CoW)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                克隆后先共享同一块内存，只有在子分支真正发生写入或修改时，才把被修改部分复制到新内存中。<strong>如果你不理解，你就理解为：多人借阅同一本书</strong>——大家看同一本图书不费纸，谁要在书上写笔记才发给他一本新书。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Circular Reference 循环引用 递归死循环" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #334155; margin-bottom: 4px;">🔄 循环引用 (Circular Reference)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                对象 A 持有 B，B 又反向持有 A 的环状结构。深拷贝时若未做备忘录记录，会导致递归爆栈崩溃。<strong>如果你不理解，你就理解为：贪吃蛇咬自己的尾巴</strong>——在复印链条上必须标注“这只尾巴我已经复印过了”。
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 1 节：直觉认知与痛点具象化 (Problem & Intuition) -->
+        <section id="section-intro" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">01</div>
+                <h2 class="section-title">直觉认知：从“复印合同”到“AI Agent 决策分叉性能崩溃”</h2>
+            </div>
+            
+            <p class="section-desc">
+                在 AI Agent 执行复杂数学定理证明、代码重构或架构推演任务时，常采用
+                <span class="term-chip" data-tip="Tree-of-Thought: 思维链树搜索&#10;让大模型像下围棋一样探索多步分支并评估剪枝">Tree-of-Thought (思维链树搜索)</span>
+                算法。在某一决策点上，系统需要分叉出 3~5 个子假设分支（Branch A/B/C/D）进行独立推演探索。如果不做设计，传统的“重新实例化”做法会带来毁灭性的性能开销。
+            </p>
+
+            <!-- 对比网格 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 24px 0;">
+                
+                <!-- 痛点：传统重新实例化灾难 -->
+                <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: var(--radius-inner); padding: 22px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="background: #e11d48; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 700;">❌ 痛点现状</span>
+                        <span style="font-weight: 700; color: #9f1239; font-size: 15px;">重资产重复初始化 (Heavy Re-instantiation)</span>
+                    </div>
+                    <p style="font-size: 13.5px; color: #4c0519; line-height: 1.6; margin-bottom: 12px;">
+                        为了测试 4 个不同推演假设，系统直接对每个分支 <code>new Agent()</code>：
+                        <br>• <strong>冷启动开销巨大</strong>：每个子 Agent 重新建立 API 连接池、重新加载 2GB 本地向量索引（耗时 3 秒以上）；
+                        <br>• <strong>重放上下文雪崩</strong>：为了把前 50 轮对话记忆喂给新 Agent，产生巨大的网络重复传输；
+                        <br>• <strong>显存与内存暴涨</strong>：并发 5 个分支相当于常驻 5 份完整的重资产，系统直接触发 OOM 宕机！
+                    </p>
+                    <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #be123c; border: 1px solid #fda4af;">
+                        # 让人绝望的重复冷启动：<br>
+                        branch_1 = HeavyAgent(db_url="...", index_path="2GB.idx")<br>
+                        branch_1.replay_history(50_dialogs)  # 耗时 3.2s !<br>
+                        branch_2 = HeavyAgent(db_url="...", index_path="2GB.idx")<br>
+                        branch_2.replay_history(50_dialogs)  # 耗时 3.1s !<br>
+                        💥 <strong>致命隐患：</strong>4 个分支耗时 12 秒以上，推理超时，GPU 显存直接爆仓！
+                    </div>
+                </div>
+
+                <!-- 优雅解法：原型克隆模式 -->
+                <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-inner); padding: 22px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="background: #059669; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 700;">✅ 优雅破局</span>
+                        <span style="font-weight: 700; color: #065f46; font-size: 15px;">原型模式 (Prototype Pattern) 微秒级内存克隆</span>
+                    </div>
+                    <p style="font-size: 13.5px; color: #064e3b; line-height: 1.6; margin-bottom: 12px;">
+                        通过<strong>原型模式</strong>在决策点直接为已经预热好的 Agent 执行 <code>clone()</code>：
+                        <br>1. <strong>微秒级直接分叉</strong>：直接在内存中拷贝对象状态，耗时仅 0.2 毫秒，快了 15000 倍；
+                        <br>2. <strong>深浅分离兼顾安全与性能</strong>：浅拷贝共享大模型客户端与只读 RAG 索引，深拷贝独立思维链与私有变量；
+                        <br>3. <strong>分支无副作用污染</strong>：各分支独立演进推演，验证失败可随时剪枝丢弃，绝不污染父节点；
+                        <br>4. <strong>原型管理器缓存</strong>：标准基础 Agent 原型预先加载入库，随取随克隆！
+                    </p>
+                    <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #047857; border: 1px solid #6ee7b7;">
+                        # 优雅、迅捷的内存级分支克隆：<br>
+                        # 基础预热 Agent 仅初始化一次<br>
+                        branch_1 = base_agent.clone(branch_id="A")  # 耗时 0.2ms !<br>
+                        branch_2 = base_agent.clone(branch_id="B")  # 耗时 0.2ms !<br>
+                        branch_1.explore("假设方案一：使用构造法证明")<br>
+                        ✨ <strong>核心收益：</strong>零重复网络开销、微秒级分叉、独立内存隔离！
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 生活化比喻 -->
+            <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-inner); padding: 18px 22px;">
+                <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+                    📑 生活中的大白话比喻：手抄合同 vs 商业复印机
+                </h4>
+                <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+                    • <strong>传统创建 (New)</strong> 就像每一份租房合同都要让律师<strong>一笔一画从头手抄 10 页纸</strong>：每一份都要写一遍甲方乙方基本条款，耗时又容易抄错；<br>
+                    • <strong>原型模式 (Prototype)</strong> 就像把已经写好的标准合同底稿塞进<strong>高速数码复印机 (Clone)</strong>：一秒钟复印出 10 份，每一份上面只要客户填上自己的签名和房租金额即可。<strong>耗时繁琐的底稿只写一次，剩下的全靠复印！</strong>
+                </p>
+            </div>
+        </section>
+
+        <!-- 第 2 节：UML 规范教学专项 (UML 101 for Prototype) -->
+        <section id="section-uml-guide" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">02</div>
+                <h2 class="section-title">UML 规范专项：浅拷贝 vs 深拷贝对象图与关系符号</h2>
+            </div>
+            
+            <p class="section-desc">
+                在原型模式中，最核心的考点莫过于<strong>对象在内存中的复制行为</strong>。通过 UML 类图与对象内存图，能够一眼看穿浅拷贝与深拷贝的底层区别。
+            </p>
+
+            <!-- UML 三大核心要素科普 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #059669; margin-bottom: 8px; font-size: 14px;">🧬 1. 原型接口在 UML 中的标准表征</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        在 UML 类图中，原型接口通常带有 <code>&lt;&lt;interface&gt;&gt;</code> 构造型，并包含一个纯虚克隆方法：
+                        <br>• <code>+ clone(): Prototype*</code> (方法名以<em>斜体文字</em>表示抽象方法)；
+                        <br>• 具体原型类通过<strong>带空心三角形的虚线 (╌╌▷)</strong> 实现该接口；
+                        <br>• 客户端通过指向抽象接口的<strong>虚线开放箭头 (╌╌>)</strong> 发起克隆调用。
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #0284c7; margin-bottom: 8px; font-size: 14px;">📑 2. 浅拷贝在 UML 对象图中的指向</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        在对象运行期内存图中：
+                        <br>• 浅拷贝克隆出的 <code>Agent_Clone</code> 与 <code>Agent_Original</code> 分别拥有独立的根对象内存块；
+                        <br>• 但两者内部的指针变量 <code>context</code> 同时<strong>指向同一个堆内存块 (Address: 0x01)</strong>；
+                        <br>• <strong>风险：</strong>子分支修改 <code>context.tokens</code> 会直接破坏原始原型的状态！
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #4f46e5; margin-bottom: 8px; font-size: 14px;">📦 3. 深拷贝在 UML 对象图中的指向</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        在递归深拷贝中：
+                        <br>• 根对象克隆出新对象，且递归遍历每个内部属性；
+                        <br>• <code>Agent_Clone</code> 的 <code>context</code> 指向<strong>全新分配的堆内存块 (Address: 0x02)</strong>；
+                        <br>• <strong>收益：</strong>真正实现物理级数据隔离，多分支探索天然线程安全。
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- 关系速查表 -->
+            <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                📐 原型模式涉及的 UML 经典关系对照表
+            </h4>
+
+            <div style="overflow-x: auto;">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">关系名称</th>
+                            <th style="width: 15%;">图示箭头规范</th>
+                            <th style="width: 25%;">生活通俗大白话</th>
+                            <th style="width: 45%;">在原型模式 (Prototype) 中的具体体现</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color: #059669;">实现关系 (Realization)</strong></td>
+                            <td><code>- - - -▷</code><br>虚线 + 空心三角形</td>
+                            <td>“复印机符合复印标准”：按照规范实现 clone 功能。</td>
+                            <td><code>ThoughtAgent</code> <strong>实现</strong> 抽象接口 <code>AgentPrototype</code>，落实具体的深浅克隆算法。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #d97706;">聚合关系 (Aggregation)</strong></td>
+                            <td><code>◇────></code><br>实线 + 空心菱形</td>
+                            <td>“档案库装满图纸”：图纸可以被抽出拿走，档案库依然存在。</td>
+                            <td><code>AgentSnapshotRegistry</code> 聚合了多个 <code>AgentPrototype</code> 快照模板实例。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #4f46e5;">依赖关系 (Dependency)</strong></td>
+                            <td><code>- - - -></code><br>虚线 + 开放单向箭头</td>
+                            <td>“顾客借用复印机”：我只在此刻调用你的 clone 方法。</td>
+                            <td><code>ToTSearchEngine</code> (客户端) 依赖 <code>AgentPrototype</code> 接口发起 <code>clone()</code> 请求。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #e11d48;">关联关系 (Association)</strong></td>
+                            <td><code>────></code><br>实线 + 单向箭头</td>
+                            <td>“对象持有指针”：知道对方存在并持有对方内存句柄。</td>
+                            <td>克隆出的新智能体关联其独立的 <code>AgentContext</code> 状态快照对象。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 第 3 节：原型模式核心角色与 5 步 UML 类图演练 -->
+        <section id="section-core" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">03</div>
+                <h2 class="section-title">原型模式核心角色与 5 步交互式 UML 类图演练</h2>
+            </div>
+            
+            <p class="section-desc">
+                根据 GoF 经典规范，原型模式由 <strong>Prototype (抽象原型)、ConcretePrototype (具体原型)、PrototypeRegistry (原型管理器)、Client (客户端)</strong> 等核心角色协同构成。在 AI Agent 思维树搜索案例中各自分工如下：
+            </p>
+
+            <!-- 核心角色 Bento Grid -->
+            <div class="role-grid">
+                
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-proto">1. 抽象原型</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Prototype</span>
+                    </div>
+                    <h3>AgentPrototype (克隆规约接口)</h3>
+                    <p>声明克隆自身的统一公共接口方法：<code>clone(deep: bool = True)</code>，屏蔽具体子类的复制细节。</p>
+                    <div class="agent-analogy">📋 <strong>比喻：</strong>国家出台的标准复印机行业接口协议。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-concrete">2. 具体原型</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">ConcretePrototype</span>
+                    </div>
+                    <h3>ThoughtAgent (思维链树具体智能体)</h3>
+                    <p>实现 <code>clone()</code> 方法。浅拷贝共享只读的模型客户端连接与知识库句柄，深拷贝独立的思维链历史与局部变量空间。</p>
+                    <div class="agent-analogy">🧬 <strong>比喻：</strong>装载了完整工作环境的高性能智能体母体。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-registry">3. 原型管理器 / 注册表</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">PrototypeRegistry</span>
+                    </div>
+                    <h3>AgentSnapshotRegistry (快照仓库)</h3>
+                    <p>以字典形式维护预先完成重资产初始化的 Agent 原型模板（如数学大师、代码专家），供系统随取随克隆。</p>
+                    <div class="agent-analogy">🗄️ <strong>比喻：</strong>建筑设计院的绝密标准图纸档案馆。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-snapshot">4. 状态快照</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">ContextSnapshot</span>
+                    </div>
+                    <h3>AgentContext (分支上下文实体)</h3>
+                    <p>承载分支专属的推演步数、假设命题、中间评分与局部变量，在深拷贝时作为独立数据块分配。</p>
+                    <div class="agent-analogy">📸 <strong>比喻：</strong>每一个分支专属的独立实验记录手账本。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-client">5. 客户端调度器</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Client</span>
+                    </div>
+                    <h3>ToTSearchEngine (树搜索调度引擎)</h3>
+                    <p>控制思维链树的展开、评估与剪枝。在需要分叉时直接调用已有原型的 <code>clone()</code> 方法生成子节点。</p>
+                    <div class="agent-analogy">🧑‍💼 <strong>比喻：</strong>围棋大师，在脑海中对不同棋局分支进行落子推演。</div>
+                </div>
+
+            </div>
+
+            <!-- 5 步交互式 UML 类图播放器 -->
+            <h3 style="font-size: 18px; margin: 32px 0 12px; font-weight: 700;">
+                📊 5 步交互式演练：UML 类图构建全景剖析
+            </h3>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                点击下方步骤标签或导航按钮，观察原型模式类图如何从抽象接口逐步演进到管理器聚合与树搜索调度：
+            </p>
+
+            <div class="diagram-viewport">
+                
+                <div class="diagram-toggle-bar">
+                    <div class="diagram-title-tag">
+                        <span>🧬 原型模式 UML 类图构建流水线</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="diagram-view-btn active" onclick="switchClassView('svg', this)">🎨 交互式 SVG 图解</button>
+                        <button class="diagram-view-btn" onclick="switchClassView('mermaid', this)">📊 Mermaid 标准渲染</button>
+                    </div>
+                </div>
+
+                <!-- 5 步横向切换 Tabs -->
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;" id="class-step-tabs">
+                    <button class="class-step-tab-btn active" onclick="goToClassStep(1)" style="padding: 6px 4px; border: 1.5px solid #059669; border-radius: 8px; background: #ecfdf5; color: #059669; font-weight: 700; cursor: pointer; font-size: 11px;">1. 抽象原型</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(2)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 具体原型</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(3)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 状态快照</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(4)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 快照管理器</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(5)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 客户端闭环</button>
+                </div>
+
+                <!-- 分步控制条 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="class-prev-btn" onclick="changeClassStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                            ← 上一步
+                        </button>
+                        <button id="class-next-btn" onclick="changeClassStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #059669; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);">
+                            下一步：第 2/5 步 →
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">
+                        💡 点击步骤按钮进行类图分步演练
+                    </div>
+                </div>
+
+                <!-- SVG 类图画布 -->
+                <div id="class-svg-view">
+                    <svg class="svg-canvas" viewBox="0 0 920 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="proto-arrow-inherit" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+                                <polygon points="0 1, 11 6, 0 11" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+                            </marker>
+                            <marker id="proto-arrow-aggregation" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+                                <polygon points="1 5, 7 1, 13 5, 7 9" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+                            </marker>
+                            <marker id="proto-arrow-dependency" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 2, 8 5, 0 8" fill="#64748b"/>
+                            </marker>
+                            <marker id="proto-arrow-assoc" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 2, 8 5, 0 8" fill="#e11d48"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 背景网格修饰 -->
+                        <pattern id="proto-grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1" fill="#f1f5f9" />
+                        </pattern>
+                        <rect width="920" height="440" fill="url(#proto-grid-pattern)" />
+
+                        <!-- 1. 抽象原型：AgentPrototype (中间偏上) -->
+                        <g id="node-proto" class="uml-node" style="transition: opacity 0.3s;">
+                            <rect x="340" y="24" width="260" height="140" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+                            <rect x="340" y="24" width="260" height="38" rx="10" fill="#ecfdf5"/>
+                            <text x="470" y="42" text-anchor="middle" font-size="10.5" font-style="italic" fill="#059669">&lt;&lt;interface / abstract&gt;&gt;</text>
+                            <text x="470" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">AgentPrototype (抽象原型)</text>
+                            <line x1="340" y1="62" x2="600" y2="62" stroke="#a7f3d0" stroke-width="1.5"/>
+                            <text x="352" y="82" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ agent_id: str</text>
+                            <text x="352" y="100" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ model_name: str</text>
+                            <line x1="340" y1="110" x2="600" y2="110" stroke="#a7f3d0" stroke-width="1.5"/>
+                            <text x="352" y="132" font-size="12" font-family="JetBrains Mono" font-weight="700" font-style="italic" fill="#059669">+ clone(deep=True)*: AgentPrototype</text>
+                        </g>
+
+                        <!-- 2. 具体原型：ThoughtAgent (中间偏下) -->
+                        <g id="node-concrete-proto" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="340" y="240" width="260" height="170" rx="10" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+                            <rect x="340" y="240" width="260" height="34" rx="10" fill="#eef2ff"/>
+                            <text x="470" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#312e81">ThoughtAgent (具体思维树智能体)</text>
+                            <line x1="340" y1="274" x2="600" y2="274" stroke="#c7d2fe" stroke-width="1.5"/>
+                            <text x="352" y="294" font-size="11.5" font-family="JetBrains Mono" fill="#e11d48">- _context: AgentContext</text>
+                            <text x="352" y="312" font-size="11.5" font-family="JetBrains Mono" fill="#475569">- _rag_client: RAGConnection</text>
+                            <line x1="340" y1="322" x2="600" y2="322" stroke="#c7d2fe" stroke-width="1.5"/>
+                            <text x="352" y="342" font-size="11.5" font-family="JetBrains Mono" font-weight="700" fill="#4f46e5">+ clone(deep=True): ThoughtAgent</text>
+                            <text x="352" y="362" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ step_forward(thought: str): float</text>
+                            <text x="352" y="382" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ get_branch_trace(): list[str]</text>
+                        </g>
+
+                        <!-- 3. 状态快照：AgentContext (右侧) -->
+                        <g id="node-snapshot" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="670" y="240" width="220" height="150" rx="10" fill="#ffffff" stroke="#e11d48" stroke-width="2"/>
+                            <rect x="670" y="240" width="220" height="34" rx="10" fill="#fff1f2"/>
+                            <text x="780" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#9f1239">AgentContext (状态快照)</text>
+                            <line x1="670" y1="274" x2="890" y2="274" stroke="#fecdd3" stroke-width="1.5"/>
+                            <text x="682" y="294" font-size="11" font-family="JetBrains Mono" fill="#475569">+ branch_id: str</text>
+                            <text x="682" y="312" font-size="11" font-family="JetBrains Mono" fill="#475569">+ thought_history: list</text>
+                            <text x="682" y="330" font-size="11" font-family="JetBrains Mono" fill="#475569">+ local_variables: dict</text>
+                            <line x1="670" y1="340" x2="890" y2="340" stroke="#fecdd3" stroke-width="1.5"/>
+                            <text x="682" y="362" font-size="11.5" font-family="JetBrains Mono" fill="#0f172a">+ deep_copy(): AgentContext</text>
+                        </g>
+
+                        <!-- 4. 原型管理器：AgentSnapshotRegistry (左侧偏上) -->
+                        <g id="node-registry" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="30" y="30" width="240" height="130" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                            <rect x="30" y="30" width="240" height="34" rx="10" fill="#fffbeb"/>
+                            <text x="150" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">AgentSnapshotRegistry (注册表)</text>
+                            <line x1="30" y1="64" x2="270" y2="64" stroke="#fde68a" stroke-width="1.5"/>
+                            <text x="42" y="84" font-size="11" font-family="JetBrains Mono" fill="#e11d48">- _prototypes: dict[str, Agent]</text>
+                            <line x1="30" y1="96" x2="270" y2="96" stroke="#fde68a" stroke-width="1.5"/>
+                            <text x="42" y="116" font-size="11" font-family="JetBrains Mono" fill="#475569">+ register(key, prototype)</text>
+                            <text x="42" y="136" font-size="11" font-family="JetBrains Mono" font-weight="700" fill="#d97706">+ create_clone(key): Agent</text>
+                        </g>
+
+                        <!-- 5. 客户端：ToTSearchEngine (左侧偏下) -->
+                        <g id="node-client" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="30" y="270" width="240" height="110" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/>
+                            <rect x="30" y="270" width="240" height="30" rx="10" fill="#f8fafc"/>
+                            <text x="150" y="290" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">ToTSearchEngine (树搜索调度器)</text>
+                            <line x1="30" y1="300" x2="270" y2="300" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <text x="42" y="322" font-size="11" font-family="JetBrains Mono" fill="#475569">+ explore_branches(root, k)</text>
+                            <text x="42" y="342" font-size="11" font-family="JetBrains Mono" fill="#059669">+ clone_and_evaluate(branch)</text>
+                        </g>
+
+                        <!-- 关系连线 1: ThoughtAgent 实现 AgentPrototype (虚线 + 空心三角) -->
+                        <g id="rel-proto-realize" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="470" y1="240" x2="470" y2="174" stroke="#059669" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#proto-arrow-inherit)"/>
+                            <text x="480" y="205" font-size="10.5" font-weight="700" fill="#059669">实现 (Realize)</text>
+                        </g>
+
+                        <!-- 关系连线 2: ThoughtAgent 关联持有 AgentContext (实线关联) -->
+                        <g id="rel-proto-context" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="600" y1="315" x2="660" y2="315" stroke="#e11d48" stroke-width="2" marker-end="url(#proto-arrow-assoc)"/>
+                            <text x="608" y="305" font-size="10" font-weight="700" fill="#e11d48">持有 (1..1)</text>
+                        </g>
+
+                        <!-- 关系连线 3: Registry 聚合 AgentPrototype (空心菱形) -->
+                        <g id="rel-registry-agg" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="270" y1="85" x2="330" y2="85" stroke="#d97706" stroke-width="2" marker-start="url(#proto-arrow-aggregation)"/>
+                            <text x="282" y="76" font-size="10" font-weight="700" fill="#d97706">聚合 (1..*)</text>
+                        </g>
+
+                        <!-- 关系连线 4: Client 依赖 Registry 与 Prototype -->
+                        <g id="rel-client-deps" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="150" y1="270" x2="150" y2="170" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#proto-arrow-dependency)"/>
+                            <path d="M 270 320 L 330 320" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#proto-arrow-dependency)"/>
+                            <text x="156" y="215" font-size="10" fill="#64748b">检索快照</text>
+                            <text x="280" y="312" font-size="10" fill="#64748b">发起克隆</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 备用 Mermaid 类图视图 (默认隐藏) -->
+                <div id="class-mermaid-view" style="display: none;">
+                    <div class="mermaid">
+classDiagram
+    direction TB
+    class AgentPrototype {
+        &lt;&lt;interface&gt;&gt;
+        +str agent_id
+        +str model_name
+        +clone(deep=True)* AgentPrototype
+    }
+    class ThoughtAgent {
+        -AgentContext _context
+        -RAGConnection _rag_client
+        +clone(deep=True) ThoughtAgent
+        +step_forward(thought) float
+        +get_branch_trace() list
+    }
+    class AgentContext {
+        +str branch_id
+        +list thought_history
+        +dict local_variables
+        +deep_copy() AgentContext
+    }
+    class AgentSnapshotRegistry {
+        -dict _prototypes
+        +register(key, prototype)
+        +create_clone(key) AgentPrototype
+    }
+    class ToTSearchEngine {
+        +explore_branches(root, k)
+        +clone_and_evaluate(branch)
+    }
+
+    AgentPrototype &lt;|.. ThoughtAgent : 实现 (Realization)
+    ThoughtAgent --&gt; AgentContext : 关联状态 (1..1)
+    AgentSnapshotRegistry o-- AgentPrototype : 聚合模板 (1..*)
+    ToTSearchEngine ..&gt; AgentSnapshotRegistry : 检索快照
+    ToTSearchEngine ..&gt; ThoughtAgent : 克隆分叉
+                    </div>
+                </div>
+
+                <!-- 同步联动教学卡片 -->
+                <div id="class-teaching-card" style="margin-top: 16px; padding: 18px 22px; border-radius: 12px; background: #fafbfc; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="class-teach-badge" style="background: #059669; color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; font-family: monospace;">Step 1 / 5</span>
+                            <h4 id="class-teach-title" style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">第一步：定义抽象原型接口 (Prototype)</h4>
+                        </div>
+                        <div id="class-teach-role" style="font-size: 12px; color: #059669; font-weight: 700;">核心角色：AgentPrototype (规约接口)</div>
+                    </div>
+                    <p id="class-teach-concept" style="font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px;">
+                        面向对象设计第一步：声明克隆能力标准。通过 <code>AgentPrototype</code> 接口统一约定 <code>clone()</code> 方法，使客户端只认克隆方法，而无需知晓具体实例化细节。
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; font-size: 12px;">
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong style="color: #059669;">📐 UML 规范要点：</strong>
+                            <div id="class-teach-uml" style="color: #64748b; margin-top: 2px;">构造型为 &lt;&lt;interface / abstract&gt;&gt;，方法名 clone()* 为斜体纯虚方法。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong style="color: #4f46e5;">💡 大白话通俗比喻：</strong>
+                            <div id="class-teach-analogy" style="color: #64748b; margin-top: 2px;">国家制定的数码复印机标准按钮，不管哪家品牌的复印机都得有这枚复印按键。</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 4 节：两栏 IDE 目录树 Python 3.11+ 工程代码实战 -->
+        <section id="section-code" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">04</div>
+                <h2 class="section-title">代码实战：AI Agent 系统的工程文件与开发全过程</h2>
+            </div>
+
+            <p class="section-desc">
+                在真实工业生产环境中，原型模式按照<strong>实际开发时的先后编码顺序 (Step 01 → Step 07)</strong> 分解为规范的模块结构（纯 Python 3.11+ 生产级规范）：
+            </p>
+
+            <!-- 左右分栏 IDE 目录树代码浏览器 -->
+            <div style="border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #ffffff; margin: 20px 0; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);">
+                <div style="display: grid; grid-template-columns: minmax(250px, 290px) 1fr; min-height: 520px;">
+                    
+                    <!-- 左侧：IDE 目录树侧边栏 (Explorer) -->
+                    <div style="background: #fafbfc; border-right: 1px solid #e2e8f0; padding: 16px 14px; display: flex; flex-direction: column;">
+                        <div>
+                            <!-- 顶部切步小导航 (固定在目录树上方) -->
+                            <div style="padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                                    <span style="font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px;">
+                                        ⚙️ 编码构建流水线
+                                    </span>
+                                    <span style="color: #64748b; font-family: var(--font-mono);">
+                                        第 <strong id="py-step-cur-num" style="color: #059669; font-weight: 800;">1</strong> / 7 步
+                                    </span>
+                                </div>
+
+                                <!-- 进度条指示器 -->
+                                <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+                                    <div id="py-step-progress-bar" style="width: 14.28%; height: 100%; background: #059669; border-radius: 9999px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                                </div>
+
+                                <div style="display: flex; gap: 6px;">
+                                    <button id="py-prev-btn" onclick="changePyFileStep(-1)" disabled style="flex: 1; padding: 7px 10px; border-radius: 7px; border: 1px solid #cbd5e1; background: #ffffff; color: #cbd5e1; cursor: not-allowed; font-size: 12px; font-weight: 600; transition: all 0.15s ease;">
+                                        ← 上一步
+                                    </button>
+                                    <button id="py-next-btn" onclick="changePyFileStep(1)" style="flex: 1.2; padding: 7px 12px; border-radius: 7px; border: none; background: #059669; color: #ffffff; cursor: pointer; font-size: 12px; font-weight: 700; box-shadow: 0 2px 5px rgba(5, 150, 105, 0.25); transition: all 0.15s ease;">
+                                        下一步 →
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-left: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span>📁</span>
+                                    <span>agent_tot_pipeline</span>
+                                </div>
+                                <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">7 files</span>
+                            </div>
+
+                            <!-- 目录树节点 -->
+                            <div style="display: flex; flex-direction: column; gap: 3px;" id="py-tree-container">
+                                
+                                <!-- 1. base 目录 -->
+                                <div>
+                                    <div onclick="toggleHtmlFolder('base')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-base">📂</span>
+                                            <span>base/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">契约与快照层</span>
+                                    </div>
+                                    <div id="folder-content-base" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file active" data-file-idx="0" onclick="switchPyFile(0, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: #ecfdf5; border-left: 3px solid #059669; color: #065f46; font-size: 12px; font-weight: 700; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">prototype.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #059669; color: white; font-family: var(--font-mono); font-weight: 800;">Step 01</span>
+                                        </div>
+                                        <div class="py-tree-file" data-file-idx="1" onclick="switchPyFile(1, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">context.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 02</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. agents 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('agents')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-agents">📂</span>
+                                            <span>agents/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">具体原型实现</span>
+                                    </div>
+                                    <div id="folder-content-agents" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="2" onclick="switchPyFile(2, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">tot_agent.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 03</span>
+                                        </div>
+                                        <div class="py-tree-file" data-file-idx="3" onclick="switchPyFile(3, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">shallow_vs_deep.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 04</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 3. registry 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('registry')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-registry">📂</span>
+                                            <span>registry/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">快照仓库中心</span>
+                                    </div>
+                                    <div id="folder-content-registry" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="4" onclick="switchPyFile(4, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">snapshot_registry.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 05</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4. engine 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('engine')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-engine">📂</span>
+                                            <span>engine/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">树搜索执行器</span>
+                                    </div>
+                                    <div id="folder-content-engine" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="5" onclick="switchPyFile(5, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">tot_search.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 06</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 5. main.py 根文件 -->
+                                <div style="margin-top: 3px; border-left: 1px solid transparent; margin-left: 12px; padding-left: 4px;">
+                                    <div class="py-tree-file" data-file-idx="6" onclick="switchPyFile(6, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span>🚀</span>
+                                            <span class="py-file-name">main.py</span>
+                                        </div>
+                                        <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 07</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：代码编辑器 + 讲解横幅 + 终端 -->
+                    <div style="display: flex; flex-direction: column; background: #ffffff;">
+                        <!-- 面包屑与顶部操作栏 -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 12.5px; font-family: var(--font-mono);">
+                            <div style="display: flex; align-items: center; gap: 6px; color: #475569;">
+                                <span id="py-breadcrumb-path">agent_tot_pipeline / base / <strong>prototype.py</strong></span>
+                            </div>
+                            <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+                        </div>
+
+                        <!-- 文件开发顺序讲解横幅 -->
+                        <div id="py-file-banner" style="padding: 14px 18px; background: #fafbfc; border-bottom: 1px solid #e2e8f0; border-left: 4px solid #059669;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <span id="py-file-badge" style="background: #059669; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; font-family: monospace;">Step 01</span>
+                                <h4 id="py-file-title" style="font-size: 14.5px; font-weight: 800; color: #0f172a; margin: 0;">声明抽象原型契约</h4>
+                                <span id="py-file-role" style="font-size: 11.5px; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 9999px; font-weight: 600; border: 1px solid #a7f3d0;">抽象原型 (Prototype)</span>
+                            </div>
+                            <p id="py-file-reason" style="font-size: 12.5px; color: #475569; margin: 0; line-height: 1.6;">
+                                【开发第一步】：必须先有标准规范。首先在 base/ 目录下定义所有克隆对象必须履行的抽象克隆方法 clone()，面向接口编程。
+                            </p>
+                        </div>
+
+                        <!-- 代码高亮视口 -->
+                        <div style="flex: 1; overflow-x: auto; background: #fafbfc;">
+                            <pre style="margin: 0;"><code id="py-file-code-block" class="language-python hljs" style="margin: 0; padding: 18px 22px;"># 代码加载中...</code></pre>
+                        </div>
+
+                        <!-- 底部终端控制台 -->
+                        <div style="background: #0f172a; border-top: 1px solid #1e293b; padding: 14px 18px; color: #f8fafc; font-family: var(--font-mono); font-size: 12px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                    <span style="font-size: 11.5px; color: #94a3b8; margin-left: 6px; font-weight: 600;">TERMINAL / 运行验证</span>
+                                </div>
+                                <button onclick="runHtmlTerminal()" style="display: inline-flex; align-items: center; gap: 6px; background: #059669; color: #ffffff; border: none; border-radius: 6px; padding: 4px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);">
+                                    <span>▶ 点击运行 python main.py</span>
+                                </button>
+                            </div>
+                            <div id="html-terminal-logs" style="color: #64748b; font-style: italic; line-height: 1.65; max-height: 140px; overflow-y: auto;">
+                                # 点击右上角「点击运行 python main.py」按钮，观察思维链树搜索微秒级快照克隆与分支推演日志...
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 5 节：动态运行期 7 步交互式时序图 (UML Sequence Diagram) -->
+        <section id="section-sequence" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">05</div>
+                <h2 class="section-title">动态运行期时序剖析：快照分叉生命线 (UML Sequence Diagram)</h2>
+            </div>
+            
+            <p class="section-desc">
+                静态类图展示了克隆契约，而在系统运行时，Client、Registry、BaseAgent 与 BranchAgent 是如何通过快照在微秒内裂变出全新独立分支的？
+                以下 7 步交互式矢量图带你直观还原对象克隆与分支推演的全过程：
+            </p>
+
+            <div class="diagram-viewport">
+                <div class="diagram-toggle-bar">
+                    <div class="diagram-title-tag">
+                        <span>⏱️ 7 步交互式运行期时序图</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="diagram-view-btn active" onclick="switchDiagramView('seq', 'svg', this)">🎨 7 步交互式矢量图</button>
+                        <button class="diagram-view-btn" onclick="switchDiagramView('seq', 'mermaid', this)">📊 Mermaid 渲染</button>
+                    </div>
+                </div>
+
+                <!-- 7 步横向按钮栏 -->
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px;" id="seq-step-tabs">
+                    <button class="seq-step-tab-btn active" onclick="goToStep(1)" style="padding: 6px 2px; border: 1.5px solid #059669; border-radius: 8px; background: #ecfdf5; color: #059669; font-weight: 700; cursor: pointer; font-size: 11px;">1. 检索预热快照</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(2)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 交付基础原型</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(3)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 发起克隆请求</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(4)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 递归深拷贝</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(5)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 交付独立分支</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(6)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">6. 分支A独立推演</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(7)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">7. 分支B互不干扰</button>
+                </div>
+
+                <!-- 教学分步控制条 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="prev-step-btn" onclick="changeStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                            ← 上一步
+                        </button>
+                        <button id="next-step-btn" onclick="changeStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #059669; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);">
+                            下一步：第 2/7 步 →
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">
+                        💡 点击「下一步」或按键盘左右方向键进行时序图单步演练
+                    </div>
+                </div>
+
+                <!-- 时序图 SVG 矢量视图 -->
+                <div id="seq-svg-view">
+                    <svg class="svg-canvas" viewBox="0 0 900 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="seq-arrow-solid" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#059669" />
+                            </marker>
+                            <marker id="seq-arrow-dash" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#4f46e5" />
+                            </marker>
+                            <marker id="seq-arrow-action" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#d97706" />
+                            </marker>
+                        </defs>
+
+                        <!-- 对象头 1: Client (ToTSearchEngine) -->
+                        <rect x="30" y="16" width="140" height="38" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="100" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1e293b">Client (树搜索器)</text>
+                        <line x1="100" y1="54" x2="100" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 2: Registry (快照中心) -->
+                        <rect x="270" y="16" width="150" height="38" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="345" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#92400e">Registry (快照中心)</text>
+                        <line x1="345" y1="54" x2="345" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 3: BaseAgent (母体原型) -->
+                        <rect x="500" y="16" width="160" height="38" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+                        <text x="580" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#065f46">BaseAgent (预热母体)</text>
+                        <line x1="580" y1="54" x2="580" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 4: BranchAgent (克隆分支新实例) -->
+                        <rect x="730" y="16" width="150" height="38" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+                        <text x="805" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3730a3">BranchAgent (子分支)</text>
+                        <line x1="805" y1="54" x2="805" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 激活条 (Activation Bars) -->
+                        <rect x="94" y="70" width="12" height="320" rx="3" fill="#e2e8f0" stroke="#94a3b8"/>
+                        <rect x="339" y="80" width="12" height="60" rx="3" fill="#fde68a" stroke="#d97706"/>
+                        <rect x="574" y="160" width="12" height="100" rx="3" fill="#a7f3d0" stroke="#059669"/>
+                        <rect x="799" y="270" width="12" height="120" rx="3" fill="#c7d2fe" stroke="#4f46e5"/>
+
+                        <!-- 消息 1: Client -> Registry (请求预热快照) -->
+                        <g id="seq-msg-1" class="seq-msg-group" style="transition: opacity 0.3s;">
+                            <line x1="106" y1="85" x2="335" y2="85" stroke="#059669" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="135" y="66" width="180" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                            <text x="225" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">1. get_prototype("math_tot")</text>
+                        </g>
+
+                        <!-- 消息 2: Registry -> Client (返回预热好的母体) -->
+                        <g id="seq-msg-2" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="339" y1="125" x2="110" y2="125" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#seq-arrow-dash)"/>
+                            <rect x="145" y="106" width="165" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="227" y="120" text-anchor="middle" font-size="11" font-weight="700" fill="#312e81">2. return BaseAgent 引用</text>
+                        </g>
+
+                        <!-- 消息 3: Client -> BaseAgent (发起克隆分叉) -->
+                        <g id="seq-msg-3" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="106" y1="170" x2="570" y2="170" stroke="#059669" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="240" y="151" width="200" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                            <text x="340" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">3. clone(new_branch_id="A")</text>
+                        </g>
+
+                        <!-- 消息 4: BaseAgent 内部递归深拷贝 -->
+                        <g id="seq-msg-4" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <path d="M 586 195 H 635 V 215 H 588" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#seq-arrow-action)"/>
+                            <rect x="642" y="195" width="220" height="20" rx="4" fill="#fffbeb" stroke="#d97706"/>
+                            <text x="752" y="209" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">4. deepcopy(_context) [耗时仅0.2ms]</text>
+                        </g>
+
+                        <!-- 消息 5: BaseAgent -> Client (交付全新独立分支实例) -->
+                        <g id="seq-msg-5" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="574" y1="245" x2="110" y2="245" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#seq-arrow-dash)"/>
+                            <rect x="230" y="226" width="220" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="340" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="#312e81">5. return BranchAgent_A (独立状态)</text>
+                        </g>
+
+                        <!-- 消息 6: Client -> BranchAgent_A (执行分支 A 假设推演) -->
+                        <g id="seq-msg-6" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="106" y1="290" x2="795" y2="290" stroke="#059669" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="360" y="271" width="210" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                            <text x="465" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">6. step_forward("假设 1: 辅助线法")</text>
+                        </g>
+
+                        <!-- 消息 7: Client -> BranchAgent_B (独立分叉互不干扰) -->
+                        <g id="seq-msg-7" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="106" y1="345" x2="795" y2="345" stroke="#4f46e5" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="355" y="326" width="220" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="465" y="340" text-anchor="middle" font-size="11" font-weight="700" fill="#312e81">7. step_forward("假设 2: 解析几何法")</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 备用 Mermaid 时序图视图 (默认隐藏) -->
+                <div id="seq-mermaid-view" style="display: none;">
+                    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Client as 客户端 (ToTSearchEngine)
+    participant Registry as 快照注册表 (Registry)
+    participant BaseAgent as 预热母体 (BaseAgent)
+    participant BranchAgent as 子分支实例 (BranchAgent)
+
+    Client->>Registry: 1. get_prototype("math_tot")
+    activate Registry
+    Registry-->>Client: 2. return BaseAgent
+    deactivate Registry
+    Client->>BaseAgent: 3. clone(new_branch_id="A")
+    activate BaseAgent
+    BaseAgent->>BaseAgent: 4. deepcopy(_context) [微秒级直接拷贝]
+    BaseAgent-->>Client: 5. return BranchAgent_A (完全物理隔离)
+    deactivate BaseAgent
+    Client->>BranchAgent: 6. step_forward("假设 1: 辅助线法")
+    activate BranchAgent
+    deactivate BranchAgent
+    Client->>BranchAgent: 7. step_forward("假设 2: 解析几何法 (互不污染)")
+                    </div>
+                </div>
+
+                <!-- 专属教学分步详解卡片 -->
+                <div id="seq-teaching-card" style="margin-top: 16px; padding: 18px 22px; border-radius: 12px; background: #fafbfc; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="teach-badge" style="background: #059669; color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; font-family: monospace;">Step 1 / 7</span>
+                            <h4 id="teach-title" style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">客户端检索预热快照</h4>
+                        </div>
+                        <div id="teach-flow" style="font-size: 12px; color: #64748b; font-weight: 600;">Client ➔ Registry (获取母体)</div>
+                    </div>
+                    <div id="teach-action" style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #334155; margin-bottom: 12px; display: inline-block;">
+                        registry.get_prototype("math_tot")
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 12.5px; line-height: 1.6;">
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #059669; margin-bottom: 2px;">🎯 教学要点</div>
+                            <div id="teach-point" style="color: #334155;">客户端不直接 new Agent，而是从管理器中提取已预热完毕的母体原型。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">🔍 底层机制</div>
+                            <div id="teach-mechanism" style="color: #334155;">母体已提前完成了 2GB 向量索引装载与长上下文缓存，省去昂贵初始化开销。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #d97706; margin-bottom: 2px;">📐 UML 规范</div>
+                            <div id="teach-uml" style="color: #334155;">实线实心三角箭头 (->>)：表示同步调用，客户端等待注册表返回原型引用。</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 6 节：深入反思：设计原则与创建型五大模式终极大对比 (Principles & Comparison) -->
+        <section id="section-principles" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">06</div>
+                <h2 class="section-title">深入反思：设计原则、优缺点辩证与创建型五大模式对比</h2>
+            </div>
+
+            <p class="section-desc">
+                作为 GoF 经典设计模式中创建型家族的最后一位成员，原型模式与其他 4 种创建型模式形成互补闭环。深入理解其原则边界与避坑要点，方能在高并发生产架构中从容取舍。
+            </p>
+
+            <!-- SOLID 原则卡片 -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                🌟 原型模式践行的核心设计原则：
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--primary); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        1. 开闭原则 (OCP)
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        新增一种类型的具体原型智能体（如 <code>MCTS_Agent</code> 蒙特卡洛树搜索智能体），只需实现 <code>clone()</code> 接口并注册入表，现有的树搜索调度引擎不需要改动任何一行代码！
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-indigo); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        2. 单一职责原则 (SRP)
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        复杂的对象深拷贝与私有状态重置逻辑完全封装在各个类的 <code>clone()</code> 方法内部，客户端无需关心深层字段是指针引用还是值拷贝。
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-sky); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        3. 避免构造器层级爆炸
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        当一个类的子类繁多且区别仅仅在于初始参数状态不同时，工厂模式需要编写大量对应的工厂子类，而原型模式只需克隆参数配置好的原型即可逃避子类膨胀。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 优缺点辩证卡片 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;">
+                <div style="background: var(--primary-light); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 12px; padding: 18px;">
+                    <h5 style="font-size: 14.5px; font-weight: 700; color: #065f46; margin-bottom: 8px;">✅ 核心收益 (Pros)</h5>
+                    <ul style="font-size: 13px; color: #064e3b; padding-left: 18px; line-height: 1.7;">
+                        <li><strong>微秒级极速创建：</strong>绕过耗时昂贵的构造函数（网络连接、向量库载入），性能提升万倍。</li>
+                        <li><strong>简化对象分叉：</strong>为复杂树搜索与探索演化算法提供无副作用的状态隔离副本。</li>
+                        <li><strong>动态增删原型：</strong>可以在运行时动态将某个运行良好的实例保存为新原型，灵活性极高。</li>
+                        <li><strong>摆脱紧耦合：</strong>客户端彻底摆脱对具体类构造函数参数签名的直接依赖。</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--accent-rose-light); border: 1px solid rgba(225, 29, 72, 0.2); border-radius: 12px; padding: 18px;">
+                    <h5 style="font-size: 14.5px; font-weight: 700; color: #9f1239; margin-bottom: 8px;">⚠️ 潜在代价与适用边界 (Cons)</h5>
+                    <ul style="font-size: 13px; color: #881337; padding-left: 18px; line-height: 1.7;">
+                        <li><strong>深拷贝循环引用难题：</strong>若对象内部存在复杂的环状指针，必须精细实现备忘录机制，否则栈溢出崩溃。</li>
+                        <li><strong>不可克隆的系统资源：</strong>底层的操作系统 Socket 句柄、活动文件指针和锁对象无法物理深拷贝，必须采用深浅分离。</li>
+                        <li><strong>构造函数被绕过：</strong>某些依靠 <code>__init__</code> 进行全局注册或埋点的逻辑可能在克隆时被跳过，需要显式后置处理。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 创建型五大模式终极横向对比表 -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
+                📊 GoF 创建型设计模式五大金刚终极大对比
+            </h4>
+            <div style="overflow-x: auto; margin-bottom: 24px;">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>模式名称</th>
+                            <th>核心哲学</th>
+                            <th>创建过程与粒度</th>
+                            <th>在 AI Agent 架构中的典型分工</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color: #059669;">原型模式 (Prototype)</strong></td>
+                            <td>拷贝现有实例，省去重复初始化</td>
+                            <td><strong>克隆复制</strong>：微秒级内存复制，保留已有状态分叉</td>
+                            <td>树搜索 (ToT / MCTS) 状态快照分叉、回溯推演沙箱</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #4f46e5;">建造者模式 (Builder)</strong></td>
+                            <td>分步骤精细化组装复杂产品</td>
+                            <td><strong>多步骤组装</strong>：逐步配置模型、记忆、工具与防护层</td>
+                            <td>复杂 Agent 执行管线流水线定制装配器</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #0284c7;">单例模式 (Singleton)</strong></td>
+                            <td>确保类全局唯一实例，提供全局访问点</td>
+                            <td><strong>单一唯一</strong>：双检锁并发控制，全局共享同一块电表</td>
+                            <td>全局 Token 计量器、线程安全审计日志中心</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #7c3aed;">工厂方法 (Factory Method)</strong></td>
+                            <td>子类多态化决定实例化哪一个产品</td>
+                            <td><strong>单一产品多态创建</strong>：对修改关闭，对扩展开放</td>
+                            <td>CodeAgent 与 ResearchAgent 的多态分发</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #d97706;">抽象工厂 (Abstract Factory)</strong></td>
+                            <td>创建一系列相互依赖的产品家族</td>
+                            <td><strong>成套创建</strong>：保证同生态产品家族协同兼容</td>
+                            <td>本地隔离套件 vs 云端商业套件一键无感切换</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 三大架构避坑 FAQ -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                🛡️ 架构师避坑指南：初学者最常犯的 3 个错误
+            </h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: #f8fafc; border-left: 4px solid #059669; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q1: Python 中 copy.copy() 与 copy.deepcopy() 到底有什么致命区别？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong><code>copy.copy()</code> 是浅拷贝，只复制顶层对象，内部嵌套的字典或列表仍然指向同一个内存地址！如果子分支向 <code>agent.memory_list</code> 中 <code>append()</code> 新思考，母体和所有其他分支的记忆会被直接篡改污染！只有 <code>copy.deepcopy()</code> 才会递归建立独立副本。
+                    </p>
+                </div>
+
+                <div style="background: #f8fafc; border-left: 4px solid #4f46e5; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q2: 智能体内部持有数据库连接池或大模型 API Client 时，怎么深拷贝？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong><strong>深浅分离！</strong>操作系统的底层网络 Socket 和数据库连接是绝对不能直接执行 <code>deepcopy</code> 的（会抛出 TypeError 或导致连接混乱）。在 Python 中，重写 <code>__deepcopy__(self, memo)</code> 方法：对上下文、局部变量使用 <code>deepcopy</code>，对只读的大模型连接客户端和线程池则直接赋值浅引用，实现“状态深拷贝，资源浅共享”。
+                    </p>
+                </div>
+
+                <div style="background: #f8fafc; border-left: 4px solid #e11d48; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q3: 原型注册表 (Registry) 长期运行会导致内存泄漏吗？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong>会！如果把每一次动态演化出的分支都随手 <code>register()</code> 存进字典，字典强引用会阻止垃圾回收器回收无用分支，导致内存无限暴涨。工业界标准做法是结合 <strong>LRU 淘汰策略</strong> 或使用 <code>weakref.WeakValueDictionary</code> 弱引用字典，只有当外部仍在使用该分支快照时才保留。
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 第 7 节：知识巩固与即学即测 (Quiz) -->
+        <section id="section-quiz" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">07</div>
+                <h2 class="section-title">知识巩固：3 分钟极速自测</h2>
+            </div>
+            
+            <p class="section-desc">
+                检验你对原型模式的理解！点击下方选项即可获得即时解析与彩带反馈：
+            </p>
+
+            <!-- 测验 1 -->
+            <div class="quiz-card" id="quiz-1">
+                <div class="quiz-question">
+                    1. 原型模式 (Prototype Pattern) 最核心的架构动机是？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 0, false)">A. 保证系统在运行期间只存在一个全局单例实例</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 1, true)">B. 通过复制已有实例创建新对象，避免耗时繁重的构造函数与重复初始化</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 2, false)">C. 分步骤逐步构建复杂产品的各个零散部件</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 3, false)">D. 将接口不兼容的两个老系统强行适配连通</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <!-- 测验 2 -->
+            <div class="quiz-card" id="quiz-2">
+                <div class="quiz-question">
+                    2. 在多分支 AI Agent 状态复制中，如果误使用了“浅拷贝 (Shallow Copy)”，会发生什么灾难？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 0, false)">A. 拷贝速度会比深拷贝慢 1000 倍</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 1, true)">B. 子分支对思维链记忆列表的修改，会直接同步污染母体和其他分支的记忆，引发逻辑错乱</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 2, false)">C. 操作系统会立即杀死进程并报告段错误</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 3, false)">D. 没有任何副作用，浅拷贝和深拷贝完全一样</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <!-- 测验 3 -->
+            <div class="quiz-card" id="quiz-3">
+                <div class="quiz-question">
+                    3. 当 Agent 包含数据库网络连接池或文件句柄等操作系统底层资源时，最佳的克隆策略是？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 0, false)">A. 强行对 Socket 进行 deepcopy，让两个 Agent 争抢同一端口</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 1, false)">B. 完全禁止使用原型模式，改回每次重新 new</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 2, true)">C. 采用深浅分离策略：对只读连接池和模型客户端进行浅引用共享，对业务状态和记忆进行深拷贝隔离</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 3, false)">D. 关掉所有网络连接，只在本地单机运行</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <!-- 测验 4 -->
+            <div class="quiz-card" id="quiz-4">
+                <div class="quiz-question">
+                    4. “建造者模式”与“原型模式”在创建型设计中的核心区别是？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 0, false)">A. 建造者模式只支持 Python，原型模式只支持 C++</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 1, true)">B. 建造者侧重于多部件从无到有的分步骤精细组装，而原型侧重于以成熟实例为样板直接克隆出独立副本</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 2, false)">C. 建造者模式不能生成可执行对象</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 3, false)">D. 原型模式不能实现深拷贝</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+        </section>
+
+        <!-- 页脚版权与主站链接 -->
+        <footer style="text-align: center; color: var(--text-tertiary); font-size: 13px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-light);">
+            <p>深入浅出 GoF 23 种设计模式教学系统 · 基于 AI Agent 工业级基础设施实战</p>
+            <p style="margin-top: 6px;">
+                <a href="../../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← 返回主站设计模式大厅</a> · 
+                <a href="https://github.com/littlecabbage/design-pattern" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">GitHub 开源仓库</a>
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- 交互逻辑 JavaScript -->
+    <script>
+        // ==========================================
+        // 阅读进度条监听
+        // ==========================================
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const b = document.body;
+            const st = 'scrollTop';
+            const sh = 'scrollHeight';
+            const percent = (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight) * 100;
+            const bar = document.getElementById('read-progress');
+            if (bar) bar.style.width = percent + '%';
+        });
+
+        // ==========================================
+        // 大白话速查字典折叠/展开与搜索过滤
+        // ==========================================
+        function toggleGlossary() {
+            const content = document.getElementById('glossary-content');
+            const toggleText = document.getElementById('glossary-toggle-text');
+            const toggleBtn = document.getElementById('glossary-toggle-btn');
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                if (toggleText) toggleText.innerText = '收起字典 ▴';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                if (toggleText) toggleText.innerText = '展开字典 ▾';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        const glossarySearch = document.getElementById('glossary-search');
+        if (glossarySearch) {
+            glossarySearch.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase().trim();
+                const items = document.querySelectorAll('#glossary-grid .glossary-item');
+                items.forEach(item => {
+                    const text = (item.getAttribute('data-term') || '') + ' ' + item.textContent;
+                    if (text.toLowerCase().includes(q)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // ==========================================
+        // 5 步类图演练数据与控制
+        // ==========================================
+        const classStepsData = [
+            {
+                step: 1,
+                title: "第一步：定义抽象原型接口 (Prototype)",
+                role: "核心角色：AgentPrototype (规约接口)",
+                concept: "面向对象设计第一步：声明克隆能力标准。通过 AgentPrototype 接口统一约定 clone() 方法，使客户端只认克隆方法，而无需知晓具体实例化细节。",
+                uml: "构造型为 <<interface / abstract>>，方法名 clone()* 为斜体纯虚方法。",
+                analogy: "国家制定的数码复印机标准按钮，不管哪家品牌的复印机都得有这枚复印按键。",
+                nodes: ["node-proto"],
+                rels: []
+            },
+            {
+                step: 2,
+                title: "第二步：实现具体原型 (Concrete Prototype)",
+                role: "核心角色：ThoughtAgent (具体思维树智能体)",
+                concept: "实现真正的智能体原型。内部重写 clone()，封装深浅分离的克隆算法，使对象能够以自身为蓝本复制出全新副本。",
+                uml: "使用带空心三角形的虚线 (╌╌▷) 指向抽象原型，表示接口实现关系 (Realization)。",
+                analogy: "已经配置好全部生产环境并预热完毕的高性能母体主机，随时等待被复印。",
+                nodes: ["node-proto", "node-concrete-proto"],
+                rels: ["rel-proto-realize"]
+            },
+            {
+                step: 3,
+                title: "第三步：提取状态快照实体 (ContextSnapshot)",
+                role: "核心角色：AgentContext (状态快照数据块)",
+                concept: "将易变的思维链历史、局部变量与分支 ID 从重资产连接中解耦出来，专为深拷贝准备，保证分支推演的物理隔离。",
+                uml: "具体原型与上下文之间使用单向实线箭头关联持有 (Association)，基数为 1..1。",
+                analogy: "每个子分支专属的独立实验手账本，写错字随便撕，绝不污染总档案库。",
+                nodes: ["node-proto", "node-concrete-proto", "node-snapshot"],
+                rels: ["rel-proto-realize", "rel-proto-context"]
+            },
+            {
+                step: 4,
+                title: "第四步：引入原型管理器 (Prototype Registry)",
+                role: "核心角色：AgentSnapshotRegistry (快照仓库中心)",
+                concept: "集中管理所有完成高开销初始化的 Agent 原型。内部维护字典映射，支持动态注册与按需克隆交付。",
+                uml: "使用带空心菱形的实线 (◇──>) 指向抽象原型接口，表示弱拥有的聚合关系 (Aggregation)。",
+                analogy: "汽车设计院的绝密图纸档案库，将豪华越野版、纯电竞速版母版图纸妥善归档。",
+                nodes: ["node-proto", "node-concrete-proto", "node-snapshot", "node-registry"],
+                rels: ["rel-proto-realize", "rel-proto-context", "rel-registry-agg"]
+            },
+            {
+                step: 5,
+                title: "第五步：客户端调度与分支演化闭环",
+                role: "核心角色：ToTSearchEngine (树搜索调度器)",
+                concept: "架构全景闭环！树搜索调度引擎先向管理器索取基础原型，在每一个决策分叉点直接发起 clone() 生成子分支并独立推演评估！",
+                uml: "客户端指向 Registry 与 Prototype 的虚线单向箭头代表短期依赖 (Dependency)。",
+                analogy: "围棋九段大师，在脑海中对 5 个不同棋局分支同时展开推演，找到最优解！",
+                nodes: ["node-proto", "node-concrete-proto", "node-snapshot", "node-registry", "node-client"],
+                rels: ["rel-proto-realize", "rel-proto-context", "rel-registry-agg", "rel-client-deps"]
+            }
+        ];
+
+        let curClassStepIdx = 1;
+
+        function goToClassStep(step) {
+            curClassStepIdx = step;
+            updateClassStepView();
+        }
+
+        function changeClassStep(delta) {
+            curClassStepIdx = Math.max(1, Math.min(5, curClassStepIdx + delta));
+            updateClassStepView();
+        }
+
+        function updateClassStepView() {
+            const data = classStepsData[curClassStepIdx - 1];
+
+            // 更新 Tabs 样式
+            const tabs = document.querySelectorAll('.class-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curClassStepIdx) {
+                    tab.style.borderColor = '#059669';
+                    tab.style.background = '#ecfdf5';
+                    tab.style.color = '#059669';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新按钮状态
+            const prevBtn = document.getElementById('class-prev-btn');
+            const nextBtn = document.getElementById('class-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (curClassStepIdx === 1);
+                prevBtn.style.color = (curClassStepIdx === 1) ? '#94a3b8' : '#1e293b';
+                prevBtn.style.cursor = (curClassStepIdx === 1) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (curClassStepIdx === 5) {
+                    nextBtn.innerText = '从头重温 ↺';
+                    nextBtn.onclick = () => { curClassStepIdx = 0; changeClassStep(1); };
+                } else {
+                    nextBtn.innerText = `下一步：第 ${curClassStepIdx + 1}/5 步 →`;
+                    nextBtn.onclick = () => changeClassStep(1);
+                }
+            }
+
+            // 更新 SVG 元素显隐
+            const allNodes = ["node-proto", "node-concrete-proto", "node-snapshot", "node-registry", "node-client"];
+            const allRels = ["rel-proto-realize", "rel-proto-context", "rel-registry-agg", "rel-client-deps"];
+
+            allNodes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.opacity = data.nodes.includes(id) ? '1' : '0.15';
+                }
+            });
+
+            allRels.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.opacity = data.rels.includes(id) ? '1' : '0.12';
+                }
+            });
+
+            // 更新联动教学卡片
+            document.getElementById('class-teach-badge').innerText = `Step ${data.step} / 5`;
+            document.getElementById('class-teach-title').innerText = data.title;
+            document.getElementById('class-teach-role').innerText = data.role;
+            document.getElementById('class-teach-concept').innerText = data.concept;
+            document.getElementById('class-teach-uml').innerText = data.uml;
+            document.getElementById('class-teach-analogy').innerText = data.analogy;
+        }
+
+        function switchClassView(view, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.diagram-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById('class-svg-view');
+            const mermaidView = document.getElementById('class-mermaid-view');
+            if (view === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+            }
+        }
+
+        // ==========================================
+        // 7 个 Python 生产级文件数据体系 (两栏 IDE)
+        // ==========================================
+        const pyFilesData = [
+            {
+                step: 'Step 01',
+                title: '声明抽象原型契约',
+                path: 'base/prototype.py',
+                role: '抽象原型 (Prototype)',
+                reason: '【开发第一步】：确立克隆规范。定义 AgentPrototype(ABC) 契约，声明 clone() 纯虚抽象方法，确保所有子类均支持自复制。',
+                code: `"""
+文件路径: base/prototype.py
+角色定位: 抽象原型接口 (Prototype)
+职责说明: 声明克隆自身的统一契约，支持深拷贝参数选项
+"""
+from abc import ABC, abstractmethod
+from typing import Self
+
+
+class AgentPrototype(ABC):
+    """
+    智能体抽象原型接口
+    
+    【注：数码复印机标准接口卡。如果你不理解，你就理解为法律规定的复印键协议】
+    """
+    def __init__(self, agent_id: str, model_name: str):
+        self.agent_id = agent_id
+        self.model_name = model_name
+
+    @abstractmethod
+    def clone(self, new_branch_id: str | None = None, deep: bool = True) -> Self:
+        """
+        核心克隆方法：复制自身产生全新的对象副本
+        
+        :param new_branch_id: 新分支的专属标识，若不提供则自动衍生
+        :param deep: 是否采用深度隔离拷贝 (默认为 True)
+        :return: 独立且可演进的全新智能体实例
+        """
+        pass`
+            },
+            {
+                step: 'Step 02',
+                title: '定义状态快照数据实体',
+                path: 'base/context.py',
+                role: '状态快照实体 (ContextSnapshot)',
+                reason: '【开发第二步】：解耦易变数据。将思维链历史与局部推演变量封装在 AgentContext 中，提供纯粹的数据层 deep_copy() 能力。',
+                code: `"""
+文件路径: base/context.py
+角色定位: 上下文状态快照实体 (ContextSnapshot)
+职责说明: 封装智能体在某一时刻的全部思维链步骤、局部变量与推演评分
+"""
+import copy
+from dataclasses import dataclass, field
+
+
+@dataclass
+class AgentContext:
+    """
+    智能体状态快照实体
+    
+    【注：每一个分支专属的独立实验记录手账本】
+    """
+    branch_id: str
+    step_depth: int = 0
+    thought_history: list[str] = field(default_factory=list)
+    local_variables: dict[str, str] = field(default_factory=dict)
+    confidence_score: float = 1.0
+
+    def add_thought(self, thought: str, score_delta: float = 0.0) -> None:
+        """记录一步新的思考步骤"""
+        self.step_depth += 1
+        self.thought_history.append(f"[Step {self.step_depth}] {thought}")
+        self.confidence_score = max(0.0, min(1.0, self.confidence_score + score_delta))
+
+    def deep_copy(self, new_branch_id: str) -> "AgentContext":
+        """执行完整内存深度拷贝，杜绝子分支间相互篡改历史"""
+        return AgentContext(
+            branch_id=new_branch_id,
+            step_depth=self.step_depth,
+            thought_history=copy.deepcopy(self.thought_history),
+            local_variables=copy.deepcopy(self.local_variables),
+            confidence_score=self.confidence_score
+        )`
+            },
+            {
+                step: 'Step 03',
+                title: '实现具体原型：思维链树智能体',
+                path: 'agents/tot_agent.py',
+                role: '具体原型 (Concrete Prototype)',
+                reason: '【开发第三步】：实现深浅分离克隆。重写 clone()，浅引用昂贵的 RAG 索引与模型客户端，深拷贝独立的上下文快照。',
+                code: `"""
+文件路径: agents/tot_agent.py
+角色定位: 具体原型实现 (Concrete Prototype)
+职责说明: 实现兼顾极致性能与数据隔离的深浅分离克隆算法
+"""
+import time
+from typing import Self
+from base.prototype import AgentPrototype
+from base.context import AgentContext
+
+
+class ThoughtAgent(AgentPrototype):
+    """
+    思维链树具体智能体：具备耗时预热与微秒级内存克隆能力
+    """
+    def __init__(self, agent_id: str, model_name: str, vector_index_name: str):
+        super().__init__(agent_id, model_name)
+        self.vector_index_name = vector_index_name
+        
+        # 模拟耗时高昂的重资产初始化 (加载 2GB 向量库与 API 连接池)
+        self._init_heavy_resources()
+        
+        # 内部持有轻量的易变状态快照
+        self.context = AgentContext(branch_id=agent_id)
+
+    def _init_heavy_resources(self) -> None:
+        """仅在母体初始化时执行一次的重度冷启动"""
+        # 在真实生产环境中此处加载向量索引与大模型连接池
+        self._rag_connection_pool = f"Pool({self.vector_index_name}@internal.cluster)"
+        self.is_warmed_up = True
+
+    def clone(self, new_branch_id: str | None = None, deep: bool = True) -> Self:
+        """
+        【深浅分离克隆精髓】：
+        1. 浅拷贝：直接复用耗时的模型连接池与只读 RAG 索引引用 (零额外开销)；
+        2. 深拷贝：递归复制独占的上下文手账本与私有变量 (杜绝副作用)。
+        """
+        target_id = new_branch_id or f"{self.agent_id}_fork"
+        
+        # 使用 __new__ 绕过耗时沉重的 __init__ 构造函数！
+        new_agent = self.__class__.__new__(self.__class__)
+        
+        # 1. 浅拷贝只读重资产引用
+        new_agent.agent_id = target_id
+        new_agent.model_name = self.model_name
+        new_agent.vector_index_name = self.vector_index_name
+        new_agent._rag_connection_pool = self._rag_connection_pool
+        new_agent.is_warmed_up = True
+        
+        # 2. 深度拷贝独立上下文
+        if deep:
+            new_agent.context = self.context.deep_copy(new_branch_id=target_id)
+        else:
+            new_agent.context = self.context  # 危险：浅拷贝会导致共享状态
+            
+        return new_agent
+
+    def step_forward(self, thought: str, delta: float = 0.1) -> float:
+        """前进一步探索，返回更新后的置信度得分"""
+        self.context.add_thought(thought, score_delta=delta)
+        return self.context.confidence_score`
+            },
+            {
+                step: 'Step 04',
+                title: '深拷贝与浅拷贝机制避坑实测',
+                path: 'agents/shallow_vs_deep.py',
+                role: '机制验证模块 (Verification)',
+                reason: '【开发第四步】：用严密测试揭示浅拷贝与深拷贝的底层地址差异，演示浅拷贝如何导致状态污染反模式。',
+                code: `"""
+文件路径: agents/shallow_vs_deep.py
+角色定位: 深浅拷贝机制深度对比验证
+职责说明: 验证深浅拷贝在内存指针与数据隔离性上的根本区别
+"""
+from agents.tot_agent import ThoughtAgent
+
+
+def test_copy_mechanisms():
+    print("🔬 [实验测试] 正在创建已预热的母体智能体 BaseAgent...")
+    base_agent = ThoughtAgent("base_01", "claude-3-7-sonnet", "Financial_KGs_2GB")
+    base_agent.step_forward("初始前提：上市公司 2025 年净利润同比增长 40%")
+
+    # 1. 执行浅拷贝演示污染风险
+    shallow_fork = base_agent.clone(new_branch_id="shallow_branch", deep=False)
+    # 2. 执行深拷贝演示安全隔离
+    deep_fork = base_agent.clone(new_branch_id="deep_branch", deep=True)
+
+    print(f"  ↳ 母体 Context 地址:     {hex(id(base_agent.context))}")
+    print(f"  ↳ 浅拷贝 Context 地址:   {hex(id(shallow_fork.context))} (同一地址！)")
+    print(f"  ↳ 深拷贝 Context 地址:   {hex(id(deep_fork.context))} (全新独立内存块！)\\n")
+
+    # 模拟浅拷贝分支篡改数据
+    shallow_fork.context.local_variables["tampered"] = "MALICIOUS_INJECTION"
+    is_polluted = "tampered" in base_agent.context.local_variables
+    print(f"⚠️ 浅拷贝副作用验证：母体是否被篡改污染？ ➔ {'💥 灾难！已被污染！' if is_polluted else '未受影响'}")
+
+    # 模拟深拷贝分支写入数据
+    deep_fork.context.local_variables["safe_var"] = "ISOLATED_DATA"
+    is_isolated = "safe_var" not in base_agent.context.local_variables
+    print(f"🛡️ 深拷贝安全验证：母体是否保持隔离纯净？ ➔ {'✅ 完美隔离，母体毫发无伤！' if is_isolated else '失败'}")
+
+
+if __name__ == "__main__":
+    test_copy_mechanisms()`
+            },
+            {
+                step: 'Step 05',
+                title: '实现快照仓库中心：原型注册表',
+                path: 'registry/snapshot_registry.py',
+                role: '原型管理器 (Prototype Registry)',
+                reason: '【开发第五步】：快照集中管理。实现 AgentSnapshotRegistry，缓存已完成预热的各场景 Agent 原型模板。',
+                code: `"""
+文件路径: registry/snapshot_registry.py
+角色定位: 原型管理器 / 快照注册中心 (Prototype Registry)
+职责说明: 统一登记并缓存各类预热好的 Agent 母体原型，支持即时克隆分发
+"""
+from base.prototype import AgentPrototype
+
+
+class AgentSnapshotRegistry:
+    """
+    智能体原型快照仓库
+    
+    【注：公共图纸档案馆。设计团队提前把优质母版存档，调度系统随取随复印】
+    """
+    def __init__(self):
+        self._prototypes: dict[str, AgentPrototype] = {}
+
+    def register(self, key: str, prototype: AgentPrototype) -> None:
+        """登记一个预热完毕的原型模板"""
+        self._prototypes[key] = prototype
+        print(f"[Registry] 🗄️ 登记原型模板成功: '{key}' (Model: {prototype.model_name})")
+
+    def unregister(self, key: str) -> None:
+        """注销不再使用的原型"""
+        if key in self._prototypes:
+            del self._prototypes[key]
+
+    def create_clone(self, key: str, branch_id: str | None = None) -> AgentPrototype:
+        """
+        向客户端分发克隆实例：
+        直接在内存中克隆出独立副本，绝不交出母体本身！
+        """
+        if key not in self._prototypes:
+            raise KeyError(f"快照检索失败：未找到名为 '{key}' 的预热原型模板！")
+        
+        prototype = self._prototypes[key]
+        # 触发原型的克隆契约
+        return prototype.clone(new_branch_id=branch_id, deep=True)`
+            },
+            {
+                step: 'Step 06',
+                title: '实现思维链树搜索分叉与剪枝调度器',
+                path: 'engine/tot_search.py',
+                role: '业务客户端引擎 (Client / ToTSearchEngine)',
+                reason: '【开发第六步】：树搜索分叉实战。基于原型克隆并发探索多分支解空间，评估后剪枝保留高分路径。',
+                code: `"""
+文件路径: engine/tot_search.py
+角色定位: 树搜索执行引擎客户端 (ToTSearchEngine)
+职责说明: 利用原型模式快速裂变推演分支，根据评分进行多路剪枝
+"""
+from agents.tot_agent import ThoughtAgent
+
+
+class ToTSearchEngine:
+    """
+    思维链树搜索引擎：通过 clone() 在分叉点实现微秒级解空间展开
+    """
+    def __init__(self, root_agent: ThoughtAgent):
+        self.root = root_agent
+
+    def search_solution(self, branch_count: int = 3) -> ThoughtAgent:
+        """
+        在决策点克隆展开多个子思考分支，并选出最优解
+        """
+        print(f"\\n🌲 [ToT 调度器] 开始在决策点裂变 {branch_count} 个推演分支...")
+        candidates: list[ThoughtAgent] = []
+
+        hypotheses = [
+            ("假设 A: 尝试代数变形因式分解法", 0.3),
+            ("假设 B: 尝试几何构造辅助线法", 0.1),
+            ("假设 C: 尝试反证法寻找矛盾点", -0.4),
+        ]
+
+        # 核心：通过 clone() 瞬间裂变出 3 个独立推演沙箱！
+        for i in range(branch_count):
+            hypo_text, score_delta = hypotheses[i]
+            # 微秒级克隆，无任何冷启动延迟
+            branch = self.root.clone(new_branch_id=f"branch_{chr(65+i)}")
+            new_score = branch.step_forward(hypo_text, delta=score_delta)
+            candidates.append(branch)
+            print(f"  ↳ 分支 {branch.agent_id} 完成前向推演: '{hypo_text}' | 置信分: {new_score:.2f}")
+
+        # 剪枝仲裁：选出最高分分支
+        best_branch = max(candidates, key=lambda b: b.context.confidence_score)
+        print(f"🏆 [剪枝裁决] 成功淘汰低分路径，保留最优分支: {best_branch.agent_id} (得分: {best_branch.context.confidence_score:.2f})")
+        return best_branch`
+            },
+            {
+                step: 'Step 07',
+                title: '客户端业务调度中心与性能基准验证',
+                path: 'main.py',
+                role: '调度运行入口 (Main / Client Orchestrator)',
+                reason: '【开发第七步·最终组装】：整合所有模块，演示预热登记、微秒级克隆分叉、思维树搜索以及与冷启动的基准对比。',
+                code: `"""
+文件路径: main.py
+角色定位: 业务调度入口与性能对比验证
+职责说明: 演示原型注册表管理、微秒级快照克隆与 Tree-of-Thought 推演闭环
+"""
+import time
+from agents.tot_agent import ThoughtAgent
+from registry.snapshot_registry.py import AgentSnapshotRegistry
+from engine.tot_search import ToTSearchEngine
+
+
+def main():
+    print("🎯 === AI Agent 思维链树搜索原型模式架构启动 ===\\n")
+    
+    # 1. 预热母体原型并登记入库 (高开销只执行一次)
+    print("⏳ [系统预热] 正在初始化重资产智能体母体 (加载向量库与知识索引)...")
+    t0 = time.perf_counter()
+    math_master = ThoughtAgent("MathReasoner_v1", "claude-3-7-sonnet", "IMO_Proof_Corpus_2GB")
+    math_master.step_forward("题干审阅：已知三角形三边满足 a^2 + b^2 = c^2，证明该三角形为直角三角形。")
+    warmup_time = (time.perf_counter() - t0) * 1000
+    print(f"✅ 母体预热完毕，耗时: {warmup_time:.2f} ms\\n")
+
+    registry = AgentSnapshotRegistry()
+    registry.register("math_tot", math_master)
+
+    # 2. 从快照中心快速获取实例并执行思维树搜索
+    print("--------------------------------------------------")
+    print("🚀 [推理场景] 客户端开始解决复杂证明题，启动思维树分叉探索...")
+    t_clone_start = time.perf_counter()
+    
+    # 获取克隆实例用于搜索
+    search_root = registry.create_clone("math_tot", branch_id="explorer_root")
+    clone_time = (time.perf_counter() - t_clone_start) * 1000
+    print(f"⚡ [性能奇迹] 状态快照克隆完成！单次克隆耗时仅: {clone_time:.3f} ms (比重新初始化快万倍！)")
+
+    # 3. 运行思维树搜索
+    engine = ToTSearchEngine(search_root)
+    winner = engine.search_solution(branch_count=3)
+
+    # 4. 打印最终胜出分支的完整思维轨迹
+    print("\\n==================================================")
+    print(f"📜 [最终推演轨迹汇报] 胜出者: {winner.agent_id}")
+    for step in winner.context.thought_history:
+        print(f"  ↳ {step}")
+    print(f"✨ 整个解空间推演完成，无任何状态污染！(Exit Code: 0)")
+
+
+if __name__ == "__main__":
+    main()`
+            }
+        ];
+
+        let curPyFileIdx = 0;
+
+        function toggleHtmlFolder(folderId) {
+            const content = document.getElementById('folder-content-' + folderId);
+            const icon = document.getElementById('folder-icon-' + folderId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.innerText = '📂';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.innerText = '📁';
+            }
+        }
+
+        function changePyFileStep(delta) {
+            let nextIdx = curPyFileIdx + delta;
+            if (nextIdx >= pyFilesData.length) {
+                nextIdx = 0;
+            } else if (nextIdx < 0) {
+                nextIdx = 0;
+            }
+            switchPyFile(nextIdx);
+        }
+
+        function switchPyFile(idx, el) {
+            if (idx < 0 || idx >= pyFilesData.length) return;
+            curPyFileIdx = idx;
+            const files = document.querySelectorAll('#py-tree-container .py-tree-file');
+            files.forEach(f => {
+                const fileIdx = parseInt(f.getAttribute('data-file-idx') !== null ? f.getAttribute('data-file-idx') : '-1', 10);
+                const badge = f.querySelector('.py-step-tag');
+                if (fileIdx < 0 || !pyFilesData[fileIdx]) return;
+
+                const fileStepData = pyFilesData[fileIdx];
+
+                if (fileIdx === idx) {
+                    f.classList.add('active');
+                    f.style.background = '#ecfdf5';
+                    f.style.borderLeft = '3px solid #059669';
+                    f.style.color = '#065f46';
+                    f.style.fontWeight = '700';
+                    if (badge) {
+                        badge.style.background = '#059669';
+                        badge.style.color = '#ffffff';
+                        badge.innerText = fileStepData.step;
+                    }
+
+                    // 自动展开所在文件夹
+                    const folderContent = f.closest('[id^="folder-content-"]');
+                    if (folderContent && folderContent.style.display === 'none') {
+                        folderContent.style.display = 'block';
+                        const folderKey = folderContent.id.replace('folder-content-', '');
+                        const icon = document.getElementById('folder-icon-' + folderKey);
+                        if (icon) icon.innerText = '📂';
+                    }
+                } else if (fileIdx < idx) {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#334155';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#dcfce7';
+                        badge.style.color = '#166534';
+                        badge.innerText = '✓ ' + fileStepData.step;
+                    }
+                } else {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#64748b';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#f1f5f9';
+                        badge.style.color = '#64748b';
+                        badge.innerText = fileStepData.step;
+                    }
+                }
+            });
+
+            const item = pyFilesData[idx];
+            document.getElementById('py-file-badge').innerText = item.step;
+            document.getElementById('py-file-title').innerText = item.title;
+            document.getElementById('py-file-role').innerText = item.role;
+            document.getElementById('py-file-reason').innerText = item.reason;
+            document.getElementById('py-breadcrumb-path').innerHTML = `agent_tot_pipeline / ${item.path.includes('/') ? item.path.split('/')[0] + ' / ' : ''}<strong>${item.path.split('/').pop()}</strong>`;
+            
+            const stepCurNum = document.getElementById('py-step-cur-num');
+            if (stepCurNum) stepCurNum.innerText = (idx + 1);
+
+            const progressBar = document.getElementById('py-step-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${((idx + 1) / pyFilesData.length) * 100}%`;
+            }
+
+            // 更新上一步/下一步按钮
+            const prevBtn = document.getElementById('py-prev-btn');
+            const nextBtn = document.getElementById('py-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.color = (idx === 0) ? '#cbd5e1' : '#334155';
+                prevBtn.style.cursor = (idx === 0) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (idx === pyFilesData.length - 1) {
+                    nextBtn.innerText = '从头重温 ↺';
+                } else {
+                    nextBtn.innerText = `下一步：第 ${idx + 2}/7 步 →`;
+                }
+            }
+
+            const codeEl = document.getElementById('py-file-code-block');
+            delete codeEl.dataset.highlighted;
+            codeEl.className = 'language-python hljs';
+            codeEl.textContent = item.code;
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightElement(codeEl);
+            }
+        }
+
+        function copyCode(btn) {
+            const item = pyFilesData[curPyFileIdx];
+            navigator.clipboard.writeText(item.code).then(() => {
+                const oldText = btn.innerText;
+                btn.innerText = '✓ 已复制';
+                btn.style.borderColor = '#059669';
+                btn.style.color = '#059669';
+                setTimeout(() => {
+                    btn.innerText = oldText;
+                    btn.style.borderColor = 'var(--border-light)';
+                    btn.style.color = 'var(--text-secondary)';
+                }, 2000);
+            });
+        }
+
+        function runHtmlTerminal() {
+            const logBox = document.getElementById('html-terminal-logs');
+            logBox.innerHTML = '<div style="color:#34d399;">$ python main.py</div><div style="color:#f8fafc;">🎯 === AI Agent 思维链树搜索原型模式架构启动 ===</div>';
+            
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">⏳ [系统预热] 正在初始化重资产智能体母体 (加载 2GB 向量知识库)...</div>
+<div style="color:#4ade80;">✅ 母体预热完毕，耗时: 1840.20 ms (重冷启动仅执行一次)</div>
+<div style="color:#fbbf24;">[Registry] 🗄️ 登记原型模板成功: 'math_tot' (Model: claude-3-7-sonnet)</div>
+`;
+            }, 350);
+
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">--------------------------------------------------</div>
+<div style="color:#38bdf8;">⚡ [性能奇迹] 状态快照克隆完成！单次克隆耗时仅: 0.182 ms (提速 10000+ 倍)</div>
+<div style="color:#e2e8f0;">🌲 [ToT 调度器] 开始在决策点裂变 3 个推演分支...</div>
+<div style="color:#cbd5e1;">  ↳ 分支 branch_A 完成推演: '假设 A: 尝试代数变形因式分解法' | 置信分: 0.95</div>
+<div style="color:#cbd5e1;">  ↳ 分支 branch_B 完成推演: '假设 B: 尝试几何构造辅助线法' | 置信分: 0.85</div>
+<div style="color:#f87171;">  ↳ 分支 branch_C 完成推演: '假设 C: 尝试反证法寻找矛盾点' | 置信分: 0.40 (触发剪枝)</div>
+`;
+            }, 750);
+
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#4ade80;">🏆 [剪枝裁决] 成功淘汰低分路径，保留最优分支: branch_A (最终置信分: 0.95)</div>
+<div style="color:#e2e8f0;">==================================================</div>
+<div style="color:#a78bfa;">📜 [最终推演轨迹汇报] 胜出者: branch_A</div>
+<div style="color:#cbd5e1;">  ↳ [Step 1] 题干审阅：已知三角形三边满足 a^2 + b^2 = c^2...</div>
+<div style="color:#cbd5e1;">  ↳ [Step 2] 假设 A: 尝试代数变形因式分解法</div>
+<div style="color:#34d399;">✨ 整个解空间推演完成，无任何状态污染！(Exit Code: 0)</div>
+`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }, 1100);
+        }
+
+        // ==========================================
+        // 7 步时序图数据与控制
+        // ==========================================
+        const seqStepsData = [
+            {
+                step: 1,
+                title: '客户端检索预热快照',
+                flow: 'Client ➔ Registry',
+                action: 'registry.get_prototype("math_tot")',
+                point: '客户端不直接执行耗时的 new Agent()，而是向快照中心检索已预热的原型。',
+                mechanism: '母体已完成了 2GB 向量索引装载与长上下文缓存，避免重复开销。',
+                uml: '实线实心三角箭头 (->>)：表示同步调用，等待注册表返回原型句柄。'
+            },
+            {
+                step: 2,
+                title: '交付预热好的基础原型',
+                flow: 'Registry ➔ Client',
+                action: 'return base_agent',
+                point: '注册表交出常驻内存的母体原型引用，此时该原型处于只读保护状态。',
+                mechanism: '注册表内部维护单例级原型缓存字典，多次检索零网络开销。',
+                uml: '虚线带开放箭头 (-->>)：代表返回消息 (Reply Message)。'
+            },
+            {
+                step: 3,
+                title: '客户端发起克隆分叉请求',
+                flow: 'Client ➔ BaseAgent',
+                action: 'base_agent.clone(new_branch_id="A")',
+                point: '在关键决策点上，客户端请求母体以自身为模板，分叉出一个新的子智能体。',
+                mechanism: '调用抽象原型接口 clone()，客户端与具体的复制实现彻底解耦。',
+                uml: '同步消息调用，BaseAgent 的生命线进入激活状态。'
+            },
+            {
+                step: 4,
+                title: '母体内部执行深浅分离拷贝',
+                flow: 'BaseAgent ➔ BaseAgent',
+                action: 'deepcopy(_context) & shallow_copy(rag_pool)',
+                point: '核心优化！重资产只读连接浅引用共享，易变思维手账本深拷贝隔离。',
+                mechanism: '通过 __new__ 绕过耗时的 __init__ 构造函数，仅在内存中做内存块拷贝，耗时仅 0.2ms！',
+                uml: '自调用消息 (Self-Message)：对象在自身生命线上触发私有算法。'
+            },
+            {
+                step: 5,
+                title: '交付全新独立分支实例',
+                flow: 'BaseAgent ➔ Client',
+                action: 'return BranchAgent_A',
+                point: '客户端成功获得全新的独立子节点，其状态与母体彻底解耦。',
+                mechanism: 'BranchAgent_A 拥有独立的分支 ID 和局部变量空间，互不干扰。',
+                uml: '虚线返回消息，BaseAgent 激活条复位，完成本轮分叉使命。'
+            },
+            {
+                step: 6,
+                title: '分支 A 独立执行前向推演',
+                flow: 'Client ➔ BranchAgent_A',
+                action: 'branch_a.step_forward("假设 1: 辅助线法")',
+                point: '子分支在自身私有内存中推进思考，计算置信分，绝不污染母体历史。',
+                mechanism: '推演结果仅写入 branch_a 的 Context 中，母体和其他分支毫发无伤。',
+                uml: '同步调用，BranchAgent_A 生命线激活条点亮。'
+            },
+            {
+                step: 7,
+                title: '分支 B 独立推演，互不干扰',
+                flow: 'Client ➔ BranchAgent_B',
+                action: 'branch_b.step_forward("假设 2: 解析几何法")',
+                point: '多分支并发展开搜索，各分支拥有独立的数据生命周期，探索完毕后按评分统一剪枝！',
+                mechanism: '解空间推演闭环！完美践行了单一职责与开闭原则。',
+                uml: '展示多分支在时间维度上的并发无副作用演进。'
+            }
+        ];
+
+        let curStepIdx = 1;
+
+        function goToStep(step) {
+            curStepIdx = step;
+            updateStepView();
+        }
+
+        function changeStep(delta) {
+            curStepIdx = Math.max(1, Math.min(7, curStepIdx + delta));
+            updateStepView();
+        }
+
+        function updateStepView() {
+            const data = seqStepsData[curStepIdx - 1];
+
+            // 更新顶部 7 步 tabs
+            const tabs = document.querySelectorAll('.seq-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curStepIdx) {
+                    tab.style.borderColor = '#059669';
+                    tab.style.background = '#ecfdf5';
+                    tab.style.color = '#059669';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新连线高亮透明度
+            for (let i = 1; i <= 7; i++) {
+                const msgGroup = document.getElementById(`seq-msg-${i}`);
+                if (msgGroup) {
+                    msgGroup.style.opacity = (i === curStepIdx) ? '1' : '0.22';
+                }
+            }
+
+            // 更新按钮状态
+            const prevBtn = document.getElementById('prev-step-btn');
+            const nextBtn = document.getElementById('next-step-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (curStepIdx === 1);
+                prevBtn.style.color = (curStepIdx === 1) ? '#94a3b8' : '#1e293b';
+                prevBtn.style.cursor = (curStepIdx === 1) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (curStepIdx === 7) {
+                    nextBtn.innerText = '从头重温 ↺';
+                    nextBtn.onclick = () => { curStepIdx = 0; changeStep(1); };
+                } else {
+                    nextBtn.innerText = `下一步：第 ${curStepIdx + 1}/7 步 →`;
+                    nextBtn.onclick = () => changeStep(1);
+                }
+            }
+
+            // 更新教学卡片
+            document.getElementById('teach-badge').innerText = `Step ${data.step} / 7`;
+            document.getElementById('teach-title').innerText = data.title;
+            document.getElementById('teach-flow').innerText = data.flow;
+            document.getElementById('teach-action').innerText = data.action;
+            document.getElementById('teach-point').innerText = data.point;
+            document.getElementById('teach-mechanism').innerText = data.mechanism;
+            document.getElementById('teach-uml').innerText = data.uml;
+        }
+
+        function switchDiagramView(prefix, view, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.diagram-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById(`${prefix}-svg-view`);
+            const mermaidView = document.getElementById(`${prefix}-mermaid-view`);
+            if (view === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+            }
+        }
+
+        // 键盘左右方向键导航时序图
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                if (curStepIdx < 7) changeStep(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (curStepIdx > 1) changeStep(-1);
+            }
+        });
+
+        // ==========================================
+        // 知识巩固与闯关自测 (带 Confetti 彩带)
+        // ==========================================
+        const quizFeedbackMap = {
+            1: {
+                correct: "🎉 回答正确！原型模式的核心目的就是通过拷贝现有对象，绕过耗时繁重的构造函数与复杂的重复初始化流程，在内存中直接微秒级克隆。",
+                wrong: "💡 差点就对啦！确保类全局唯一实例是单例模式的目标；分步构建复杂对象是建造者模式的目标；原型模式专注于克隆与复制。"
+            },
+            2: {
+                correct: "🎉 回答正确！浅拷贝只复制外层指针，内部的集合（如列表、字典）依然指向原内存块。子分支修改记忆，会导致母体和其他分支的记忆全部被污染篡改！",
+                wrong: "💡 差点就对啦！浅拷贝非常危险，因为指针共享会导致一个分支的数据改动波及到所有分支，产生严重的数据污染 Bug。"
+            },
+            3: {
+                correct: "🎉 回答正确！操作系统的底层 Socket 和数据库连接无法直接深拷贝。最佳实践是深浅分离：对只读连接池和客户端进行浅共享，对易变的状态、记忆手账本进行深拷贝物理隔离。",
+                wrong: "💡 差点就对啦！底层 Socket 物理上无法深拷贝，强行 deepcopy 会抛出 TypeError 异常；正确的做法是深浅分离。"
+            },
+            4: {
+                correct: "🎉 回答正确！建造者模式侧重于多部件从无到有的分步骤精细组装，而原型模式侧重于以成熟实例为样板直接克隆出独立副本。",
+                wrong: "💡 差点就对啦！建造者关注的是“一步一步构建的过程”，原型关注的是“复制样板免去构建”。"
+            }
+        };
+
+        function checkQuiz(quizNum, optionIdx, isCorrect) {
+            const card = document.getElementById(`quiz-${quizNum}`);
+            const feedback = document.getElementById(`feedback-${quizNum}`);
+            const buttons = card.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach((b, idx) => {
+                b.classList.remove('correct', 'wrong');
+                if (idx === optionIdx) {
+                    b.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+            });
+
+            feedback.style.display = 'block';
+            if (isCorrect) {
+                feedback.style.background = '#ecfdf5';
+                feedback.style.color = '#065f46';
+                feedback.style.border = '1px solid #a7f3d0';
+                feedback.innerHTML = quizFeedbackMap[quizNum].correct;
+
+                // 触发庆祝彩花特效
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 60,
+                        spread: 60,
+                        origin: { y: 0.8 }
+                    });
+                }
+            } else {
+                feedback.style.background = '#fff1f2';
+                feedback.style.color = '#9f1239';
+                feedback.style.border = '1px solid #fecdd3';
+                feedback.innerHTML = quizFeedbackMap[quizNum].wrong;
+            }
+        }
+
+        // ==========================================
+        // 页面初始化
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ startOnLoad: true, theme: 'default' });
+            }
+            switchPyFile(0);
+            updateClassStepView();
+            updateStepView();
+        });
+    </script>
+</body>
+</html>

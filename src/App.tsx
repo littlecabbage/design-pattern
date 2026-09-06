@@ -103,12 +103,13 @@ const PATTERNS_DATA: PatternItem[] = [
     seq: '05',
     name: '原型模式',
     nameEn: 'Prototype Pattern',
-    status: 'coming_soon',
+    status: 'published',
     difficulty: '进阶',
     tag: '克隆复制 · 状态快照分叉',
     summary: '用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象，节省昂贵的初始化开销。',
-    analogy: '文档复印机：复印一份写好的合同模板，在此基础上填入不同客户的信息。',
-    agentCase: '智能体思维链分支演化 (Tree-of-Thought) 的上下文环境状态深度克隆',
+    analogy: '细胞分裂与合同复印：基于已完成耗时初始化的基底实例，微秒级深克隆出独立演化的分支沙箱。',
+    agentCase: '智能体思维链分支演化 (Tree-of-Thought / ToT) 的上下文环境状态深度克隆与微秒级分叉',
+    url: './design-pattern-html/01-creational/05-prototype-pattern.html',
   },
 
   // 02 结构型模式 (Structural)
@@ -641,6 +642,7 @@ export const App: React.FC = () => {
             return (
               <div
                 key={item.id}
+                id={`pattern-${item.id}`}
                 style={{
                   background: '#ffffff',
                   border: isPublished ? '1.5px solid #c7d2fe' : '1px solid #e2e8f0',
