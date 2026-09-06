@@ -18,6 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { CreationalComparisonTable } from './components/CreationalComparisonTable';
+import { HeaderVisitorBadge, FooterVisitorStats } from './components/VisitorStats';
 
 interface PatternItem {
   id: string;
@@ -417,7 +418,8 @@ export const App: React.FC = () => {
             <span style={{ color: '#0f172a' }}>设计模式现代实战教学</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <HeaderVisitorBadge />
             <a
               href="https://github.com/littlecabbage/design-pattern"
               target="_blank"
@@ -789,6 +791,9 @@ export const App: React.FC = () => {
           GoF 23 Design Patterns Interactive Masterclass · AI Agent Architecture
         </p>
         <p>基于现代前端交互规范 · Python 3.11+ 生产级架构 · UML 2.5 可视化设计</p>
+        <div>
+          <FooterVisitorStats />
+        </div>
       </footer>
     </div>
   );
