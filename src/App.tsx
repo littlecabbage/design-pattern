@@ -17,6 +17,7 @@ import {
   Flame,
   Zap,
 } from 'lucide-react';
+import { CreationalComparisonTable } from './components/CreationalComparisonTable';
 
 interface PatternItem {
   id: string;
@@ -777,6 +778,9 @@ export const App: React.FC = () => {
             );
           })}
         </div>
+
+        {/* 当选中“创建型模式”时，在最下方展示 5 种创建型模式的深度对比表格 */}
+        {activeTab === 'creational' && <CreationalComparisonTable />}
       </main>
 
       {/* 页脚 */}
