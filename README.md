@@ -25,8 +25,10 @@
 | 🏠 **总览导航大厅 (Hub Portal)** | **[👉 点击进入设计模式总览主页](https://littlecabbage.github.io/design-pattern/)** | 包含 23 种设计模式分类检索、路线图与各章节直达入口 |
 | 📘 **01 · 工厂方法模式** | **[👉 01-factory-method-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/01-factory-method-pattern.html)** | 解密 CodeAgent 与 ResearchAgent 的动态生命周期流水线 |
 | 🏛️ **02 · 抽象工厂模式** | **[👉 02-abstract-factory-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/02-abstract-factory-pattern.html)** | 解决本地涉密栈 vs 云端高并发栈的产品族协同与混搭痛点 |
+| 🔒 **03 · 单例模式** | **[👉 03-singleton-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/03-singleton-pattern.html)** | 全局唯一电表房 · Agent 集中式 Token 计量网关与 Embedding 缓存 |
 | 🔌 **06 · 适配器模式** | **[👉 06-adapter-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/06-adapter-pattern.html)** | 消除协议鸿沟 · 将传统 REST/GraphQL 与本地 CLI 封装为 Agent MCP 标准工具 |
 | ✨ **07 · 装饰器模式** | **[👉 07-decorator-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/02-structural/07-decorator-pattern.html)** | 动态无侵入增强 · 俄罗斯套娃叠加流式输出、Token 预算限流、敏感词安全脱敏与审计日志 |
+| 🛡️ **15 · 责任链模式** | **[👉 15-chain-of-responsibility-pattern.html](https://littlecabbage.github.io/design-pattern/design-pattern-html/03-behavioral/15-chain-of-responsibility-pattern.html)** | 安检通道式多层防护 · Prompt 注入拦截、敏感词过滤与代码静态审查流水线 |
 
 ---
 
@@ -48,7 +50,7 @@
 | :---: | :--- | :--- | :---: | :---: |
 | **01** | **工厂方法模式** *(Factory Method)* | 多态创建 · 解耦 CodeAgent 与 ResearchAgent 生命周期流水线 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/01-factory-method-pattern.html) |
 | **02** | **抽象工厂模式** *(Abstract Factory)* | 产品族生态 · 本地涉密隔离栈 vs 云端高并发栈成套热插拔 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/02-abstract-factory-pattern.html) |
-| **03** | **单例模式** *(Singleton)* | 全局唯一 · Agent 集中式 Token 计量网关与 Embedding 缓存 | 🟡 规划中 | 敬请期待 |
+| **03** | **单例模式** *(Singleton)* | 全局唯一 · Agent 集中式 Token 计量网关与 Embedding 缓存 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/01-creational/03-singleton-pattern.html) |
 | **04** | **建造者模式** *(Builder)* | 链式装配 · 复杂 Agent 执行管线 (Prompt+工具+记忆+权限) | 🟡 规划中 | 敬请期待 |
 | **05** | **原型模式** *(Prototype)* | 状态快照 · 智能体思维链 (Tree-of-Thought) 分支环境深度克隆 | 🟡 规划中 | 敬请期待 |
 
@@ -68,7 +70,7 @@
 | :---: | :--- | :--- | :---: |
 | **13** | **策略模式** *(Strategy)* | 算法替换 · ReAct 单步决策 / Plan-Solve 批处理 / ToT 树搜索动态切换 | 🟡 规划中 |
 | **14** | **观察者模式** *(Observer)* | 事件总线 · Leader 任务分解事件自动广播给各 Worker 智能体监听 | 🟡 规划中 |
-| **15** | **责任链模式** *(Chain of Responsibility)* | 多层防护 · Prompt 注入防御 -> 敏感词过滤 -> 代码静态审查流水线 | 🟡 规划中 |
+| **15** | **责任链模式** *(Chain of Responsibility)* | 多层防护 · Prompt 注入防御 -> 敏感词过滤 -> 代码静态审查流水线 | 🟢 已上线 | [进入学习](https://littlecabbage.github.io/design-pattern/design-pattern-html/03-behavioral/15-chain-of-responsibility-pattern.html) |
 | **16** | **状态模式** *(State)* | 状态驱动 · [IDLE] -> [PLANNING] -> [EXECUTING] -> [REFLECTING] 状态机 | 🟡 规划中 |
 | **17** | **命令模式** *(Command)* | 请求封装 · Agent 工具调用 (Tool Call) 的序列化、撤销与回放队列 | 🟡 规划中 |
 | **18** | **模板方法** *(Template Method)* | 骨架约束 · 定义 Agent 思考-行动-反思标准骨架，子类重写特定环节 | 🟡 规划中 |
@@ -119,10 +121,13 @@ design-pattern/
 ├── design-pattern-html/                  # 独立单文件 HTML 教学课件库
 │   ├── 01-creational/
 │   │   ├── 01-factory-method-pattern.html
-│   │   └── 02-abstract-factory-pattern.html
-│   └── 02-structural/
-│       ├── 06-adapter-pattern.html
-│       └── 07-decorator-pattern.html
+│   │   ├── 02-abstract-factory-pattern.html
+│   │   └── 03-singleton-pattern.html
+│   ├── 02-structural/
+│   │   ├── 06-adapter-pattern.html
+│   │   └── 07-decorator-pattern.html
+│   └── 03-behavioral/
+│       └── 15-chain-of-responsibility-pattern.html
 ├── public/                               # 静态资源与 HTML 镜像
 ├── src/                                  # React 交互式教学导航大厅源码
 │   ├── components/                       # 可复用架构教学组件库
