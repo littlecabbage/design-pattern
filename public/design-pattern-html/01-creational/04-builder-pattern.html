@@ -1,0 +1,3025 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深入浅出建造者模式 (Builder Pattern)：基于 AI Agent 执行管线装配器架构教学</title>
+
+    <!-- SEO 与社交分享元信息 -->
+    <meta name="description" content="深入浅出建造者模式 (Builder Pattern)：以工业级 AI Agent 复杂执行管线装配为主线，彻底告别 15+ 构造入参的伸缩构造器反模式。包含 5 步交互式 UML 类图、UML 规范教学、7 步运行期交互时序图、Python 3.11+ 两栏 IDE 目录树工程代码实战与极速测验。">
+    <meta name="keywords" content="建造者模式,Builder Pattern,生成器模式,设计模式,UML 类图,时序图,Python,AI Agent,AgentPipeline,Director,Fluent API,伸缩构造器,GoF 23">
+    <meta property="og:title" content="深入浅出建造者模式 (Builder Pattern)：AI Agent 执行管线装配器架构教学">
+    <meta property="og:description" content="告别参数地狱！解密 AI Agent 执行管线的流水线组装艺术：UML 规范全解析 + 7 步交互式时序图 + Python 3.11+ 生产级目录树代码实战。">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="GoF 23 架构课件库">
+
+    <!-- SVG Favicon：积木流水线组装图标 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Cpath d='M30 45 L50 32 L70 45 L50 58 Z M30 55 L50 68 L70 55 M30 67 L50 80 L70 67' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+    <!-- 字体引入 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
+    <!-- Canvas Confetti 礼花特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            /* 主色调与设计系统 */
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-highlight: #f8faff;
+
+            --border-light: #e2e8f0;
+            --border-focus: #cbd5e1;
+            --border-accent: #4f46e5;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --text-muted: #94a3b8;
+
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --primary-hover: #4338ca;
+            --primary-glow: rgba(79, 70, 229, 0.12);
+
+            --accent-emerald: #059669;
+            --accent-emerald-light: #ecfdf5;
+            --accent-amber: #d97706;
+            --accent-amber-light: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-light: #fff1f2;
+            --accent-sky: #0284c7;
+            --accent-sky-light: #e0f2fe;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #f5f3ff;
+
+            --font-sans: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-elevated: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+
+            --radius-outer: 24px;
+            --radius-inner: 16px;
+            --radius-sm: 8px;
+            --radius-pill: 9999px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background-color: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 顶部阅读进度指示条 */
+        #read-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3.5px;
+            background: linear-gradient(90deg, #4f46e5, #0284c7, #10b981);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 顶部导航栏 */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 100;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link-btn {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .nav-hub-btn {
+            background: var(--primary);
+            color: white !important;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+        }
+
+        .nav-hub-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        /* Hero 区域 */
+        .hero-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 44px 40px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .hero-tag {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-creational { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+        .tag-difficulty { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .tag-core { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-desc {
+            font-size: 15.5px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 900px;
+            margin-bottom: 24px;
+        }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 12px 16px;
+        }
+
+        .metric-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        /* 学习路线图导航卡片 */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .roadmap-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 14px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-subtle);
+            display: block;
+        }
+
+        .roadmap-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card);
+        }
+
+        .roadmap-card .step-num {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .roadmap-card .step-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        /* 核心通用卡片 (Bezel Card) */
+        .bezel-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-outer);
+            padding: 36px 36px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .section-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .section-desc {
+            font-size: 14.5px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* 专有名词气泡 Chip */
+        .term-chip {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+            cursor: help;
+            position: relative;
+            margin: 0 2px;
+        }
+
+        .term-chip:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+            border-color: #c7d2fe;
+        }
+
+        .term-chip::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            width: max-content;
+            max-width: 300px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            font-weight: 400;
+            font-family: var(--font-sans);
+        }
+
+        .term-chip:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* 角色网格 (Role Bento Grid) */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .role-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .role-type {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .type-product { background: #fef2f2; color: #991b1b; }
+        .type-builder { background: #eef2ff; color: #3730a3; }
+        .type-concrete { background: #ecfdf5; color: #065f46; }
+        .type-director { background: #fffbeb; color: #92400e; }
+        .type-client { background: #f5f3ff; color: #5b21b6; }
+
+        .role-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .role-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .agent-analogy {
+            background: var(--bg-subtle);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* 交互式图表视窗 */
+        .diagram-viewport {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-inner);
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .diagram-toggle-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .diagram-title-tag {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .diagram-view-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diagram-view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* SVG 容器 */
+        .svg-canvas {
+            width: 100%;
+            height: auto;
+            max-height: 520px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        /* 代码复制按钮 */
+        .code-copy-btn {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 11.5px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            transition: all 0.2s;
+        }
+
+        .code-copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Python 语法高亮独立配色增强 */
+        .hljs {
+            background: #f8fafc !important;
+            color: #1e293b !important;
+            font-family: var(--font-mono) !important;
+            font-size: 13px !important;
+            line-height: 1.65 !important;
+            padding: 16px 20px !important;
+            display: block;
+            overflow-x: auto;
+        }
+        .hljs-comment, .hljs-quote { color: #64748b !important; font-style: italic !important; }
+        .hljs-keyword, .hljs-selector-tag, .hljs-subst { color: #7c3aed !important; font-weight: 700 !important; }
+        .hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable { color: #d97706 !important; }
+        .hljs-string, .hljs-doctag { color: #059669 !important; font-weight: 500 !important; }
+        .hljs-title, .hljs-title.class_, .hljs-title.function_ { color: #2563eb !important; font-weight: 700 !important; }
+        .hljs-meta, .hljs-meta .hljs-keyword { color: #dc2626 !important; font-weight: 600 !important; }
+        .hljs-built_in, .hljs-builtin-name { color: #0891b2 !important; font-weight: 600 !important; }
+
+        /* 对比表格 */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin: 16px 0;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .compare-table th, .compare-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .compare-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .compare-table tr:hover {
+            background: #f8faff;
+        }
+
+        /* 互动测验组件 */
+        .quiz-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 18px;
+        }
+
+        .quiz-question {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-option-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 13.5px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quiz-option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .quiz-option-btn.correct {
+            background: var(--accent-emerald-light);
+            border-color: var(--accent-emerald);
+            color: #065f46;
+            font-weight: 700;
+        }
+
+        .quiz-option-btn.wrong {
+            background: var(--accent-rose-light);
+            border-color: var(--accent-rose);
+            color: #9f1239;
+        }
+
+        .quiz-feedback {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 26px; }
+            .hero-desc { font-size: 14px; }
+            .bezel-card { padding: 22px 18px; }
+            .nav-links { display: none; }
+            .diagram-viewport { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 阅读进度条 -->
+    <div id="read-progress"></div>
+
+    <!-- 顶部统一导航栏 -->
+    <nav class="top-navbar">
+        <a href="../../index.html" class="nav-brand">
+            <span style="font-size: 20px;">🏗️</span>
+            <span>GoF 23 设计模式体系</span>
+            <span class="brand-badge">04 · 建造者模式 (Builder)</span>
+        </a>
+        <div class="nav-links">
+            <a href="#section-glossary" class="nav-link-btn">📖 概念速查</a>
+            <a href="#section-intro" class="nav-link-btn">💡 痛点认知</a>
+            <a href="#section-uml-guide" class="nav-link-btn">📐 UML 规范</a>
+            <a href="#section-core" class="nav-link-btn">📊 核心类图</a>
+            <a href="#section-code" class="nav-link-btn">💻 工程代码</a>
+            <a href="#section-sequence" class="nav-link-btn">⏱️ 动态时序</a>
+            <a href="#section-principles" class="nav-link-btn">⚖️ 架构原则</a>
+            <a href="#section-quiz" class="nav-link-btn">🎯 极速自测</a>
+            <a href="../../index.html" class="nav-link-btn nav-hub-btn">🏠 返回主站大厅</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Hero 头图卡片 -->
+        <header class="hero-section">
+            <div class="hero-badge-row">
+                <span class="hero-tag tag-creational">🎨 创建型模式 · 第 04 讲</span>
+                <span class="hero-tag tag-difficulty">⚡ 难度级别：初学到进阶</span>
+                <span class="hero-tag tag-core">🎯 核心精髓：构建与表示分离 · 链式流水线</span>
+            </div>
+            <h1 class="hero-title">深入浅出建造者模式 (Builder Pattern)</h1>
+            <p class="hero-desc">
+                当一个复杂对象的内部由 <strong>LLM 模型基座、系统人格、向量记忆、沙箱工具集、安全合规护栏</strong> 等十几个零部件组成时，如何拒绝灾难性的“伸缩构造器反模式”？
+                本文以工业级 <strong>AI Agent (智能体) 执行管线装配器</strong> 为实战蓝本，从赛百味生活比喻、UML 严谨规范、5 步交互式类图、两栏 IDE 目录树 Python 3.11+ 工程代码到 7 步交互式运行期时序图，带你平滑掌握复杂对象的分步组装艺术！
+            </p>
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">模式英文全称</div>
+                    <div class="metric-val">Builder Pattern / 生成器模式</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">核心解决痛点</div>
+                    <div class="metric-val">伸缩构造器 (Telescoping Constructor)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">工业落地案例</div>
+                    <div class="metric-val">AI Agent 复杂执行管线装配器</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SOLID 原则支撑</div>
+                    <div class="metric-val">单一职责 (SRP) + 开闭原则 (OCP)</div>
+                </div>
+            </div>
+
+            <!-- 学习路线图导航卡片 -->
+            <div class="roadmap-grid">
+                <a href="#section-intro" class="roadmap-card">
+                    <div class="step-num">Step 01</div>
+                    <div class="step-name">痛点剖析：伸缩构造器灾难</div>
+                </a>
+                <a href="#section-uml-guide" class="roadmap-card">
+                    <div class="step-num">Step 02</div>
+                    <div class="step-name">UML 语法与符号用法全解</div>
+                </a>
+                <a href="#section-core" class="roadmap-card">
+                    <div class="step-num">Step 03</div>
+                    <div class="step-name">五大核心角色与类图演练</div>
+                </a>
+                <a href="#section-code" class="roadmap-card">
+                    <div class="step-num">Step 04</div>
+                    <div class="step-name">Agent 工程代码两栏 IDE</div>
+                </a>
+                <a href="#section-sequence" class="roadmap-card">
+                    <div class="step-num">Step 05</div>
+                    <div class="step-name">动态时序剖析 7 步交互</div>
+                </a>
+                <a href="#section-principles" class="roadmap-card">
+                    <div class="step-num">Step 06</div>
+                    <div class="step-name">架构原则与模式横向对比</div>
+                </a>
+            </div>
+        </header>
+
+        <!-- 附录：初学者概念大白话速查字典 (顶部可折叠) -->
+        <section id="section-glossary" style="margin: 24px 0 28px;">
+            <div style="background: #ffffff; border: 1.5px solid #e0e7ff; border-radius: 16px; box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.06); overflow: hidden; transition: all 0.25s ease;">
+                <!-- 可点击折叠栏 Header -->
+                <div onclick="toggleGlossary()" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; cursor: pointer; background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%); user-select: none; transition: background 0.15s;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="font-size: 22px; line-height: 1;">💡</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h3 style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">附录：初学者概念大白话速查字典 (Jargon Glossary)</h3>
+                                <span style="background: #eef2ff; color: #4f46e5; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #c7d2fe;">通俗比喻 · 点击展开/折叠</span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 3px 0 0;">全篇核心概念通俗比喻速查（「xxx是xxx，如果你不理解，你就理解为xxx」）</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="glossary-toggle-text" style="font-size: 12px; font-weight: 700; color: #4f46e5;">展开字典 ▾</span>
+                        <div id="glossary-toggle-btn" style="width: 26px; height: 26px; border-radius: 7px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; transition: transform 0.2s ease;">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 折叠主体内容 (默认隐藏) -->
+                <div id="glossary-content" style="display: none; padding: 16px 22px 24px; border-top: 1px dashed #e2e8f0; background: #ffffff;">
+                    <!-- 搜索框 -->
+                    <div style="margin-bottom: 16px;">
+                        <input type="text" id="glossary-search" placeholder="🔍 输入关键字实时过滤术语 (如：Director、伸缩构造器、不可变、Fluent)..." 
+                               style="width: 100%; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; transition: border-color 0.2s;">
+                    </div>
+
+                    <!-- 术语卡片网格 -->
+                    <div id="glossary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; font-size: 13px;">
+                        
+                        <div class="glossary-item" data-term="GoF 建造者模式 Builder Pattern" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #4f46e5; margin-bottom: 4px;">🧱 建造者模式 (Builder Pattern)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                将一个复杂对象的构建与其表示分离，使同样的构建过程可以创建不同的表示。<strong>如果你不理解，你就理解为：赛百味点三明治</strong>——统一的选面包、加肉、加菜、涂酱工序，按顾客喜好组合出完全不同的风味。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Telescoping Constructor 伸缩构造器 重叠构造器 反模式" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #e11d48; margin-bottom: 4px;">⚠️ 伸缩构造器 (Telescoping Constructor)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                一种反模式。当对象属性多达十几个时，构造函数参数爆炸，迫使调用方填入大量默认值。<strong>如果你不理解，你就理解为：买散装汽车零件</strong>——厂家把发动机、螺丝、坐垫等上百个配件一股脑堆在车前，稍不留神就会接错线。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Director 指导者 指挥官" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #d97706; margin-bottom: 4px;">👨‍✈️ 指挥官 / 指导者 (Director)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                负责管理具体建造者的装配流程，定义固定步骤次序。<strong>如果你不理解，你就理解为：汽车制造厂总工长</strong>——手里拿着“越野版配方”或“城市纯电配方”，一步步下令施工队按标准次序拧螺丝。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Fluent Interface 流式接口 链式调用" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #059669; margin-bottom: 4px;">🔗 流式接口 (Fluent Interface)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                每个配置方法执行后都 `return self`，支持形如 `builder.with_model().with_tools().build()` 的链式调用。<strong>如果你不理解，你就理解为：拼接乐高积木</strong>——扣上一块不用停顿，顺手直接拼下一块，直到最终出厂。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Immutable Object 不可变对象 冻结" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0891b2; margin-bottom: 4px;">🧊 不可变对象 (Immutable Object)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                对象出厂后其内部状态再也不允许被修改（如 `@dataclass(frozen=True)`）。<strong>如果你不理解，你就理解为：加盖了火漆印章的出厂说明书</strong>——建造期间允许修修改改，一旦打包出厂，谁都不能私自涂改。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="AI Agent 智能体 基础设施" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🤖 AI Agent (人工智能智能体)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                以大语言模型 (LLM) 为推理中枢，具备记忆、自主规划、工具调用 (Tool Call) 与环境反思能力的程序。<strong>如果你不理解，你就理解为：给大模型装上双手和记事本</strong>——让它能自主调用 Python 运行代码并查询数据库。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="Guardrails 安全护栏 输入防御 敏感过滤" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #7c3aed; margin-bottom: 4px;">🛡️ Guardrails (安全护栏系统)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                在智能体执行前检查 Prompt 注入攻击，并在执行后脱敏 PII (个人隐私) 的安全防护层。<strong>如果你不理解，你就理解为：Agent 的贴身安检仪</strong>——防止坏人洗脑 Agent，也防止 Agent 把公司机密泄漏出去。
+                            </div>
+                        </div>
+
+                        <div class="glossary-item" data-term="UML 聚合关系 Aggregation" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #334155; margin-bottom: 4px;">📐 UML 聚合关系 (Aggregation)</div>
+                            <div style="color: #334155; line-height: 1.55;">
+                                使用空心菱形实线箭头表示（Director ◇──> Builder）。<strong>如果你不理解，你就理解为：车队队长与队员</strong>——队长手里调度队员干活，但队长下班回家后，队员依然是个完整的独立个体，两者生命周期独立。
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 1 节：直觉认知与痛点具象化 (Problem & Intuition) -->
+        <section id="section-intro" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">01</div>
+                <h2 class="section-title">直觉认知：从“赛百味配餐”到“AI Agent 装配灾难”</h2>
+            </div>
+            
+            <p class="section-desc">
+                在日常开发中，我们常遇到这种场景：一个对象拥有大量的配置项，其中一部分是必选的，大部分是可选的，某些参数甚至互斥或必须按特定顺序初始化。如果不做架构设计，最本能的做法是给类的
+                <span class="term-chip" data-tip="Constructor: 构造函数&#10;类被实例化时调用的初始化入口">构造函数 (Constructor)</span>
+                塞入长长的一串参数，导致灾难性的反模式。
+            </p>
+
+            <!-- 对比网格 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 24px 0;">
+                
+                <!-- 痛点：伸缩构造器反模式 -->
+                <div style="background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: var(--radius-inner); padding: 22px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="background: #e11d48; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 700;">❌ 痛点现状</span>
+                        <span style="font-weight: 700; color: #9f1239; font-size: 15px;">伸缩构造器反模式 (Telescoping Anti-Pattern)</span>
+                    </div>
+                    <p style="font-size: 13.5px; color: #4c0519; line-height: 1.6; margin-bottom: 12px;">
+                        AI 工程师小李开发了一个支持数十项功能的 Agent，构造参数疯狂膨胀：
+                        <br>• <strong>参数地狱</strong>：构造方法长达 16 个参数，调用时不得不传一堆 <code>None, False, 0.0</code>；
+                        <br>• <strong>位置易位</strong>：<code>timeout=60</code> 误填到 <code>temperature</code> 位置，导致大模型直接胡言乱语；
+                        <br>• <strong>半成品漏判</strong>：忘记挂载安全 Guardrails 也能实例化，直接裸奔上线遭遇 Prompt 注入攻击！
+                    </p>
+                    <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #be123c; border: 1px solid #fda4af;">
+                        # 让人绝望的怪兽构造器：<br>
+                        agent = Agent(<br>
+                        &nbsp;&nbsp;"gpt-4o", 60, 4096, 0.2, None, False,<br>
+                        &nbsp;&nbsp;"你是一个助手", None, 10, None, False,<br>
+                        &nbsp;&nbsp;[tool1, tool2], "auto", None, None, 3<br>
+                        )<br>
+                        💥 <strong>致命隐患：</strong>谁能不查文档说出第 8 个参数是什么？万一漏了安全检查谁负责？
+                    </div>
+                </div>
+
+                <!-- 优雅解法：建造者模式 -->
+                <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-inner); padding: 22px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="background: #059669; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 700;">✅ 优雅破局</span>
+                        <span style="font-weight: 700; color: #065f46; font-size: 15px;">建造者模式 (Builder Pattern) 链式流水线</span>
+                    </div>
+                    <p style="font-size: 13.5px; color: #064e3b; line-height: 1.6; margin-bottom: 12px;">
+                        通过<strong>建造者模式</strong>将“零件组装”与“流水线指挥”彻底分离：
+                        <br>1. <strong>按需装配</strong>：不需要的零部件无需声明，调用语义一目了然；
+                        <br>2. <strong>强类型防呆</strong>：每个步骤独立校验，杜绝把超时时间误填为模型温度；
+                        <br>3. <strong>统一配方</strong>：由 <code>Director</code> 固化常用 Agent 规范流水线；
+                        <br>4. <strong>终检出厂</strong>：在最终 <code>build()</code> 时执行完整性核验，杜绝半成品流向生产环境！
+                    </p>
+                    <div style="background: #ffffff; border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 12px; color: #047857; border: 1px solid #6ee7b7;">
+                        # 清晰可读、安全健壮的流水线装配：<br>
+                        agent = (<br>
+                        &nbsp;&nbsp;AgentBuilder()<br>
+                        &nbsp;&nbsp;.set_llm("gpt-4o", temperature=0.2)<br>
+                        &nbsp;&nbsp;.set_system_prompt("你是一个代码审计专家")<br>
+                        &nbsp;&nbsp;.add_tool(CodeInterpreter())<br>
+                        &nbsp;&nbsp;.set_guardrails(injection_check=True)<br>
+                        &nbsp;&nbsp;.build()<br>
+                        )<br>
+                        ✨ <strong>核心收益：</strong>可读性极佳、出厂即不可变、强类型防呆！
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 生活化比喻与核心差异表 -->
+            <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-inner); padding: 18px 22px;">
+                <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+                    🥪 生活中的大白话比喻：工厂模式 vs 建造者模式
+                </h4>
+                <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+                    • <strong>工厂方法模式 (Factory Method)</strong> 就像去<strong>快餐店买可乐</strong>：“老板给我一杯可乐”，一键直接拿到成品，你不需要参与倒多少水、加几块冰的细节；<br>
+                    • <strong>建造者模式 (Builder Pattern)</strong> 就像去<strong>赛百味订制三明治</strong>：服务员拿出一个托盘（创建空对象），第一步问你要全麦面包还是白面包（<code>set_bread()</code>），第二步问你要加金枪鱼还是培根（<code>set_meat()</code>），第三步问你要不要加生菜番茄（<code>add_veggies()</code>），最后挤上蛋黄酱包装出餐（<code>build()</code>）。<strong>复杂的组装工序完全在你的掌控之中！</strong>
+                </p>
+            </div>
+        </section>
+
+        <!-- 第 2 节：UML 规范教学专项 (UML 101 for Beginners) -->
+        <section id="section-uml-guide" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">02</div>
+                <h2 class="section-title">UML 规范与用法专项教学：看懂软件蓝图的秘密</h2>
+            </div>
+            
+            <p class="section-desc">
+                许多初学者看到
+                <span class="term-chip" data-tip="UML: Unified Modeling Language&#10;统一建模语言，软件工程的国际通用图纸">UML (Unified Modeling Language, 统一建模语言)</span>
+                类图上密密麻麻的箭头与加减号就感到头疼。其实，UML 的语法规则非常严谨且极其直观。学懂这套规则，你就能轻松阅读任何国际顶级开源项目的架构图。
+            </p>
+
+            <!-- UML 三大核心要素科普 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #4f46e5; margin-bottom: 8px; font-size: 14px;">📦 1. 类图的三段式矩形结构</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        在 UML 类图中，每一个类都被画为一个<strong>三层抽屉</strong>：
+                        <br>• <strong>顶层 (Header)</strong>：显示<strong>类名</strong>。如果是抽象类或接口，会用斜体标注或加上 <code>&lt;&lt;interface&gt;&gt;</code> 构造型；
+                        <br>• <strong>中层 (Attributes)</strong>：列出所有<strong>属性/字段</strong>，格式为 <code>[可见性] 名称: 类型</code>；
+                        <br>• <strong>底层 (Operations)</strong>：列出所有<strong>方法/函数</strong>，格式为 <code>[可见性] 方法名(参数: 类型): 返回类型</code>。
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #059669; margin-bottom: 8px; font-size: 14px;">🔑 2. 四种可见性修饰符 (Visibility)</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        字段或方法名前的符号代表访问权限：
+                        <br>• <strong style="color: #059669;">+ (Public 公有)</strong>：任何外部类都能随意调用（如 <code>+ build()</code>）；
+                        <br>• <strong style="color: #e11d48;">- (Private 私有)</strong>：只有本类内部能访问（如 <code>- _agent</code> 缓存）；
+                        <br>• <strong style="color: #d97706;"># (Protected 受保护)</strong>：本类及子类才能访问；
+                        <br>• <strong style="color: #64748b;">~ (Package 包级)</strong>：同一个包或模块内可以访问。
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 700; color: #d97706; margin-bottom: 8px; font-size: 14px;">⚡ 3. 静态成员与抽象声明</div>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+                        • <strong>静态成员 (Static)</strong>：属于类本身而非实例的成员，在 UML 中字段名或方法名下方会带有<strong><u>下划线 (Underline)</u></strong>；
+                        <br>• <strong>抽象方法 (Abstract)</strong>：父类中只声明不实现的方法，以<em>斜体文字 (Italics)</em> 呈现，子类必须强制重写。
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- UML 6 种经典类间关系全景对比速查表 -->
+            <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                📐 UML 6 种经典类间关系速查 (及其在建造者模式中的应用)
+            </h4>
+
+            <div style="overflow-x: auto;">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">关系名称</th>
+                            <th style="width: 15%;">图示箭头规范</th>
+                            <th style="width: 25%;">生活通俗大白话</th>
+                            <th style="width: 45%;">在建造者模式 (Builder) 中的具体体现</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color: #4f46e5;">实现关系 (Realization)</strong></td>
+                            <td><code>- - - -▷</code><br>虚线 + 空心三角形</td>
+                            <td>“打工人与岗位职责”：答应了规范，就必须按规矩出活。</td>
+                            <td><code>StandardAgentBuilder</code> <strong>实现</strong> 抽象接口 <code>AgentBuilder</code>，必须逐一落实 <code>set_llm</code>, <code>add_tool</code> 等方法。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #059669;">泛化关系 (Generalization)</strong></td>
+                            <td><code>────▷</code><br>实线 + 空心三角形</td>
+                            <td>“父子继承”：儿子天然继承父亲的全部家当与基因。</td>
+                            <td>子建造者继承抽象基类的通用重置 <code>reset()</code> 方法逻辑。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #d97706;">聚合关系 (Aggregation)</strong></td>
+                            <td><code>◇────></code><br>实线 + 空心菱形</td>
+                            <td>“公司与员工”：强调整体包含部分，但部分可以独立存在（弱拥有）。</td>
+                            <td><code>AgentDirector</code> 聚合了 <code>AgentBuilder</code>。指挥官手里拿着建造者施工，但指挥官离开后，建造者依然可以被其他业务使用。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #e11d48;">组合关系 (Composition)</strong></td>
+                            <td><code>◆────></code><br>实线 + 实心菱形</td>
+                            <td>“人体与心脏”：生死与共，整体毁灭时部分也一并不复存在（强拥有）。</td>
+                            <td>最终产出的 <code>AgentInstance</code> 组合了 <code>LLMConfig</code> 与 <code>ToolRegistry</code>，这些配置完全从属于该 Agent 生命期。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #0284c7;">关联关系 (Association)</strong></td>
+                            <td><code>────></code><br>实线 + 单向箭头</td>
+                            <td>“朋友之间”：我手里有你的电话号码，随时可以联系你。</td>
+                            <td><code>ConcreteBuilder</code> 关联它正在组装的 <code>AgentInstance</code> 产品实例。</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #7c3aed;">依赖关系 (Dependency)</strong></td>
+                            <td><code>- - - -></code><br>虚线 + 开放单向箭头</td>
+                            <td>“顾客叫外卖”：我只在这一刻临时用你，用完即走，并不占有你。</td>
+                            <td><code>Client</code> 客户端依赖 <code>Director</code> 和 <code>Builder</code>，方法执行完毕后依赖即结束。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 第 3 节：建造者模式核心角色与 5 步 UML 类图演练 -->
+        <section id="section-core" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">03</div>
+                <h2 class="section-title">建造者模式五大核心角色与 5 步交互式 UML 类图</h2>
+            </div>
+            
+            <p class="section-desc">
+                根据 GoF 经典规范，建造者模式由 <strong>Product、Builder、ConcreteBuilder、Director、Client</strong> 五大核心角色协同构成。在我们的 AI Agent 案例中，各角色的分工如下：
+            </p>
+
+            <!-- 五大角色 Bento Grid -->
+            <div class="role-grid">
+                
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-product">1. 复杂产品</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Product</span>
+                    </div>
+                    <h3>AgentInstance (执行管线产品)</h3>
+                    <p>由模型基座、提示词、长短期记忆、沙箱工具集与防护层构成的复杂执行体。出厂后不可变，具备 <code>run()</code> 执行能力。</p>
+                    <div class="agent-analogy">🚗 <strong>比喻：</strong>最终组装下线的高性能智能电动汽车。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-builder">2. 抽象建造者</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Builder</span>
+                    </div>
+                    <h3>AgentBuilder (工序规约接口)</h3>
+                    <p>声明创建 <code>AgentInstance</code> 各部件的抽象方法：<code>set_llm()</code>, <code>set_memory()</code>, <code>add_tool()</code>, <code>set_guardrails()</code>, <code>build()</code>。</p>
+                    <div class="agent-analogy">📋 <strong>比喻：</strong>造车车间的统一工序作业标准卡。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-concrete">3. 具体建造者</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">ConcreteBuilder</span>
+                    </div>
+                    <h3>StandardAgentBuilder / SecureBuilder</h3>
+                    <p>具体施工队。内部维护一个正在装配的 <code>_agent</code> 实例，逐步实现各个部件组装，并在 <code>build()</code> 时执行数据合规终检。</p>
+                    <div class="agent-analogy">👷 <strong>比喻：</strong>车间专业流水线装配工人班组。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-director">4. 指挥官 / 指导者</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Director</span>
+                    </div>
+                    <h3>AgentDirector (标准预设指挥官)</h3>
+                    <p>构造函数聚合 Builder 实例。封装科研 Agent、代码 Agent、客服 Agent 等标准化经典组装步骤序列，避免客户端重复写装配步骤。</p>
+                    <div class="agent-analogy">👨‍✈️ <strong>比喻：</strong>汽车制造厂总指挥，一声令下让工人按“越野版配方”装配。</div>
+                </div>
+
+                <div class="role-card">
+                    <div class="role-header">
+                        <span class="role-type type-client">5. 客户端</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Client</span>
+                    </div>
+                    <h3>业务调用方 (Client Code)</h3>
+                    <p>创建具体的 Builder 对象交给 Director 指挥，或者直接利用 Builder 的 Fluent API 自行链式订制，最后获取组装完成的 Agent。</p>
+                    <div class="agent-analogy">🧑‍💼 <strong>比喻：</strong>买车客户，挑选定制套餐并在最后提车上路。</div>
+                </div>
+
+            </div>
+
+            <!-- 5 步交互式 UML 类图播放器 -->
+            <h3 style="font-size: 18px; margin: 32px 0 12px; font-weight: 700;">
+                📊 5 步交互式演练：UML 类图构建全景剖析
+            </h3>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                点击下方步骤标签或导航按钮，观察一个庞大的建造者模式类图如何从一个空产品，按部就班演化出接口、具体建造者、指挥官聚合与客户端调用：
+            </p>
+
+            <div class="diagram-viewport">
+                
+                <div class="diagram-toggle-bar">
+                    <div class="diagram-title-tag">
+                        <span>🏗️ 建造者模式 UML 类图构建流水线</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="diagram-view-btn active" onclick="switchClassView('svg', this)">🎨 交互式 SVG 图解</button>
+                        <button class="diagram-view-btn" onclick="switchClassView('mermaid', this)">📊 Mermaid 标准渲染</button>
+                    </div>
+                </div>
+
+                <!-- 5 步横向切换 Tabs -->
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;" id="class-step-tabs">
+                    <button class="class-step-tab-btn active" onclick="goToClassStep(1)" style="padding: 6px 4px; border: 1.5px solid #4f46e5; border-radius: 8px; background: #eef2ff; color: #4f46e5; font-weight: 700; cursor: pointer; font-size: 11px;">1. 复杂产品</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(2)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 抽象建造者</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(3)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 具体建造者</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(4)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 指挥官聚合</button>
+                    <button class="class-step-tab-btn" onclick="goToClassStep(5)" style="padding: 6px 4px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 全景闭环</button>
+                </div>
+
+                <!-- 分步控制条 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="class-prev-btn" onclick="changeClassStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                            ← 上一步
+                        </button>
+                        <button id="class-next-btn" onclick="changeClassStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #4f46e5; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);">
+                            下一步：第 2/5 步 →
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">
+                        💡 点击步骤或使用按钮进行类图演进教学
+                    </div>
+                </div>
+
+                <!-- SVG 类图画布 -->
+                <div id="class-svg-view">
+                    <svg class="svg-canvas" viewBox="0 0 920 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrow-inherit" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+                                <polygon points="0 1, 11 6, 0 11" fill="#ffffff" stroke="#4f46e5" stroke-width="1.8"/>
+                            </marker>
+                            <marker id="arrow-aggregation" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+                                <polygon points="1 5, 7 1, 13 5, 7 9" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+                            </marker>
+                            <marker id="arrow-dependency" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 2, 8 5, 0 8" fill="#64748b"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 背景网格修饰 -->
+                        <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1" fill="#f1f5f9" />
+                        </pattern>
+                        <rect width="920" height="440" fill="url(#grid-pattern)" />
+
+                        <!-- 1. 复杂产品：AgentInstance (右侧偏上) -->
+                        <g id="node-product" class="uml-node" style="transition: opacity 0.3s;">
+                            <rect x="660" y="24" width="230" height="150" rx="10" fill="#ffffff" stroke="#e11d48" stroke-width="2"/>
+                            <rect x="660" y="24" width="230" height="34" rx="10" fill="#fff1f2"/>
+                            <text x="775" y="46" text-anchor="middle" font-size="13" font-weight="700" fill="#9f1239">AgentInstance (复杂产品)</text>
+                            <line x1="660" y1="58" x2="890" y2="58" stroke="#fecdd3" stroke-width="1.5"/>
+                            <text x="672" y="78" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ model_name: str</text>
+                            <text x="672" y="96" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ memory: MemoryStore</text>
+                            <text x="672" y="114" font-size="11.5" font-family="JetBrains Mono" fill="#475569">+ tools: list[Tool]</text>
+                            <line x1="660" y1="126" x2="890" y2="126" stroke="#fecdd3" stroke-width="1.5"/>
+                            <text x="672" y="148" font-size="11.5" font-family="JetBrains Mono" font-weight="600" fill="#0f172a">+ run(task: str): str</text>
+                        </g>
+
+                        <!-- 2. 抽象建造者：AgentBuilder (中间偏上) -->
+                        <g id="node-builder" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="340" y="24" width="260" height="170" rx="10" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+                            <rect x="340" y="24" width="260" height="38" rx="10" fill="#eef2ff"/>
+                            <text x="470" y="42" text-anchor="middle" font-size="10.5" font-style="italic" fill="#4f46e5">&lt;&lt;interface / abstract&gt;&gt;</text>
+                            <text x="470" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#312e81">AgentBuilder (抽象建造者)</text>
+                            <line x1="340" y1="62" x2="600" y2="62" stroke="#c7d2fe" stroke-width="1.5"/>
+                            <text x="352" y="82" font-size="11.5" font-family="JetBrains Mono" font-style="italic" fill="#475569">+ reset()*: void</text>
+                            <text x="352" y="100" font-size="11.5" font-family="JetBrains Mono" font-style="italic" fill="#475569">+ set_llm(model, temp)*: Builder</text>
+                            <text x="352" y="118" font-size="11.5" font-family="JetBrains Mono" font-style="italic" fill="#475569">+ add_tool(tool)*: Builder</text>
+                            <text x="352" y="136" font-size="11.5" font-family="JetBrains Mono" font-style="italic" fill="#475569">+ set_guardrails(cfg)*: Builder</text>
+                            <line x1="340" y1="148" x2="600" y2="148" stroke="#c7d2fe" stroke-width="1.5"/>
+                            <text x="352" y="172" font-size="11.5" font-family="JetBrains Mono" font-weight="700" font-style="italic" fill="#4f46e5">+ build()*: AgentInstance</text>
+                        </g>
+
+                        <!-- 3. 具体建造者：StandardAgentBuilder (中间偏下) -->
+                        <g id="node-concrete-builder" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="340" y="250" width="260" height="160" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+                            <rect x="340" y="250" width="260" height="34" rx="10" fill="#ecfdf5"/>
+                            <text x="470" y="272" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">StandardAgentBuilder (具体建造者)</text>
+                            <line x1="340" y1="284" x2="600" y2="284" stroke="#a7f3d0" stroke-width="1.5"/>
+                            <text x="352" y="304" font-size="11.5" font-family="JetBrains Mono" fill="#e11d48">- _agent: AgentInstance</text>
+                            <line x1="340" y1="314" x2="600" y2="314" stroke="#a7f3d0" stroke-width="1.5"/>
+                            <text x="352" y="334" font-size="11" font-family="JetBrains Mono" fill="#475569">+ reset(): void</text>
+                            <text x="352" y="352" font-size="11" font-family="JetBrains Mono" fill="#475569">+ set_llm(model, temp): Self</text>
+                            <text x="352" y="370" font-size="11" font-family="JetBrains Mono" fill="#475569">+ add_tool(tool): Self</text>
+                            <text x="352" y="388" font-size="11" font-family="JetBrains Mono" font-weight="700" fill="#059669">+ build(): AgentInstance [终检出厂]</text>
+                        </g>
+
+                        <!-- 4. 指挥官：AgentDirector (左侧) -->
+                        <g id="node-director" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="30" y="60" width="240" height="130" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                            <rect x="30" y="60" width="240" height="34" rx="10" fill="#fffbeb"/>
+                            <text x="150" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">AgentDirector (指挥官)</text>
+                            <line x1="30" y1="94" x2="270" y2="94" stroke="#fde68a" stroke-width="1.5"/>
+                            <text x="42" y="114" font-size="11.5" font-family="JetBrains Mono" fill="#e11d48">- _builder: AgentBuilder</text>
+                            <line x1="30" y1="124" x2="270" y2="124" stroke="#fde68a" stroke-width="1.5"/>
+                            <text x="42" y="144" font-size="11" font-family="JetBrains Mono" fill="#475569">+ construct_research_agent()</text>
+                            <text x="42" y="162" font-size="11" font-family="JetBrains Mono" fill="#475569">+ construct_coding_agent()</text>
+                        </g>
+
+                        <!-- 5. 客户端：Client (左下角) -->
+                        <g id="node-client" class="uml-node" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <rect x="30" y="280" width="200" height="90" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/>
+                            <rect x="30" y="280" width="200" height="30" rx="10" fill="#f8fafc"/>
+                            <text x="130" y="300" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Client (客户端业务代码)</text>
+                            <line x1="30" y1="310" x2="230" y2="310" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <text x="42" y="332" font-size="11" font-family="JetBrains Mono" fill="#475569">+ main_workflow()</text>
+                            <text x="42" y="352" font-size="11" font-family="JetBrains Mono" fill="#4f46e5">+ execute_agent_task()</text>
+                        </g>
+
+                        <!-- 关系连线 1: ConcreteBuilder 实现 AgentBuilder (虚线 + 空心三角) -->
+                        <g id="rel-builder-realize" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="470" y1="250" x2="470" y2="204" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow-inherit)"/>
+                            <text x="480" y="225" font-size="10.5" font-weight="700" fill="#4f46e5">实现 (Realize)</text>
+                        </g>
+
+                        <!-- 关系连线 2: Director 聚合 AgentBuilder (实线 + 空心菱形) -->
+                        <g id="rel-director-agg" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="270" y1="120" x2="330" y2="120" stroke="#d97706" stroke-width="2" marker-start="url(#arrow-aggregation)"/>
+                            <text x="282" y="112" font-size="10" font-weight="700" fill="#d97706">聚合 (has-a)</text>
+                        </g>
+
+                        <!-- 关系连线 3: ConcreteBuilder 组合/产出 AgentInstance (实线关联) -->
+                        <g id="rel-builder-product" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <path d="M 600 310 L 760 310 L 760 184" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-dependency)"/>
+                            <text x="640" y="302" font-size="10.5" font-weight="700" fill="#e11d48">装配并创建 (Creates)</text>
+                        </g>
+
+                        <!-- 关系连线 4: Client 依赖 Director 与 Builder -->
+                        <g id="rel-client-dep" class="uml-rel" style="opacity: 0.2; transition: opacity 0.3s;">
+                            <line x1="130" y1="280" x2="130" y2="200" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#arrow-dependency)"/>
+                            <path d="M 230 330 L 330 330" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#arrow-dependency)"/>
+                            <text x="136" y="240" font-size="10" fill="#64748b">调用指挥</text>
+                            <text x="250" y="322" font-size="10" fill="#64748b">注入施工</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 备用 Mermaid 类图视图 (默认隐藏) -->
+                <div id="class-mermaid-view" style="display: none;">
+                    <div class="mermaid">
+classDiagram
+    direction TB
+    class AgentInstance {
+        +str model_name
+        +MemoryStore memory
+        +List~Tool~ tools
+        +run(task) str
+    }
+    class AgentBuilder {
+        &lt;&lt;interface&gt;&gt;
+        +reset()* void
+        +set_llm(model, temp)* Builder
+        +add_tool(tool)* Builder
+        +set_guardrails(cfg)* Builder
+        +build()* AgentInstance
+    }
+    class StandardAgentBuilder {
+        -AgentInstance _agent
+        +reset() void
+        +set_llm(model, temp) Self
+        +add_tool(tool) Self
+        +build() AgentInstance
+    }
+    class AgentDirector {
+        -AgentBuilder _builder
+        +construct_research_agent()
+        +construct_coding_agent()
+    }
+    class Client {
+        +main_workflow()
+    }
+
+    AgentBuilder &lt;|.. StandardAgentBuilder : 实现 (Realization)
+    AgentDirector o-- AgentBuilder : 聚合 (Aggregation)
+    StandardAgentBuilder ..&gt; AgentInstance : 装配产出 (Creates)
+    Client ..&gt; AgentDirector : 调度配置
+    Client ..&gt; StandardAgentBuilder : 注入施工队
+                    </div>
+                </div>
+
+                <!-- 同步联动教学卡片 -->
+                <div id="class-teaching-card" style="margin-top: 16px; padding: 18px 22px; border-radius: 12px; background: #fafbfc; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="class-teach-badge" style="background: #4f46e5; color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; font-family: monospace;">Step 1 / 5</span>
+                            <h4 id="class-teach-title" style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">第一步：定义复杂产品 (Product)</h4>
+                        </div>
+                        <div id="class-teach-role" style="font-size: 12px; color: #4f46e5; font-weight: 700;">核心角色：AgentInstance (最终产出)</div>
+                    </div>
+                    <p id="class-teach-concept" style="font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px;">
+                        面向对象设计第一步：明确我们要造的“最终产物”是什么。在 AI 系统中，<code>AgentInstance</code> 聚合了模型、记忆、工具与防护层，出厂后保持不可变性。
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; font-size: 12px;">
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong style="color: #4f46e5;">📐 UML 规范要点：</strong>
+                            <div id="class-teach-uml" style="color: #64748b; margin-top: 2px;">三层矩形结构，顶层类名，中层私有属性，底层公开的 run() 业务方法。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <strong style="color: #059669;">💡 大白话通俗比喻：</strong>
+                            <div id="class-teach-analogy" style="color: #64748b; margin-top: 2px;">这就是出厂交付给顾客的纯电动汽车，客户只要握方向盘上路踩油门即可。</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 4 节：两栏 IDE 目录树 Python 3.11+ 工程代码实战 -->
+        <section id="section-code" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">04</div>
+                <h2 class="section-title">代码实战：AI Agent 系统的工程文件与开发全过程</h2>
+            </div>
+
+            <p class="section-desc">
+                在真实生产环境中，代码按照<strong>实际开发时的先后编码顺序 (Step 01 → Step 07)</strong> 分离为规范的模块结构（纯 Python 3.11+ 生产级规范）：
+            </p>
+
+            <!-- 左右分栏 IDE 目录树代码浏览器 -->
+            <div style="border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #ffffff; margin: 20px 0; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);">
+                <div style="display: grid; grid-template-columns: minmax(250px, 290px) 1fr; min-height: 520px;">
+                    
+                    <!-- 左侧：IDE 目录树侧边栏 (Explorer) -->
+                    <div style="background: #fafbfc; border-right: 1px solid #e2e8f0; padding: 16px 14px; display: flex; flex-direction: column;">
+                        <div>
+                            <!-- 顶部切步小导航 (固定在目录树上方) -->
+                            <div style="padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                                    <span style="font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px;">
+                                        ⚙️ 编码构建流水线
+                                    </span>
+                                    <span style="color: #64748b; font-family: var(--font-mono);">
+                                        第 <strong id="py-step-cur-num" style="color: #4f46e5; font-weight: 800;">1</strong> / 7 步
+                                    </span>
+                                </div>
+
+                                <!-- 进度条指示器 -->
+                                <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+                                    <div id="py-step-progress-bar" style="width: 14.28%; height: 100%; background: #4f46e5; border-radius: 9999px; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                                </div>
+
+                                <div style="display: flex; gap: 6px;">
+                                    <button id="py-prev-btn" onclick="changePyFileStep(-1)" disabled style="flex: 1; padding: 7px 10px; border-radius: 7px; border: 1px solid #cbd5e1; background: #ffffff; color: #cbd5e1; cursor: not-allowed; font-size: 12px; font-weight: 600; transition: all 0.15s ease;">
+                                        ← 上一步
+                                    </button>
+                                    <button id="py-next-btn" onclick="changePyFileStep(1)" style="flex: 1.2; padding: 7px 12px; border-radius: 7px; border: none; background: #4f46e5; color: #ffffff; cursor: pointer; font-size: 12px; font-weight: 700; box-shadow: 0 2px 5px rgba(79, 70, 229, 0.25); transition: all 0.15s ease;">
+                                        下一步 →
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; padding-left: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span>📁</span>
+                                    <span>agent_pipeline</span>
+                                </div>
+                                <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">7 files</span>
+                            </div>
+
+                            <!-- 目录树节点 -->
+                            <div style="display: flex; flex-direction: column; gap: 3px;" id="py-tree-container">
+                                
+                                <!-- 1. base 目录 -->
+                                <div>
+                                    <div onclick="toggleHtmlFolder('base')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-base">📂</span>
+                                            <span>base/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">契约与产品层</span>
+                                    </div>
+                                    <div id="folder-content-base" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file active" data-file-idx="0" onclick="switchPyFile(0, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; background: #eef2ff; border-left: 3px solid #4f46e5; color: #312e81; font-size: 12px; font-weight: 700; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">agent.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #4f46e5; color: white; font-family: var(--font-mono); font-weight: 800;">Step 01</span>
+                                        </div>
+                                        <div class="py-tree-file" data-file-idx="1" onclick="switchPyFile(1, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">builder.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 02</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. builders 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('builders')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-builders">📂</span>
+                                            <span>builders/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">施工装配层</span>
+                                    </div>
+                                    <div id="folder-content-builders" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="2" onclick="switchPyFile(2, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">standard_builder.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 03</span>
+                                        </div>
+                                        <div class="py-tree-file" data-file-idx="3" onclick="switchPyFile(3, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">secure_builder.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 04</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 3. directors 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('directors')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-directors">📂</span>
+                                            <span>directors/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">调度指挥层</span>
+                                    </div>
+                                    <div id="folder-content-directors" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="4" onclick="switchPyFile(4, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">director.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 05</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4. fluent 目录 -->
+                                <div style="margin-top: 3px;">
+                                    <div onclick="toggleHtmlFolder('fluent')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 700; transition: background 0.15s;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span id="folder-icon-fluent">📂</span>
+                                            <span>fluent/</span>
+                                        </div>
+                                        <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">现代链式进阶</span>
+                                    </div>
+                                    <div id="folder-content-fluent" style="border-left: 1px solid #e2e8f0; margin-left: 12px; padding-left: 4px;">
+                                        <div class="py-tree-file" data-file-idx="5" onclick="switchPyFile(5, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <span>📄</span>
+                                                <span class="py-file-name">fluent_builder.py</span>
+                                            </div>
+                                            <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 06</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 5. main.py 根文件 -->
+                                <div style="margin-top: 3px; border-left: 1px solid transparent; margin-left: 12px; padding-left: 4px;">
+                                    <div class="py-tree-file" data-file-idx="6" onclick="switchPyFile(6, this)" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #64748b; font-size: 12px; font-weight: 500; margin: 2px 0;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span>🚀</span>
+                                            <span class="py-file-name">main.py</span>
+                                        </div>
+                                        <span class="py-step-tag" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-family: var(--font-mono); font-weight: 800;">Step 07</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：代码编辑器 + 讲解横幅 + 终端 -->
+                    <div style="display: flex; flex-direction: column; background: #ffffff;">
+                        <!-- 面包屑与顶部操作栏 -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 12.5px; font-family: var(--font-mono);">
+                            <div style="display: flex; align-items: center; gap: 6px; color: #475569;">
+                                <span id="py-breadcrumb-path">agent_pipeline / base / <strong>agent.py</strong></span>
+                            </div>
+                            <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+                        </div>
+
+                        <!-- 文件开发顺序讲解横幅 -->
+                        <div id="py-file-banner" style="padding: 14px 18px; background: #fafbfc; border-bottom: 1px solid #e2e8f0; border-left: 4px solid #4f46e5;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                                <span id="py-file-badge" style="background: #4f46e5; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; font-family: monospace;">Step 01</span>
+                                <h4 id="py-file-title" style="font-size: 14.5px; font-weight: 800; color: #0f172a; margin: 0;">定义复杂产品类与不可变保障</h4>
+                                <span id="py-file-role" style="font-size: 11.5px; color: #4f46e5; background: #eef2ff; padding: 2px 8px; border-radius: 9999px; font-weight: 600; border: 1px solid #c7d2fe;">复杂产品 (Product)</span>
+                            </div>
+                            <p id="py-file-reason" style="font-size: 12.5px; color: #475569; margin: 0; line-height: 1.6;">
+                                【开发第一步】：必须先定义组装下线的最终目标产品。AgentInstance 封装大模型基座、系统提示词、短期/长期记忆、工具箱和安全护栏，支持出厂冻结与独立运行。
+                            </p>
+                        </div>
+
+                        <!-- 代码高亮视口 -->
+                        <div style="flex: 1; overflow-x: auto; background: #fafbfc;">
+                            <pre style="margin: 0;"><code id="py-file-code-block" class="language-python hljs" style="margin: 0; padding: 18px 22px;"># 代码加载中...</code></pre>
+                        </div>
+
+                        <!-- 底部终端控制台 -->
+                        <div style="background: #0f172a; border-top: 1px solid #1e293b; padding: 14px 18px; color: #f8fafc; font-family: var(--font-mono); font-size: 12px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                    <span style="font-size: 11.5px; color: #94a3b8; margin-left: 6px; font-weight: 600;">TERMINAL / 运行验证</span>
+                                </div>
+                                <button onclick="runHtmlTerminal()" style="display: inline-flex; align-items: center; gap: 6px; background: #4f46e5; color: #ffffff; border: none; border-radius: 6px; padding: 4px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);">
+                                    <span>▶ 点击运行 python main.py</span>
+                                </button>
+                            </div>
+                            <div id="html-terminal-logs" style="color: #64748b; font-style: italic; line-height: 1.65; max-height: 140px; overflow-y: auto;">
+                                # 点击右上角「点击运行 python main.py」按钮，观察各个文件组装后的完整控制台执行日志...
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 第 5 节：动态运行期 7 步交互式时序图 (UML Sequence Diagram) -->
+        <section id="section-sequence" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">05</div>
+                <h2 class="section-title">动态运行期时序剖析：对象装配生命线 (UML Sequence Diagram)</h2>
+            </div>
+            
+            <p class="section-desc">
+                类图展现的是系统的<strong>静态结构</strong>，而<strong>UML 时序图 (Sequence Diagram)</strong> 展现的是对象之间在时间维度上的<strong>动态调用流转</strong>。
+                以下 7 步交互式矢量图带你深入观察 Client、Director、Builder 与 AgentInstance 之间的生命周期咬合过程：
+            </p>
+
+            <div class="diagram-viewport">
+                <div class="diagram-toggle-bar">
+                    <div class="diagram-title-tag">
+                        <span>⏱️ 7 步交互式运行期时序图</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="diagram-view-btn active" onclick="switchDiagramView('seq', 'svg', this)">🎨 7 步交互式矢量图</button>
+                        <button class="diagram-view-btn" onclick="switchDiagramView('seq', 'mermaid', this)">📊 Mermaid 渲染</button>
+                    </div>
+                </div>
+
+                <!-- 7 步横向按钮栏 -->
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px;" id="seq-step-tabs">
+                    <button class="seq-step-tab-btn active" onclick="goToStep(1)" style="padding: 6px 2px; border: 1.5px solid #4f46e5; border-radius: 8px; background: #eef2ff; color: #4f46e5; font-weight: 700; cursor: pointer; font-size: 11px;">1. 指派建造</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(2)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">2. 重置初始化</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(3)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">3. 逐步装配模型</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(4)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">4. 挂载沙箱护栏</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(5)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">5. 提车出厂终检</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(6)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">6. 交付出厂产品</button>
+                    <button class="seq-step-tab-btn" onclick="goToStep(7)" style="padding: 6px 2px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #ffffff; color: #64748b; font-weight: 600; cursor: pointer; font-size: 11px;">7. 独立执行闭环</button>
+                </div>
+
+                <!-- 教学分步控制条 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="prev-step-btn" onclick="changeStep(-1)" disabled style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #94a3b8; font-weight: 600; cursor: not-allowed; font-size: 12.5px;">
+                            ← 上一步
+                        </button>
+                        <button id="next-step-btn" onclick="changeStep(1)" style="padding: 6px 18px; border-radius: 6px; border: none; background: #4f46e5; color: #ffffff; font-weight: 700; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);">
+                            下一步：第 2/7 步 →
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">
+                        💡 点击「下一步」或按键盘左右方向键进行时序图单步演练
+                    </div>
+                </div>
+
+                <!-- 时序图 SVG 矢量视图 -->
+                <div id="seq-svg-view">
+                    <svg class="svg-canvas" viewBox="0 0 900 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="seq-arrow-solid" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#4f46e5" />
+                            </marker>
+                            <marker id="seq-arrow-dash" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#059669" />
+                            </marker>
+                            <marker id="seq-arrow-action" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                                <polygon points="0 1, 9 5, 0 9" fill="#d97706" />
+                            </marker>
+                        </defs>
+
+                        <!-- 对象头 1: Client -->
+                        <rect x="30" y="16" width="140" height="38" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+                        <text x="100" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1e293b">Client (客户端)</text>
+                        <line x1="100" y1="54" x2="100" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 2: Director -->
+                        <rect x="270" y="16" width="150" height="38" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="345" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#92400e">Director (指挥官)</text>
+                        <line x1="345" y1="54" x2="345" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 3: Builder -->
+                        <rect x="500" y="16" width="160" height="38" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+                        <text x="580" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3730a3">Builder (建造者)</text>
+                        <line x1="580" y1="54" x2="580" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 对象头 4: Product (AgentInstance) -->
+                        <rect x="730" y="16" width="150" height="38" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+                        <text x="805" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="#991b1b">AgentInstance (产品)</text>
+                        <line x1="805" y1="54" x2="805" y2="400" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                        <!-- 激活条 (Activation Bars) -->
+                        <rect x="94" y="70" width="12" height="320" rx="3" fill="#e2e8f0" stroke="#94a3b8"/>
+                        <rect x="339" y="80" width="12" height="150" rx="3" fill="#fde68a" stroke="#d97706"/>
+                        <rect x="574" y="115" width="12" height="195" rx="3" fill="#c7d2fe" stroke="#4f46e5"/>
+                        <rect x="799" y="350" width="12" height="40" rx="3" fill="#fecdd3" stroke="#e11d48"/>
+
+                        <!-- 消息 1: Client -> Director (指派组装任务) -->
+                        <g id="seq-msg-1" class="seq-msg-group" style="transition: opacity 0.3s;">
+                            <line x1="106" y1="85" x2="335" y2="85" stroke="#4f46e5" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="135" y="66" width="180" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="225" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#4f46e5">1. construct_secure_agent(b)</text>
+                        </g>
+
+                        <!-- 消息 2: Director -> Builder (reset 清空工台) -->
+                        <g id="seq-msg-2" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="351" y1="125" x2="570" y2="125" stroke="#d97706" stroke-width="2" marker-end="url(#seq-arrow-action)"/>
+                            <rect x="380" y="106" width="160" height="20" rx="4" fill="#fffbeb" stroke="#d97706"/>
+                            <text x="460" y="120" text-anchor="middle" font-size="11" font-weight="700" fill="#b45309">2. reset() [清空装配状态]</text>
+                        </g>
+
+                        <!-- 消息 3: Director -> Builder (逐步装配模型与提示词) -->
+                        <g id="seq-msg-3" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="351" y1="165" x2="570" y2="165" stroke="#4f46e5" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="375" y="146" width="170" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="460" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#4f46e5">3. set_llm("claude-3-7")</text>
+                        </g>
+
+                        <!-- 消息 4: Director -> Builder (挂载工具与安全护栏) -->
+                        <g id="seq-msg-4" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="351" y1="205" x2="570" y2="205" stroke="#4f46e5" stroke-width="2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="370" y="186" width="180" height="20" rx="4" fill="#eef2ff" stroke="#4f46e5"/>
+                            <text x="460" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="#4f46e5">4. add_tool() & set_guardrails()</text>
+                        </g>
+
+                        <!-- 消息 5: Client -> Builder (build 出厂终检) -->
+                        <g id="seq-msg-5" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="106" y1="260" x2="570" y2="260" stroke="#059669" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="230" y="241" width="220" height="20" rx="4" fill="#ecfdf5" stroke="#059669"/>
+                            <text x="340" y="255" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">5. build() [参数完整性终检验收]</text>
+                        </g>
+
+                        <!-- 消息 6: Builder -> Client (交付出厂 AgentInstance 实例) -->
+                        <g id="seq-msg-6" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="574" y1="305" x2="110" y2="305" stroke="#059669" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#seq-arrow-dash)"/>
+                            <rect x="230" y="286" width="220" height="20" rx="4" fill="#f0fdf4" stroke="#059669"/>
+                            <text x="340" y="300" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">6. return AgentInstance (不可变出厂)</text>
+                        </g>
+
+                        <!-- 消息 7: Client -> AgentInstance (自主执行生产任务) -->
+                        <g id="seq-msg-7" class="seq-msg-group" style="opacity: 0.22; transition: opacity 0.3s;">
+                            <line x1="106" y1="365" x2="795" y2="365" stroke="#e11d48" stroke-width="2.2" marker-end="url(#seq-arrow-solid)"/>
+                            <rect x="360" y="346" width="200" height="20" rx="4" fill="#fff1f2" stroke="#e11d48"/>
+                            <text x="460" y="360" text-anchor="middle" font-size="11" font-weight="700" fill="#9f1239">7. agent.run("执行自动化代码审计")</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 备用 Mermaid 时序图视图 (默认隐藏) -->
+                <div id="seq-mermaid-view" style="display: none;">
+                    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Client as 客户端 (Client)
+    participant Director as 指挥官 (Director)
+    participant Builder as 建造者 (AgentBuilder)
+    participant Agent as 复杂产品 (AgentInstance)
+
+    Client->>Director: 1. construct_secure_agent(builder)
+    activate Director
+    Director->>Builder: 2. reset() [清空上一轮残留装配状态]
+    activate Builder
+    Director->>Builder: 3. set_llm("claude-3-7") & set_system_prompt()
+    Director->>Builder: 4. add_tool(DockerSandbox) & set_guardrails()
+    deactivate Director
+    Client->>Builder: 5. build() [触发完整性终检]
+    Builder-->>Client: 6. return AgentInstance (冻结出厂)
+    deactivate Builder
+    Client->>Agent: 7. agent.run("自主执行生产任务")
+    activate Agent
+    deactivate Agent
+                    </div>
+                </div>
+
+                <!-- 专属教学分步详解卡片 -->
+                <div id="seq-teaching-card" style="margin-top: 16px; padding: 18px 22px; border-radius: 12px; background: #fafbfc; border: 1.5px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="teach-badge" style="background: #4f46e5; color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 12px; font-family: monospace;">Step 1 / 7</span>
+                            <h4 id="teach-title" style="font-size: 15.5px; font-weight: 800; color: #0f172a; margin: 0;">客户端指派建造任务</h4>
+                        </div>
+                        <div id="teach-flow" style="font-size: 12px; color: #64748b; font-weight: 600;">Client ➔ Director (调用装配配方)</div>
+                    </div>
+                    <div id="teach-action" style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #334155; margin-bottom: 12px; display: inline-block;">
+                        director.construct_secure_agent(builder)
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 12.5px; line-height: 1.6;">
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">🎯 教学要点</div>
+                            <div id="teach-point" style="color: #334155;">客户端首先实例化具体建造者，并作为参数托付给指挥官，面向抽象 Director/Builder 编程。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #059669; margin-bottom: 2px;">🔍 底层机制</div>
+                            <div id="teach-mechanism" style="color: #334155;">依赖注入 (Dependency Injection)：Director 通过聚合持有抽象建造者引用，两者解耦独立演化。</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <div style="font-weight: 700; color: #d97706; margin-bottom: 2px;">📐 UML 规范</div>
+                            <div id="teach-uml" style="color: #334155;">实线实心三角箭头 (->>)：表示同步方法调用，调用方发出指令后等待下一步处理。</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第 6 节：深入反思：设计原则与横向对比 (Principles & Comparison) -->
+        <section id="section-principles" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">06</div>
+                <h2 class="section-title">深入反思：设计原则、权衡思考与模式横向对比</h2>
+            </div>
+
+            <p class="section-desc">
+                没有万能的架构，只有恰当的权衡。一个成熟工程师不仅要掌握建造者模式的使用，更要理解它<strong>践行了哪些底层设计原则</strong>，以及<strong>什么时候不该用它</strong>。
+            </p>
+
+            <!-- SOLID 原则卡片 -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                🌟 建造者模式践行的三大核心设计原则：
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-emerald); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        1. 单一职责原则 (SRP)
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        <code>Director</code> 专心负责装配步骤与配方编排，<code>Builder</code> 专心负责各部件参数赋值与内部构造，<code>AgentInstance</code> 专心负责出厂后的任务执行。三者职责清晰，互不越界。
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--primary); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        2. 开闭原则 (OCP)
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        如果未来需要新增一种 <code>EdgeLocalAgentBuilder (端侧离线建造者)</code>，<strong>只需新增一个类文件</strong>并实现 <code>AgentBuilder</code>。现有的客户端代码和指挥官逻辑完全无需任何修改！
+                    </p>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid var(--accent-sky); border-radius: 8px; padding: 16px;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+                        3. 依赖倒置原则 (DIP)
+                    </h5>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        高层模块（指挥官与业务调度客户端）均只依赖抽象基类 <code>AgentBuilder</code>，绝不直接绑定具体的 <code>StandardAgentBuilder</code>，彻底实现“面向接口编程”。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 优缺点辩证卡片 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;">
+                <div style="background: var(--accent-emerald-light); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 12px; padding: 18px;">
+                    <h5 style="font-size: 14.5px; font-weight: 700; color: #065f46; margin-bottom: 8px;">✅ 核心收益 (Pros)</h5>
+                    <ul style="font-size: 13px; color: #064e3b; padding-left: 18px; line-height: 1.7;">
+                        <li><strong>分步精细控制：</strong>可以对复杂部件进行延时构建、条件构建或异步挂载。</li>
+                        <li><strong>出厂状态校验：</strong>在 <code>build()</code> 环节统一进行完整性拦截，杜绝非法半成品流向生产环境。</li>
+                        <li><strong>出厂即不可变：</strong>产品完成构建后可立即被冻结为只读对象，多线程并发天然安全。</li>
+                        <li><strong>极大提高可读性：</strong>告别 10+ 构造参数的怪兽函数，链式 Fluent API 语义极佳。</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--accent-rose-light); border: 1px solid rgba(225, 29, 72, 0.2); border-radius: 12px; padding: 18px;">
+                    <h5 style="font-size: 14.5px; font-weight: 700; color: #9f1239; margin-bottom: 8px;">⚠️ 潜在代价与适用边界 (Cons)</h5>
+                    <ul style="font-size: 13px; color: #881337; padding-left: 18px; line-height: 1.7;">
+                        <li><strong>代码间接层与类膨胀：</strong>每一个复杂产品都需要配套编写建造者类，增加了系统的类文件总量。</li>
+                        <li><strong>简单对象过度设计：</strong>如果某个对象只有 2~3 个固定属性且无复杂依赖，强行使用建造者属于画蛇添足。</li>
+                        <li><strong>构建状态残留隐患：</strong>建造者如果被复用且忘记执行 <code>reset()</code>，会导致上一个对象的配置污染下一个对象。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 模式对比表 -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
+                📊 创建型设计模式四大金刚横向对比表
+            </h4>
+            <div style="overflow-x: auto; margin-bottom: 24px;">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>模式名称</th>
+                            <th>核心定位</th>
+                            <th>产出粒度与过程</th>
+                            <th>AI Agent 典型落地场景</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong style="color: #4f46e5;">建造者模式 (Builder)</strong></td>
+                            <td>分步骤精细化组装复杂对象</td>
+                            <td><strong>多步骤、细粒度</strong>：按部就班组装不同零件，最后出厂</td>
+                            <td>复杂 Agent 执行管线（模型+提示词+记忆+工具+安全守卫）</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #059669;">工厂方法 (Factory Method)</strong></td>
+                            <td>多态化创建单一产品</td>
+                            <td><strong>一步到位、粗粒度</strong>：子类决定实例化哪一个具体类</td>
+                            <td>CodeAgent 与 ResearchAgent 的动态生命周期分发</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #d97706;">抽象工厂 (Abstract Factory)</strong></td>
+                            <td>创建一系列相互依赖的产品族</td>
+                            <td><strong>成套创建</strong>：保证同生态产品协同兼容</td>
+                            <td>本地涉密隔离套件 vs 云端高并发商业套件的一键切换</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color: #0284c7;">原型模式 (Prototype)</strong></td>
+                            <td>通过拷贝现有实例创建新对象</td>
+                            <td><strong>克隆复制</strong>：省去昂贵的重复初始化流程</td>
+                            <td>Tree-of-Thought (思维链树搜索) 的分支上下文快照深拷贝</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 三大架构避坑 FAQ -->
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">
+                🛡️ 架构师避坑指南：初学者最常犯的 3 个错误
+            </h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: #f8fafc; border-left: 4px solid #4f46e5; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q1: 到底什么时候可以省略 Director（指挥官）？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong>当你的产品构建步骤高度个性化，很少有固定套路，或者客户端团队更喜欢现代 <strong>Fluent API (链式调用)</strong> 时，完全可以不要 Director。很多现代框架（如 Lombok 的 <code>@Builder</code> 或 Pydantic）就直接向客户端暴露 Builder，让客户端直接链式 <code>.set_a().set_b().build()</code>。Director 的价值在于<strong>固化常用标准配方</strong>，避免客户端到处复制粘贴相同的组装逻辑。
+                    </p>
+                </div>
+
+                <div style="background: #f8fafc; border-left: 4px solid #059669; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q2: 建造者模式如何确保构建出真正的“不可变对象 (Immutable)”？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong>这是建造者模式最大的杀手锏之一！在 Java 中可将字段设为 <code>final</code>，在 Python 3.11+ 中可将 Product 声明为 <code>@dataclass(frozen=True)</code>。在构建过程中，Builder 内部收集的是普通字典或临时变量；只有在最终调用 <code>build()</code> 时，才把完整参数传入构造并生成一个<strong>冻结的、无法被篡改的对象</strong>！
+                    </p>
+                </div>
+
+                <div style="background: #f8fafc; border-left: 4px solid #e11d48; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+                    <strong style="color: #0f172a; font-size: 13.5px;">Q3: 如果 Builder 内部忘记 reset()，会发生什么灾难？</strong>
+                    <p style="font-size: 13px; color: #475569; margin-top: 4px; line-height: 1.55;">
+                        <strong>解答：</strong><strong>状态污染！</strong>如果同一个 Builder 实例连续造了两个 Agent，若第二个 Agent 没有调用 <code>reset()</code>，第一个 Agent 挂载的管理员级别工具可能被悄悄带进第二个低权限 Agent 中，引发严重提权漏洞！因此，规范的建造者必须在 <code>__init__</code> 和每次 <code>reset()</code> 时清空内部状态。
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 第 7 节：知识巩固与即学即测 (Quiz) -->
+        <section id="section-quiz" class="bezel-card">
+            <div class="section-header">
+                <div class="section-badge">07</div>
+                <h2 class="section-title">知识巩固：3 分钟极速自测</h2>
+            </div>
+            
+            <p class="section-desc">
+                测验你的掌握程度！点击下方选项即可获得即时解析与彩带反馈：
+            </p>
+
+            <!-- 测验 1 -->
+            <div class="quiz-card" id="quiz-1">
+                <div class="quiz-question">
+                    1. 在 UML 类图中，AgentDirector 与 AgentBuilder 之间的空心菱形实线箭头代表什么关系？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 0, false)">A. 泛化关系 (Generalization)：Director 继承了 Builder</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 1, true)">B. 聚合关系 (Aggregation)：Director 聚合拥有 Builder，两者生命周期独立 (has-a)</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 2, false)">C. 组合关系 (Composition)：Director 毁灭时 Builder 必须跟着销毁</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(1, 3, false)">D. 实现关系 (Realization)：Director 实现了 Builder 的全部接口</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <!-- 测验 2 -->
+            <div class="quiz-card" id="quiz-2">
+                <div class="quiz-question">
+                    2. 为什么说“伸缩构造器 (Telescoping Constructor)”是糟糕的反模式？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 0, false)">A. 因为它的运行性能比普通的静态方法慢 10 倍</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 1, true)">B. 参数多达十几个时极易填错位置，且迫使调用者传入大量无意义的 None 或默认值</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 2, false)">C. 因为现代编程语言的编译器禁止超过 5 个构造参数</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(2, 3, false)">D. 它只支持单线程，无法在异步多线程环境中运行</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <!-- 测验 3 -->
+            <div class="quiz-card" id="quiz-3">
+                <div class="quiz-question">
+                    3. 建造者模式中，最终执行数据完整性校验 (如必选字段检查、互斥验证) 的最佳时机是？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 0, false)">A. 在每个单独的 setter 方法中立即阻断（比如还没设置模型时就报错）</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 1, false)">B. 客户端执行 agent.run() 触发异常时才报错</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 2, true)">C. 在 builder.build() 方法执行时统一进行完整性终检，校验失败则拒绝生成实例</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(3, 3, false)">D. 不需要任何校验，信任客户端传入的全部参数</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <!-- 测验 4 -->
+            <div class="quiz-card" id="quiz-4">
+                <div class="quiz-question">
+                    4. “工厂方法模式”与“建造者模式”在面向对象创建型设计中的核心区别是？
+                </div>
+                <div class="quiz-options">
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 0, false)">A. 工厂方法只用在 Python 中，建造者只用在 Java 中</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 1, true)">B. 工厂方法侧重于单一产品的一步到位多态创建，而建造者侧重于复杂部件的逐步有序精细装配</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 2, false)">C. 建造者模式不能生成可执行对象，只能生成配置数据</button>
+                    <button class="quiz-option-btn" onclick="checkQuiz(4, 3, false)">D. 两者完全没有任何区别，只是名字叫法不同</button>
+                </div>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+        </section>
+
+        <!-- 页脚版权与主站链接 -->
+        <footer style="text-align: center; color: var(--text-tertiary); font-size: 13px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-light);">
+            <p>深入浅出 GoF 23 种设计模式教学系统 · 基于 AI Agent 工业级基础设施实战</p>
+            <p style="margin-top: 6px;">
+                <a href="../../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← 返回主站设计模式大厅</a> · 
+                <a href="https://github.com/littlecabbage/design-pattern" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">GitHub 开源仓库</a>
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- 交互逻辑 JavaScript -->
+    <script>
+        // ==========================================
+        // 阅读进度条监听
+        // ==========================================
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const b = document.body;
+            const st = 'scrollTop';
+            const sh = 'scrollHeight';
+            const percent = (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight) * 100;
+            const bar = document.getElementById('read-progress');
+            if (bar) bar.style.width = percent + '%';
+        });
+
+        // ==========================================
+        // 大白话速查字典折叠/展开与搜索过滤
+        // ==========================================
+        function toggleGlossary() {
+            const content = document.getElementById('glossary-content');
+            const toggleText = document.getElementById('glossary-toggle-text');
+            const toggleBtn = document.getElementById('glossary-toggle-btn');
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'block';
+                if (toggleText) toggleText.innerText = '收起字典 ▴';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                if (toggleText) toggleText.innerText = '展开字典 ▾';
+                if (toggleBtn) toggleBtn.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        const glossarySearch = document.getElementById('glossary-search');
+        if (glossarySearch) {
+            glossarySearch.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase().trim();
+                const items = document.querySelectorAll('#glossary-grid .glossary-item');
+                items.forEach(item => {
+                    const text = (item.getAttribute('data-term') || '') + ' ' + item.textContent;
+                    if (text.toLowerCase().includes(q)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // ==========================================
+        // 5 步类图演练数据与控制
+        // ==========================================
+        const classStepsData = [
+            {
+                step: 1,
+                title: "第一步：定义复杂产品 (Product)",
+                role: "核心角色：AgentInstance (最终产出)",
+                concept: "面向对象设计第一步：明确我们要造的“最终产物”是什么。在 AI 系统中，AgentInstance 聚合了模型、记忆、工具与防护层，出厂后保持不可变性。",
+                uml: "三层矩形结构，顶层类名，中层私有属性，底层公开的 run() 业务方法。",
+                analogy: "这就是出厂交付给顾客的纯电动汽车，客户只要握方向盘上路踩油门即可。",
+                nodes: ["node-product"],
+                rels: []
+            },
+            {
+                step: 2,
+                title: "第二步：声明抽象建造者 (Abstract Builder)",
+                role: "核心角色：AgentBuilder (工序契约)",
+                concept: "为避免参数爆炸，提取公共装配接口。规定 reset()、set_llm()、add_tool() 以及 build() 契约，使客户端面向抽象编程。",
+                uml: "使用斜体或 <<interface / abstract>> 构造型标注，所有方法均为纯虚/抽象方法。",
+                analogy: "造车车间的作业标准工序卡，规定造车必须有装引擎、装轮胎、质检验收等环节。",
+                nodes: ["node-product", "node-builder"],
+                rels: []
+            },
+            {
+                step: 3,
+                title: "第三步：实现具体建造者 (Concrete Builder)",
+                role: "核心角色：StandardAgentBuilder (施工工队)",
+                concept: "实现真正的装配施工队。内部维护 _agent 私有实例，各 setter 方法逐步填充零件，并在 build() 时执行完整性核验。",
+                uml: "使用带空心三角形的虚线 (╌╌▷) 指向抽象建造者，表示接口实现关系；向产品引出虚线创建依赖。",
+                analogy: "车间流水线工人班组，严格按照工序卡逐步拧紧每一颗螺丝钉。",
+                nodes: ["node-product", "node-builder", "node-concrete-builder"],
+                rels: ["rel-builder-realize", "rel-builder-product"]
+            },
+            {
+                step: 4,
+                title: "第四步：引入指导者 / 指挥官 (Director)",
+                role: "核心角色：AgentDirector (预设工序指挥)",
+                concept: "为了避免客户端重复编写复杂的零件装配次序，指挥官封装常用预设配方（如 construct_research_agent），内部聚合 Builder 施工。",
+                uml: "使用带空心菱形的实线 (◇──>) 指向抽象建造者，代表弱拥有的聚合关系 (Aggregation)。",
+                analogy: "车间总工长，一声令下指挥工人按照“越野版配方”装配，避免客户自己指手画脚。",
+                nodes: ["node-product", "node-builder", "node-concrete-builder", "node-director"],
+                rels: ["rel-builder-realize", "rel-builder-product", "rel-director-agg"]
+            },
+            {
+                step: 5,
+                title: "第五步：客户端业务调度与全景闭环",
+                role: "核心角色：Client (业务调用端)",
+                concept: "架构大闭环！客户端先实例化具体建造者，再注入指挥官调度，最后调用 build() 验收出厂不可变对象并独立执行 run()！",
+                uml: "客户端指向 Director 与 Builder 的虚线开放箭头代表短期依赖 (Dependency)。",
+                analogy: "客户挑选心仪车型套餐，付清尾款顺利提车开走，建造过程功成身退。",
+                nodes: ["node-product", "node-builder", "node-concrete-builder", "node-director", "node-client"],
+                rels: ["rel-builder-realize", "rel-builder-product", "rel-director-agg", "rel-client-dep"]
+            }
+        ];
+
+        let curClassStepIdx = 1;
+
+        function goToClassStep(step) {
+            curClassStepIdx = step;
+            updateClassStepView();
+        }
+
+        function changeClassStep(delta) {
+            curClassStepIdx = Math.max(1, Math.min(5, curClassStepIdx + delta));
+            updateClassStepView();
+        }
+
+        function updateClassStepView() {
+            const data = classStepsData[curClassStepIdx - 1];
+
+            // 更新 Tabs 样式
+            const tabs = document.querySelectorAll('.class-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curClassStepIdx) {
+                    tab.style.borderColor = '#4f46e5';
+                    tab.style.background = '#eef2ff';
+                    tab.style.color = '#4f46e5';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新按钮状态
+            const prevBtn = document.getElementById('class-prev-btn');
+            const nextBtn = document.getElementById('class-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (curClassStepIdx === 1);
+                prevBtn.style.color = (curClassStepIdx === 1) ? '#94a3b8' : '#1e293b';
+                prevBtn.style.cursor = (curClassStepIdx === 1) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (curClassStepIdx === 5) {
+                    nextBtn.innerText = '从头重温 ↺';
+                    nextBtn.onclick = () => { curClassStepIdx = 0; changeClassStep(1); };
+                } else {
+                    nextBtn.innerText = `下一步：第 ${curClassStepIdx + 1}/5 步 →`;
+                    nextBtn.onclick = () => changeClassStep(1);
+                }
+            }
+
+            // 更新 SVG 元素显隐
+            const allNodes = ["node-product", "node-builder", "node-concrete-builder", "node-director", "node-client"];
+            const allRels = ["rel-builder-realize", "rel-director-agg", "rel-builder-product", "rel-client-dep"];
+
+            allNodes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.opacity = data.nodes.includes(id) ? '1' : '0.15';
+                }
+            });
+
+            allRels.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.opacity = data.rels.includes(id) ? '1' : '0.12';
+                }
+            });
+
+            // 更新联动教学卡片
+            document.getElementById('class-teach-badge').innerText = `Step ${data.step} / 5`;
+            document.getElementById('class-teach-title').innerText = data.title;
+            document.getElementById('class-teach-role').innerText = data.role;
+            document.getElementById('class-teach-concept').innerText = data.concept;
+            document.getElementById('class-teach-uml').innerText = data.uml;
+            document.getElementById('class-teach-analogy').innerText = data.analogy;
+        }
+
+        function switchClassView(view, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.diagram-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById('class-svg-view');
+            const mermaidView = document.getElementById('class-mermaid-view');
+            if (view === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+            }
+        }
+
+        // ==========================================
+        // 7 个 Python 生产级文件数据体系 (两栏 IDE)
+        // ==========================================
+        const pyFilesData = [
+            {
+                step: 'Step 01',
+                title: '定义复杂产品类与不可变保障',
+                path: 'base/agent.py',
+                role: '复杂产品 (Product)',
+                reason: '【开发第一步】：明确制造目标。AgentInstance 封装大模型基座、系统提示词、短期/长期记忆、工具箱和安全护栏，支持出厂冻结与独立运行。',
+                code: `"""
+文件路径: base/agent.py
+角色定位: 复杂产品 (Product)
+职责说明: 封装 AI Agent 执行管线的所有零件，出厂后保持不可变性
+"""
+from typing import Any, Callable
+
+
+class AgentInstance:
+    """
+    复杂产品：AI Agent 执行管线实例
+    
+    【注：这是最终组装出厂的高性能汽车。如果你不理解，你就理解为买好配件后组装完成的主机】
+    """
+    def __init__(self):
+        self.model_name: str | None = None
+        self.temperature: float = 0.2
+        self.system_prompt: str | None = None
+        self.memory: str = "InMemoryShortTerm"
+        self.tools: list[str] = []
+        self.guardrails: list[str] = []
+        self.is_frozen: bool = False  # 出厂不可变锁
+
+    def freeze(self) -> None:
+        """冻结对象，出厂后杜绝任何外部状态篡改"""
+        self.is_frozen = True
+
+    def run(self, task: str) -> str:
+        """
+        Agent 独立执行业务推理闭环
+        
+        :param task: 用户输入的任务指令
+        :return: 智能体推理后的交付结果
+        """
+        if not self.is_frozen:
+            raise RuntimeError("安全拦截：未通过质检出厂的半成品 Agent 禁止运行！")
+        
+        guards_status = ", ".join(self.guardrails) if self.guardrails else "无防护(裸奔)"
+        tools_status = ", ".join(self.tools) if self.tools else "无外部工具"
+
+        return (
+            f"🤖 [Agent 出厂运行]\\n"
+            f"  ↳ 基座模型: {self.model_name} (采样温度: {self.temperature})\\n"
+            f"  ↳ 人格定位: {self.system_prompt}\\n"
+            f"  ↳ 记忆挂载: {self.memory}\\n"
+            f"  ↳ 挂载工具: [{tools_status}]\\n"
+            f"  ↳ 安全防线: [{guards_status}]\\n"
+            f"  ↳ 任务成果: 针对 '{task}' 的推理运算成功完成 (Exit: 0)"
+        )`
+            },
+            {
+                step: 'Step 02',
+                title: '定义抽象建造者接口与工序契约',
+                path: 'base/builder.py',
+                role: '抽象建造者 (Builder)',
+                reason: '【开发第二步】：制定建造工序规范。定义所有具体施工队必须实现的工序方法，并规约 reset() 与 build() 契约。',
+                code: `"""
+文件路径: base/builder.py
+角色定位: 抽象建造者 (Abstract Builder)
+职责说明: 声明各个部件装配的标准抽象方法与出厂终检接口
+"""
+from abc import ABC, abstractmethod
+from typing import Self
+from base.agent import AgentInstance
+
+
+class AgentBuilder(ABC):
+    """
+    抽象建造者接口
+    
+    【注：造车作业标准工序卡。规定了必须包含装引擎、加安全带、质检验收等环节】
+    """
+    @abstractmethod
+    def reset(self) -> None:
+        """清空临时装配台，防止上一次构建的状态污染新对象"""
+        pass
+
+    @abstractmethod
+    def set_llm(self, model: str, temperature: float = 0.2) -> Self:
+        """装配大模型底座与温度参数"""
+        pass
+
+    @abstractmethod
+    def set_system_prompt(self, prompt: str) -> Self:
+        """装配系统人设提示词"""
+        pass
+
+    @abstractmethod
+    def set_memory(self, memory_type: str) -> Self:
+        """装配长短期记忆子系统"""
+        pass
+
+    @abstractmethod
+    def add_tool(self, tool_name: str) -> Self:
+        """逐步挂载外部函数工具"""
+        pass
+
+    @abstractmethod
+    def set_guardrails(self, guard_name: str) -> Self:
+        """挂载输入输出安全防护防线"""
+        pass
+
+    @abstractmethod
+    def build(self) -> AgentInstance:
+        """核心终检验收：校验必选参数，冻结并返回出厂成品"""
+        pass`
+            },
+            {
+                step: 'Step 03',
+                title: '实现具体建造者：标准智能体工坊',
+                path: 'builders/standard_builder.py',
+                role: '具体建造者 (Concrete Builder)',
+                reason: '【开发第三步】：实现标准施工班组。维护内部 _agent 实例，分步实现属性装配，在 build() 时进行核心参数合法性校验。',
+                code: `"""
+文件路径: builders/standard_builder.py
+角色定位: 具体建造者 (Concrete Builder)
+职责说明: 专精于装配通用的业务智能体，在 build() 阶段执行字段终检
+"""
+from typing import Self
+from base.builder import AgentBuilder
+from base.agent import AgentInstance
+
+
+class StandardAgentBuilder(AgentBuilder):
+    """
+    标准智能体建造者：实现通用配置逻辑
+    """
+    def __init__(self):
+        self._agent: AgentInstance | None = None
+        self.reset()
+
+    def reset(self) -> None:
+        """清空上一次遗留的零件，准备全新装配台"""
+        self._agent = AgentInstance()
+
+    def set_llm(self, model: str, temperature: float = 0.2) -> Self:
+        if not (0.0 <= temperature <= 2.0):
+            raise ValueError(f"参数错误：温度系数 {temperature} 超出合法区间 (0.0~2.0)！")
+        self._agent.model_name = model
+        self._agent.temperature = temperature
+        return self
+
+    def set_system_prompt(self, prompt: str) -> Self:
+        self._agent.system_prompt = prompt
+        return self
+
+    def set_memory(self, memory_type: str) -> Self:
+        self._agent.memory = memory_type
+        return self
+
+    def add_tool(self, tool_name: str) -> Self:
+        if tool_name not in self._agent.tools:
+            self._agent.tools.append(tool_name)
+        return self
+
+    def set_guardrails(self, guard_name: str) -> Self:
+        if guard_name not in self._agent.guardrails:
+            self._agent.guardrails.append(guard_name)
+        return self
+
+    def build(self) -> AgentInstance:
+        """【终检时刻】：确保出厂前模型与提示词齐全"""
+        if not self._agent.model_name:
+            raise ValueError("出厂终检失败：未配置 LLM 模型基座，拒绝交付残缺 Agent！")
+        if not self._agent.system_prompt:
+            self._agent.system_prompt = "You are a helpful AI assistant."
+        
+        product = self._agent
+        product.freeze()  # 锁定不可变
+        self.reset()      # 复位工台，防止后续调用污染
+        return product`
+            },
+            {
+                step: 'Step 04',
+                title: '扩展具体建造者：企业高安全沙箱建造者',
+                path: 'builders/secure_builder.py',
+                role: '具体建造者 (Concrete Builder)',
+                reason: '【开发第四步】：OCP 扩展具体类！实现涉密隔离型建造者，强制注入沙箱环境与双向防护拦截器，不满足安全规范拒绝出厂。',
+                code: `"""
+文件路径: builders/secure_builder.py
+角色定位: 具体建造者 (Concrete Builder)
+职责说明: 面向金融涉密场景，强制注入严格安全审计与 Docker 隔离沙箱
+"""
+from typing import Self
+from base.builder import AgentBuilder
+from base.agent import AgentInstance
+
+
+class SecureAgentBuilder(AgentBuilder):
+    """
+    企业级涉密安全建造者
+    """
+    def __init__(self):
+        self._agent: AgentInstance | None = None
+        self.reset()
+
+    def reset(self) -> None:
+        self._agent = AgentInstance()
+        # 安全建造者默认标配两道安全防线
+        self._agent.guardrails = ["PII_Masker", "PromptInjectionDetector"]
+
+    def set_llm(self, model: str, temperature: float = 0.0) -> Self:
+        # 安全场景强制限定受控模型列表
+        approved_models = ["claude-3-7-sonnet", "gpt-4o", "deepseek-r1"]
+        if model not in approved_models:
+            raise PermissionError(f"安全合规拦截：模型 '{model}' 未通过企业合规安全审计！")
+        self._agent.model_name = model
+        self._agent.temperature = min(temperature, 0.2)  # 严格限制低温发散
+        return self
+
+    def set_system_prompt(self, prompt: str) -> Self:
+        self._agent.system_prompt = f"[SECURE ENTERPRISE POLICY ENFORCED] {prompt}"
+        return self
+
+    def set_memory(self, memory_type: str) -> Self:
+        self._agent.memory = f"Encrypted_{memory_type}"
+        return self
+
+    def add_tool(self, tool_name: str) -> Self:
+        # 强制增加安全沙箱前缀
+        safe_tool = f"Sandbox隔离_{tool_name}"
+        if safe_tool not in self._agent.tools:
+            self._agent.tools.append(safe_tool)
+        return self
+
+    def set_guardrails(self, guard_name: str) -> Self:
+        if guard_name not in self._agent.guardrails:
+            self._agent.guardrails.append(guard_name)
+        return self
+
+    def build(self) -> AgentInstance:
+        # 涉密终检：必须挂载至少一个沙箱隔离工具
+        if not self._agent.tools:
+            raise ValueError("涉密终检失败：高安全 Agent 必须至少挂载一个沙箱隔离工具！")
+        product = self._agent
+        product.freeze()
+        self.reset()
+        return product`
+            },
+            {
+                step: 'Step 05',
+                title: '实现指挥官：固化常用标准装配流水线',
+                path: 'directors/director.py',
+                role: '指导者 / 指挥官 (Director)',
+                reason: '【开发第五步】：封装经典配方。AgentDirector 聚合抽象建造者，提供开箱即用的标准科研 Agent 与代码审计 Agent 配方。',
+                code: `"""
+文件路径: directors/director.py
+角色定位: 指导者 / 指挥官 (Director)
+职责说明: 聚合 AgentBuilder 接口，固化常用的业务装配配方
+"""
+from base.builder import AgentBuilder
+from base.agent import AgentInstance
+
+
+class AgentDirector:
+    """
+    组装指挥官：负责按特定次序调度建造者
+    
+    【注：总指挥手里拿着标准配方。你把工人交给他，他帮你指挥工人按部就班组装】
+    """
+    def __init__(self, builder: AgentBuilder):
+        self._builder = builder
+
+    def change_builder(self, builder: AgentBuilder) -> None:
+        """动态替换施工队"""
+        self._builder = builder
+
+    def construct_research_agent(self, model: str = "claude-3-7-sonnet") -> AgentInstance:
+        """配方 1：装配深度科研检索 Agent"""
+        print("[Director] 👨‍✈️ 指挥官调度装配：深度科研 Agent 配方...")
+        return (
+            self._builder
+            .set_llm(model, temperature=0.1)
+            .set_system_prompt("你是一名严谨的科研文献综述专家，禁止胡说八道。")
+            .set_memory("VectorStore_RAG")
+            .add_tool("ArxivPaperFetcher")
+            .add_tool("WebSearchEngine")
+            .set_guardrails("CitationVerifier")
+            .build()
+        )
+
+    def construct_code_audit_agent(self, model: str = "claude-3-7-sonnet") -> AgentInstance:
+        """配方 2：装配代码安全审计 Agent"""
+        print("[Director] 👨‍✈️ 指挥官调度装配：代码安全审计 Agent 配方...")
+        return (
+            self._builder
+            .set_llm(model, temperature=0.0)
+            .set_system_prompt("你是一名顶级代码审计专家，专注静态漏洞检测与沙箱复现。")
+            .set_memory("SlidingWindowBuffer")
+            .add_tool("DockerCodeRunner")
+            .add_tool("AST_SyntaxAnalyzer")
+            .build()
+        )`
+            },
+            {
+                step: 'Step 06',
+                title: '现代链式进阶：Fluent API 与防御性终检',
+                path: 'fluent/fluent_builder.py',
+                role: '现代链式建造者 (Fluent Builder)',
+                reason: '【开发第六步】：当产品无需固定 Director，或客户端需要高度个性化时，使用 Fluent API 支持顺畅链式调用与即时校验。',
+                code: `"""
+文件路径: fluent/fluent_builder.py
+角色定位: 现代流式建造者 (Fluent Builder)
+职责说明: 支持链式调用 (Fluent Interface)，省去 Director，由客户端自由组合
+"""
+from typing import Self
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class FluentImmutableAgent:
+    """终极不可变产品：出厂后任何属性均不可篡改"""
+    name: str
+    model: str
+    temperature: float
+    system_prompt: str
+    tools: tuple[str, ...]
+    guardrails: tuple[str, ...]
+
+    def execute(self, prompt: str) -> str:
+        return (
+            f"🧊 [不可变 Agent: {self.name} 执行成果]\\n"
+            f"  ↳ 基座: {self.model} (T={self.temperature}) | 挂载工具数: {len(self.tools)}\\n"
+            f"  ↳ 提示词安全校验: 通过 | 输出: 成功响应 '{prompt}'"
+        )
+
+
+class FluentAgentBuilder:
+    """现代流式建造者：每个方法返回 self，支持流畅点号链式调用"""
+    def __init__(self, agent_name: str = "FluentAgent"):
+        self._name = agent_name
+        self._model: str | None = None
+        self._temperature: float = 0.2
+        self._prompt: str = "You are a helpful assistant."
+        self._tools: list[str] = []
+        self._guards: list[str] = []
+
+    def with_model(self, model: str, temp: float = 0.2) -> Self:
+        self._model = model
+        self._temperature = temp
+        return self
+
+    def with_prompt(self, prompt: str) -> Self:
+        self._prompt = prompt
+        return self
+
+    def with_tool(self, tool: str) -> Self:
+        if tool not in self._tools:
+            self._tools.append(tool)
+        return self
+
+    def with_safe_guard(self, guard: str) -> Self:
+        if guard not in self._guards:
+            self._guards.append(guard)
+        return self
+
+    def build(self) -> FluentImmutableAgent:
+        if not self._model:
+            raise ValueError("构建被阻断：未指定 LLM 基座模型！")
+        
+        # 冻结转化为不可变元组
+        return FluentImmutableAgent(
+            name=self._name,
+            model=self._model,
+            temperature=self._temperature,
+            system_prompt=self._prompt,
+            tools=tuple(self._tools),
+            guardrails=tuple(self._guards)
+        )`
+            },
+            {
+                step: 'Step 07',
+                title: '客户端业务调度中心与全景运行验证',
+                path: 'main.py',
+                role: '业务入口与验证客户端 (Client Entry)',
+                reason: '【开发第七步·最终组装】：整合所有模块，演示经典 Director 调度模式与现代 Fluent 链式模式的完整运行！',
+                code: `"""
+文件路径: main.py
+角色定位: 业务客户端入口 (Client Orchestrator)
+职责说明: 演示经典 Director 调度与现代 Fluent API 链式组装双流派运行
+"""
+from base.builder import AgentBuilder
+from builders.standard_builder import StandardAgentBuilder
+from builders.secure_builder import SecureAgentBuilder
+from directors.director import AgentDirector
+from fluent.fluent_builder import FluentAgentBuilder
+
+
+def run_director_workflow():
+    print("==================================================")
+    print("🎯 [流派一]：经典 GoF 建造者模式 (通过 Director 组装)")
+    print("==================================================")
+
+    # 1. 客户端创建具体建造者并托付给指挥官
+    std_builder = StandardAgentBuilder()
+    director = AgentDirector(std_builder)
+
+    # 2. 指挥官装配科研 Agent
+    research_agent = director.construct_research_agent()
+    print(research_agent.run("调研 2026 年多模态推理模型架构演进"))
+    print()
+
+    # 3. 切换为高安全建造者，装配代码审计 Agent
+    sec_builder = SecureAgentBuilder()
+    director.change_builder(sec_builder)
+    audit_agent = director.construct_code_audit_agent()
+    print(audit_agent.run("扫描支付网关模块 SQL 注入与未授权访问漏洞"))
+    print()
+
+
+def run_fluent_workflow():
+    print("==================================================")
+    print("🚀 [流派二]：现代 Fluent API 链式建造者 (自由装配)")
+    print("==================================================")
+
+    # 客户端无需 Director，直接流畅链式自定义
+    agent = (
+        FluentAgentBuilder("DevSecOps_Agent")
+        .with_model("deepseek-r1", temp=0.0)
+        .with_prompt("你是发布前的自动化安全卫士")
+        .with_tool("CodeDependencyScanner")
+        .with_tool("GitSecretDetector")
+        .with_safe_guard("PromptInjectionDefense")
+        .build()
+    )
+    print(agent.execute("对 release-v2.6 分支执行出厂扫描"))
+    print()
+
+
+if __name__ == "__main__":
+    print("🎯 === AI Agent 执行管线建造者模式生产环境启动 ===\\n")
+    run_director_workflow()
+    run_fluent_workflow()
+    print("✨ 所有装配流水线运行验证通过 (Process Exit Code: 0)")`
+            }
+        ];
+
+        let curPyFileIdx = 0;
+
+        function toggleHtmlFolder(folderId) {
+            const content = document.getElementById('folder-content-' + folderId);
+            const icon = document.getElementById('folder-icon-' + folderId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.innerText = '📂';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.innerText = '📁';
+            }
+        }
+
+        function changePyFileStep(delta) {
+            let nextIdx = curPyFileIdx + delta;
+            if (nextIdx >= pyFilesData.length) {
+                nextIdx = 0;
+            } else if (nextIdx < 0) {
+                nextIdx = 0;
+            }
+            switchPyFile(nextIdx);
+        }
+
+        function switchPyFile(idx, el) {
+            if (idx < 0 || idx >= pyFilesData.length) return;
+            curPyFileIdx = idx;
+            const files = document.querySelectorAll('#py-tree-container .py-tree-file');
+            files.forEach(f => {
+                const fileIdx = parseInt(f.getAttribute('data-file-idx') !== null ? f.getAttribute('data-file-idx') : '-1', 10);
+                const badge = f.querySelector('.py-step-tag');
+                if (fileIdx < 0 || !pyFilesData[fileIdx]) return;
+
+                const fileStepData = pyFilesData[fileIdx];
+
+                if (fileIdx === idx) {
+                    f.classList.add('active');
+                    f.style.background = '#eef2ff';
+                    f.style.borderLeft = '3px solid #4f46e5';
+                    f.style.color = '#312e81';
+                    f.style.fontWeight = '700';
+                    if (badge) {
+                        badge.style.background = '#4f46e5';
+                        badge.style.color = '#ffffff';
+                        badge.innerText = fileStepData.step;
+                    }
+
+                    // 自动展开所在文件夹（若被用户折叠）
+                    const folderContent = f.closest('[id^="folder-content-"]');
+                    if (folderContent && folderContent.style.display === 'none') {
+                        folderContent.style.display = 'block';
+                        const folderKey = folderContent.id.replace('folder-content-', '');
+                        const icon = document.getElementById('folder-icon-' + folderKey);
+                        if (icon) icon.innerText = '📂';
+                    }
+                } else if (fileIdx < idx) {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#334155';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#dcfce7';
+                        badge.style.color = '#166534';
+                        badge.innerText = '✓ ' + fileStepData.step;
+                    }
+                } else {
+                    f.classList.remove('active');
+                    f.style.background = 'transparent';
+                    f.style.borderLeft = '3px solid transparent';
+                    f.style.color = '#64748b';
+                    f.style.fontWeight = '500';
+                    if (badge) {
+                        badge.style.background = '#f1f5f9';
+                        badge.style.color = '#64748b';
+                        badge.innerText = fileStepData.step;
+                    }
+                }
+            });
+
+            const item = pyFilesData[idx];
+            document.getElementById('py-file-badge').innerText = item.step;
+            document.getElementById('py-file-title').innerText = item.title;
+            document.getElementById('py-file-role').innerText = item.role;
+            document.getElementById('py-file-reason').innerText = item.reason;
+            document.getElementById('py-breadcrumb-path').innerHTML = `agent_pipeline / ${item.path.includes('/') ? item.path.split('/')[0] + ' / ' : ''}<strong>${item.path.split('/').pop()}</strong>`;
+            
+            const stepCurNum = document.getElementById('py-step-cur-num');
+            if (stepCurNum) stepCurNum.innerText = (idx + 1);
+
+            const progressBar = document.getElementById('py-step-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${((idx + 1) / pyFilesData.length) * 100}%`;
+            }
+
+            // 更新上一步/下一步按钮
+            const prevBtn = document.getElementById('py-prev-btn');
+            const nextBtn = document.getElementById('py-next-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.color = (idx === 0) ? '#cbd5e1' : '#334155';
+                prevBtn.style.cursor = (idx === 0) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (idx === pyFilesData.length - 1) {
+                    nextBtn.innerText = '从头重温 ↺';
+                } else {
+                    nextBtn.innerText = `下一步：第 ${idx + 2}/7 步 →`;
+                }
+            }
+
+            const codeEl = document.getElementById('py-file-code-block');
+            delete codeEl.dataset.highlighted;
+            codeEl.className = 'language-python hljs';
+            codeEl.textContent = item.code;
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightElement(codeEl);
+            }
+        }
+
+        function copyCode(btn) {
+            const item = pyFilesData[curPyFileIdx];
+            navigator.clipboard.writeText(item.code).then(() => {
+                const oldText = btn.innerText;
+                btn.innerText = '✓ 已复制';
+                btn.style.borderColor = '#059669';
+                btn.style.color = '#059669';
+                setTimeout(() => {
+                    btn.innerText = oldText;
+                    btn.style.borderColor = 'var(--border-light)';
+                    btn.style.color = 'var(--text-secondary)';
+                }, 2000);
+            });
+        }
+
+        function runHtmlTerminal() {
+            const logBox = document.getElementById('html-terminal-logs');
+            logBox.innerHTML = '<div style="color:#38bdf8;">$ python main.py</div><div style="color:#f8fafc;">🎯 === AI Agent 执行管线建造者模式生产环境启动 ===</div>';
+            
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">==================================================</div>
+<div style="color:#e2e8f0;">🎯 [流派一]：经典 GoF 建造者模式 (通过 Director 组装)</div>
+<div style="color:#fbbf24;">[Director] 👨‍✈️ 指挥官调度装配：深度科研 Agent 配方...</div>
+<div style="color:#4ade80;">🤖 [Agent 出厂运行]</div>
+<div style="color:#cbd5e1;">  ↳ 基座模型: claude-3-7-sonnet (采样温度: 0.1)</div>
+<div style="color:#cbd5e1;">  ↳ 人格定位: 你是一名严谨的科研文献综述专家，禁止胡说八道。</div>
+<div style="color:#cbd5e1;">  ↳ 挂载工具: [ArxivPaperFetcher, WebSearchEngine]</div>
+<div style="color:#cbd5e1;">  ↳ 安全防线: [CitationVerifier]</div>
+<div style="color:#38bdf8;">  ↳ 任务成果: 针对 '调研 2026 年多模态推理模型架构演进' 的推理运算成功完成 (Exit: 0)</div>
+`;
+            }, 350);
+
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#fbbf24;">[Director] 👨‍✈️ 指挥官调度装配：代码安全审计 Agent 配方...</div>
+<div style="color:#4ade80;">🤖 [Agent 出厂运行]</div>
+<div style="color:#cbd5e1;">  ↳ 基座模型: claude-3-7-sonnet (采样温度: 0.0)</div>
+<div style="color:#cbd5e1;">  ↳ 挂载工具: [Sandbox隔离_DockerCodeRunner, Sandbox隔离_AST_SyntaxAnalyzer]</div>
+<div style="color:#cbd5e1;">  ↳ 安全防线: [PII_Masker, PromptInjectionDetector]</div>
+<div style="color:#38bdf8;">  ↳ 任务成果: 针对 '扫描支付网关模块 SQL 注入' 的检测闭环完成 (Exit: 0)</div>
+`;
+            }, 750);
+
+            setTimeout(() => {
+                logBox.innerHTML += `
+<div style="color:#94a3b8;">==================================================</div>
+<div style="color:#e2e8f0;">🚀 [流派二]：现代 Fluent API 链式建造者 (自由装配)</div>
+<div style="color:#a78bfa;">🧊 [不可变 Agent: DevSecOps_Agent 执行成果]</div>
+<div style="color:#cbd5e1;">  ↳ 基座: deepseek-r1 (T=0.0) | 挂载工具数: 2</div>
+<div style="color:#4ade80;">  ↳ 提示词安全校验: 通过 | 输出: 针对 '对 release-v2.6 分支执行出厂扫描' 成功响应</div>
+<div style="color:#38bdf8;">✨ 所有装配流水线运行验证通过 (Process Exit Code: 0)</div>
+`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }, 1100);
+        }
+
+        // ==========================================
+        // 7 步时序图数据与控制
+        // ==========================================
+        const seqStepsData = [
+            {
+                step: 1,
+                title: '客户端指派建造任务',
+                flow: 'Client ➔ Director',
+                action: 'director.construct_secure_agent(builder)',
+                point: '客户端先实例化具体建造者，并作为参数托付给指挥官，面向抽象 Director/Builder 编程。',
+                mechanism: '依赖注入 (Dependency Injection)：Director 通过聚合持有抽象建造者引用，两者解耦独立演化。',
+                uml: '实线实心三角箭头 (->>)：表示同步方法调用，调用方发出指令后等待下一步处理。'
+            },
+            {
+                step: 2,
+                title: '清空上一次残留装配状态',
+                flow: 'Director ➔ Builder',
+                action: 'builder.reset()',
+                point: '彻底杜绝“状态污染反模式”！同一个 Builder 复用时，必须首先创建全新的空白产品实例。',
+                mechanism: '将内部 _agent 指针重新指向一个全新未配置对象，清空内部工具列表与状态字典。',
+                uml: '同步消息调用，Builder 生命线进入装配激活阶段 (Activation Bar)。'
+            },
+            {
+                step: 3,
+                title: '指挥官逐步装配模型与提示词',
+                flow: 'Director ➔ Builder',
+                action: 'builder.set_llm("claude-3-7").set_system_prompt(...)',
+                point: '建造者模式核心：分步组装。模型选型与温度系数在此阶段精细注入。',
+                mechanism: 'Builder 将参数存入正在组装的产品内部，每个方法各司其职，避免参数错位。',
+                uml: '细粒度同步消息序列，每个消息对应 Builder 接口的一个抽象方法。'
+            },
+            {
+                step: 4,
+                title: '组装外部工具集与输入输出防御层',
+                flow: 'Director ➔ Builder',
+                action: 'builder.add_tool(Sandbox).set_guardrails(...)',
+                point: '复杂产品的特有部件在此步有序挂载，无需在构造函数里塞数十个无意义的 None。',
+                mechanism: '工具逐步加入列表，安全防护层完成初始化并绑定到产品身上。',
+                uml: '连续同步调用，激活条持续保持，展示多部件精细组合过程。'
+            },
+            {
+                step: 5,
+                title: '客户端发起提车出厂终检',
+                flow: 'Client ➔ Builder',
+                action: 'agent = builder.build()',
+                point: '终检时刻！所有分散的装配步骤在这里汇总，统一执行字段完整性校验和安全合规检查。',
+                mechanism: '若校验通过，将内部产品状态设为不可变 (冻结)，并返回给调用者；校验失败则拒绝生成。',
+                uml: '同步调用与虚线返回箭头，对象的所有权正式交接。'
+            },
+            {
+                step: 6,
+                title: '建造者交付完工出厂的产品',
+                flow: 'Builder ➔ Client',
+                action: 'return AgentInstance (Frozen & Immutable)',
+                point: '此时交付给客户端的是完备、健壮、不可篡改的高性能对象。',
+                mechanism: '建造者完成使命，客户端成功获得出厂产品句柄，整个装配流水线顺利闭环。',
+                uml: '虚线带开放箭头 (-->>)：代表返回消息 (Reply Message)，建造者激活状态复位。'
+            },
+            {
+                step: 7,
+                title: '复杂产品自主运行业务逻辑',
+                flow: 'Client ➔ AgentInstance',
+                action: 'agent.run("执行自动化代码审计")',
+                point: '建造过程与业务执行彻底分离！Director 和 Builder 不参与 Agent 的实际业务运行。',
+                mechanism: 'AgentInstance 内部各零部件各司其职，在闭环环境中完成推理与安全输出。',
+                uml: '产品实例激活条点亮，展示对象的真实生命周期运作。'
+            }
+        ];
+
+        let curStepIdx = 1;
+
+        function goToStep(step) {
+            curStepIdx = step;
+            updateStepView();
+        }
+
+        function changeStep(delta) {
+            curStepIdx = Math.max(1, Math.min(7, curStepIdx + delta));
+            updateStepView();
+        }
+
+        function updateStepView() {
+            const data = seqStepsData[curStepIdx - 1];
+
+            // 更新顶部 7 步 tabs
+            const tabs = document.querySelectorAll('.seq-step-tab-btn');
+            tabs.forEach((tab, idx) => {
+                if (idx + 1 === curStepIdx) {
+                    tab.style.borderColor = '#4f46e5';
+                    tab.style.background = '#eef2ff';
+                    tab.style.color = '#4f46e5';
+                    tab.style.fontWeight = '700';
+                } else {
+                    tab.style.borderColor = '#e2e8f0';
+                    tab.style.background = '#ffffff';
+                    tab.style.color = '#64748b';
+                    tab.style.fontWeight = '600';
+                }
+            });
+
+            // 更新连线高亮透明度
+            for (let i = 1; i <= 7; i++) {
+                const msgGroup = document.getElementById(`seq-msg-${i}`);
+                if (msgGroup) {
+                    msgGroup.style.opacity = (i === curStepIdx) ? '1' : '0.22';
+                }
+            }
+
+            // 更新按钮状态
+            const prevBtn = document.getElementById('prev-step-btn');
+            const nextBtn = document.getElementById('next-step-btn');
+            if (prevBtn) {
+                prevBtn.disabled = (curStepIdx === 1);
+                prevBtn.style.color = (curStepIdx === 1) ? '#94a3b8' : '#1e293b';
+                prevBtn.style.cursor = (curStepIdx === 1) ? 'not-allowed' : 'pointer';
+            }
+            if (nextBtn) {
+                if (curStepIdx === 7) {
+                    nextBtn.innerText = '从头重温 ↺';
+                    nextBtn.onclick = () => { curStepIdx = 0; changeStep(1); };
+                } else {
+                    nextBtn.innerText = `下一步：第 ${curStepIdx + 1}/7 步 →`;
+                    nextBtn.onclick = () => changeStep(1);
+                }
+            }
+
+            // 更新教学卡片
+            document.getElementById('teach-badge').innerText = `Step ${data.step} / 7`;
+            document.getElementById('teach-title').innerText = data.title;
+            document.getElementById('teach-flow').innerText = data.flow;
+            document.getElementById('teach-action').innerText = data.action;
+            document.getElementById('teach-point').innerText = data.point;
+            document.getElementById('teach-mechanism').innerText = data.mechanism;
+            document.getElementById('teach-uml').innerText = data.uml;
+        }
+
+        function switchDiagramView(prefix, view, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.diagram-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const svgView = document.getElementById(`${prefix}-svg-view`);
+            const mermaidView = document.getElementById(`${prefix}-mermaid-view`);
+            if (view === 'svg') {
+                svgView.style.display = 'block';
+                mermaidView.style.display = 'none';
+            } else {
+                svgView.style.display = 'none';
+                mermaidView.style.display = 'block';
+            }
+        }
+
+        // 键盘左右方向键导航时序图
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                if (curStepIdx < 7) changeStep(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (curStepIdx > 1) changeStep(-1);
+            }
+        });
+
+        // ==========================================
+        // 知识巩固与闯关自测 (带 Confetti 彩带)
+        // ==========================================
+        const quizFeedbackMap = {
+            1: {
+                correct: "🎉 回答正确！在 UML 类图中，实线 + 空心菱形代表聚合关系 (Aggregation)，表示 Director 聚合了 Builder，Director 拥有 Builder，但 Builder 离开 Director 依然可以独立工作。",
+                wrong: "💡 差点就对啦！注意观察：空心菱形代表弱拥有的聚合关系 (Aggregation)；实心菱形才代表生死与共的组合关系 (Composition)。"
+            },
+            2: {
+                correct: "🎉 回答正确！伸缩构造器会产生严重的参数爆炸，随着属性增多，极易出现位置错位，且调用者不得不塞入大量无意义的 None 或默认值。",
+                wrong: "💡 差点就对啦！伸缩构造器之所以是反模式，核心在于多参数造成的代码可读性极差与调用极易填错位。"
+            },
+            3: {
+                correct: "🎉 回答正确！建造者模式的最佳实践是在最后的 build() 终检环节统一进行完整性校验，校验合格才交付给客户端，避免半成品对象流向生产环境。",
+                wrong: "💡 差点就对啦！如果在各个 setter 中提前报错，会破坏配置的独立性；在 build() 中统一终检验收是建造者模式的标准规范。"
+            },
+            4: {
+                correct: "🎉 回答正确！工厂方法模式侧重于按多态规则一步到位创建单一完整产品；而建造者模式侧重于精细化、多步骤地组装具有复杂部件的对象。",
+                wrong: "💡 差点就对啦！工厂方法关注的是“谁来生产”，结果是一步到位的；建造者关注的是“生产过程的步骤细节”。"
+            }
+        };
+
+        function checkQuiz(quizNum, optionIdx, isCorrect) {
+            const card = document.getElementById(`quiz-${quizNum}`);
+            const feedback = document.getElementById(`feedback-${quizNum}`);
+            const buttons = card.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach((b, idx) => {
+                b.classList.remove('correct', 'wrong');
+                if (idx === optionIdx) {
+                    b.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+            });
+
+            feedback.style.display = 'block';
+            if (isCorrect) {
+                feedback.style.background = '#ecfdf5';
+                feedback.style.color = '#065f46';
+                feedback.style.border = '1px solid #a7f3d0';
+                feedback.innerHTML = quizFeedbackMap[quizNum].correct;
+
+                // 触发庆祝彩花特效
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 60,
+                        spread: 60,
+                        origin: { y: 0.8 }
+                    });
+                }
+            } else {
+                feedback.style.background = '#fff1f2';
+                feedback.style.color = '#9f1239';
+                feedback.style.border = '1px solid #fecdd3';
+                feedback.innerHTML = quizFeedbackMap[quizNum].wrong;
+            }
+        }
+
+        // ==========================================
+        // 页面初始化
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ startOnLoad: true, theme: 'default' });
+            }
+            switchPyFile(0);
+            updateClassStepView();
+            updateStepView();
+        });
+    </script>
+</body>
+</html>
